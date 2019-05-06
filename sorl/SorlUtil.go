@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -105,4 +106,24 @@ func chkDir(pathName string) bool {
 	}
 
 	return true
+}
+
+func chkFileOrDir(pathName string) (bool, error) {
+
+	fi, err := os.Stat(pathName)
+
+	if err != nil {
+		return false, err
+	}
+
+	switch fdMode := fi.Mode(); {
+
+	case fdMode.IsDir():
+		return true, nil
+	case fdMode.IsRegular():
+		return false, nil
+
+	}
+
+	return false, errors.New("Type Not Available")
 }

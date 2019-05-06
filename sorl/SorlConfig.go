@@ -52,7 +52,7 @@ func (scProp SorlConfigProperty) printSection(matchStr, dispStr string) {
 	for key, val := range scProp {
 		if strings.HasPrefix(key, matchStr) {
 
-			fmt.Printf("\n%s=%s", dispStr, key)
+			fmt.Printf("\n\n%s=%s", dispStr, key)
 			for k, v := range val {
 				fmt.Printf("\n\t%s=%s", k, v)
 
@@ -67,15 +67,16 @@ func (scProp SorlConfigProperty) printConfig() {
 	fmt.Println("\t\tConfiguration Details")
 	fmt.Println("\n" + strings.Repeat("=", cnt))
 	scProp.printSection("ag:", "AllGroups")
-	fmt.Println("\n")
+	//fmt.Println("\n")
 
 	scProp.printSection("sg:", "SuperGroups")
-	fmt.Println("\n")
+	//fmt.Println("\n")
 
 	scProp.printSection("g:", "GroupName")
-	fmt.Println("\n")
+	//fmt.Println("\n")
 
 	scProp.printSection("h:", "HostName")
+
 	fmt.Println("\n" + strings.Repeat("=", cnt))
 	fmt.Println("\n")
 }
@@ -89,7 +90,19 @@ func (scProp SorlConfigProperty) readConfig(configFile string) {
 	hostName := ""
 	groupName := ""
 	allGroups := ""
-	var sConfig, grpConfig SorlConfig
+	var sConfig, grpConfig, allHostNames, allGroup2Hosts SorlConfig
+
+	allHostNames = SorlConfig{}
+	if val, ok := scProp["all.hosts"]; ok {
+		allHostNames = val
+	}
+	scProp["all.hosts"] = allHostNames
+
+	allGroup2Hosts = SorlConfig{}
+	if val, ok := scProp["group.hosts"]; ok {
+		allGroup2Hosts = val
+	}
+	scProp["group.hosts"] = allGroup2Hosts
 
 	for _, line := range lines {
 
@@ -105,10 +118,30 @@ func (scProp SorlConfigProperty) readConfig(configFile string) {
 			if strings.HasPrefix(line, "sorl_host_name=") {
 				hostName = tagVal
 				sConfig = SorlConfig{}
+				allHostNames[hostName] = "NA"
+				scProp["all.hosts"] = allHostNames
+
 			}
 
 			sConfig[tagKey] = tagVal
 			scProp["h:"+hostName] = sConfig
+
+			if strings.HasPrefix(line, "sorl_host_group=") {
+
+				mapKV := scProp["group.hosts"]
+				for _, grp := range strings.Split(tagVal, ",") {
+					if mVal, ok := mapKV[grp]; ok {
+						mVal = mVal + "," + hostName
+						mapKV[grp] = mVal
+						scProp["group.hosts"] = mapKV
+					} else {
+						mapKV[grp] = hostName
+						scProp["group.hosts"] = mapKV
+					}
+
+				}
+
+			}
 
 			//fmt.Println(sConfig)
 
@@ -134,12 +167,12 @@ func (scProp SorlConfigProperty) readConfig(configFile string) {
 
 		}
 
-		if strings.HasPrefix(line, "sorl_group") {
+		if strings.HasPrefix(line, "sorl_group_") {
 			idx := strings.Index(line, "=")
 			tagKey := line[:idx]
 			tagVal := strings.TrimSpace(line[idx+1:])
 
-			if strings.HasPrefix(line, "sorl_group_name=") {
+			if strings.HasPrefix(line, "sorl_group_super_name=") {
 				groupName = tagVal
 				sConfig = SorlConfig{}
 			}

@@ -1,0 +1,65 @@
+#SORL: Solution ORchestration Language
+
+sorl_all_groups=g1,g2,g3,g5,g6,dv
+
+sorl_group_super_name= esm
+sorl_group_sub=g1,g5,g7
+
+sorl_group_super_name=devops
+sorl_group_sub=dv1,dv5,dv10
+
+sorl_group_super_name=docker
+sorl_group_sub=dk1,dk2
+
+sorl_shell_cmd=uname -a
+sorl_exec_cmd=date
+
+
+
+sorl_host_name=one1
+sorl_host_ip=10.1.0.1
+sorl_host_user=user1
+sorl_host_user_pass=enc(B1234asd*&&^%)
+sorl_host_ssh_keys=yes/no *** default to no ***
+sorl_host_ssh_keys_file=     *** if ssh keys yes then look for file ***
+sorl_host_ssh_pass_less=yes/no  *** default to no ***
+sorl_host_group=g1,g6
+
+sorl_host_name=dock1
+sorl_host_ip=149.24.204.111
+sorl_host_user=root
+sorl_host_user_pass=u_pick_it
+sorl_host_ssh_keys=no
+sorl_host_ssh_keys_file=
+sorl_host_ssh_pass_less=no
+sorl_host_group=dk1,g1
+
+
+
+sorl_host_name=two22
+sorl_host_ip=10.1.0.22
+sorl_host_user=user22
+sorl_host_user_pass=
+sorl_host_group=g4,g2,g1
+sorl_host_ssh_port=2222
+sorl_host_misc_info=Misc text for hello Sorl: Solution Orchestration Language
+
+
+
+sorl_host_name=  three333
+sorl_host_ip=10.1.0.333
+sorl_host_user=user333
+sorl_host_group=g1
+
+sorl_host_name=          four4444
+sorl_host_ip=10.1.0.444
+sorl_host_group=g1
+sorl_host_user=user444
+
+
+sorl_host_name=555five
+sorl_host_group=g555
+sorl_host_ip=10.1.0.555
+sorl_host_user=user5
+sorl_host_new_text=This is used for host name informations.
+sorl_host_ssh_port=2255

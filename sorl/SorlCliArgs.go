@@ -49,6 +49,7 @@ func getCliArgs() map[string]string {
 	maxGoPtr := flag.Int("max", 10, "Maximum Parallel Go Routines")
 	dryRunPtr := flag.Bool("dryrun", false, "Dry Run")
 	hostNamePtr := flag.String("host", "", "Host Name")
+	configFilePtr := flag.String("config", "", "Config File Path")
 
 	flag.Parse()
 	/*
@@ -66,6 +67,7 @@ func getCliArgs() map[string]string {
 		cliArgs["dryrun"] = "true"
 	}
 	cliArgs["host"] = string(*hostNamePtr)
+	cliArgs["config"] = string(*configFilePtr)
 
 	return cliArgs
 
