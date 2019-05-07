@@ -1,2 +1,2 @@
 # goSorl
-Golangs SoRL : Solution ORchestration Language 
+Golangs SORL : Solution ORchestration Language 
