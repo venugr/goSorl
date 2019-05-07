@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+func sorlLoadGlobalVars(homePath string, svMap *SorlMap) error {
+
+	sorlDefaultVarFile := homePath + PathSep + ".sorl" + PathSep + "vars.sorl"
+	return readVarsFile(sorlDefaultVarFile, svMap)
+
+}
+
 func readVarsFile(fileName string, svMap *SorlMap) error {
 
 	fileOrDir, err := chkFileOrDir(fileName)
@@ -15,7 +22,7 @@ func readVarsFile(fileName string, svMap *SorlMap) error {
 	}
 
 	if fileOrDir {
-		fileName = fileName + "/" + "vars.sorl"
+		fileName = fileName + PathSep + "vars.sorl"
 	}
 
 	if !chkDir(fileName) {
