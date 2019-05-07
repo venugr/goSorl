@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-type SorlMap map[string]string
-
 func main() {
 
 	fmt.Println()

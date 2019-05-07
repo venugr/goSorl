@@ -18,9 +18,6 @@ type SorlConfigOld struct {
 }
 */
 
-type SorlConfig map[string]string
-type SorlConfigProperty map[string]SorlConfig
-
 /*
 func main() {
 
