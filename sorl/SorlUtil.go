@@ -17,11 +17,11 @@ const (
 type Property map[string]string
 
 // PrintList
-func PrintList(list []string) {
+func PrintList(title string, list []string) {
 
 	fmt.Println()
 	fmt.Println("\n" + strings.Repeat("=", cnt))
-	fmt.Println("                    LIST/DATA")
+	fmt.Printf("                    %s\n", title)
 	fmt.Println(strings.Repeat("=", cnt))
 
 	for i, str := range list {
@@ -33,7 +33,11 @@ func PrintList(list []string) {
 
 }
 
-func PrintProperties(prop Property) {
+func printMap(title string, myMap SorlMap) {
+	PrintProperties(title, Property(myMap))
+}
+
+func PrintProperties(title string, prop Property) {
 
 	keys := make([]string, 0, len(prop))
 
@@ -44,7 +48,7 @@ func PrintProperties(prop Property) {
 	sort.Strings(keys)
 	fmt.Println()
 	fmt.Println("\n" + strings.Repeat("=", cnt))
-	fmt.Println("                    PROPERTIES")
+	fmt.Printf("                    %s\n", title)
 	fmt.Println(strings.Repeat("=", cnt))
 
 	for i, ky := range keys {

@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+type SorlMap map[string]string
+
 func main() {
 
 	fmt.Println()
@@ -17,20 +19,37 @@ func main() {
 	fmt.Println(envMap)
 
 	homePath := envMap["HOME"]
-	scProp := SorlConfigProperty{}
-
-	sorlDefaultConfigFile := homePath + "/" + ".sorl" + "/" + "config.sorl"
-	readConfigFilePath(&scProp, sorlDefaultConfigFile)
-
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
-	if userConfigFilePath != "" {
-		if err := readConfigFilePath(&scProp, userConfigFilePath); err != nil {
-			fmt.Printf("Unable to read proceed, %v", err)
-			os.Exit(1)
-		}
-	}
 
+	scProp := SorlConfigProperty{}
+	svMap := SorlMap{}
+
+	sorlLoadConfigFiles(&scProp, homePath, userConfigFilePath)
 	scProp.printConfig()
+
+	err := sorlLoadGlobalVars(homePath, &svMap)
+
+	if err != nil {
+		fmt.Printf("\ninfo: %v", err)
+	}
+	printMap("Global Vars", svMap)
+
+	hostList := sorlProcessArgs(scProp, cliArgsMap)
+	PrintList("All the selected hosts", hostList)
+
+	sorlStart(scProp, hostList)
+
+	fmt.Println()
+}
+
+func sorlLoadGlobalVars(homePath string, svMap *SorlMap) error {
+
+	sorlDefaultVarFile := homePath + "/" + ".sorl" + "/" + "vars.sorl"
+	return readVarsFile(sorlDefaultVarFile, svMap)
+
+}
+
+func sorlProcessArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) []string {
 
 	grpCliOk := false
 	hostCliOk := false
@@ -46,7 +65,7 @@ func main() {
 	}
 
 	if hostCli == "" && grpCli == "" {
-		fmt.Println("\nError: One of 'host' or 'group' be present.")
+		fmt.Println("\nError: One of 'host' or 'group' must be present.")
 		fmt.Println()
 		os.Exit(1)
 	}
@@ -67,9 +86,23 @@ func main() {
 
 	hostList, _ := getHostList(selType, hostGrpCli, scProp)
 
-	PrintList(hostList)
+	return hostList
 
-	fmt.Println()
+}
+
+func sorlLoadConfigFiles(scProp *SorlConfigProperty, homePath string, userConfigFilePath string) {
+
+	sorlDefaultConfigFile := homePath + "/" + ".sorl" + "/" + "config.sorl"
+	readConfigFilePath(scProp, sorlDefaultConfigFile)
+
+	//userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
+	if userConfigFilePath != "" {
+		if err := readConfigFilePath(scProp, userConfigFilePath); err != nil {
+			fmt.Printf("Unable to read proceed, %v", err)
+			os.Exit(1)
+		}
+	}
+
 }
 
 func getHostList(selType, hostGrpCli string, scProp SorlConfigProperty) ([]string, error) {

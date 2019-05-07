@@ -1,0 +1,13 @@
+#
+# SORL's Defauls vars file, vars.sorl
+#
+
+sorl.key1=one
+sorl.key2= two 22
+sorl.three.key="THIS IS KEY THREEE"
+sorl.hello=Hello, World!, Welcome to SORL
+sorl.tlu=Solution ORchestration Language
+
+
+##
+
