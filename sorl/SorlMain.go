@@ -17,6 +17,7 @@ func main() {
 
 	homePath := envMap["HOME"]
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
+	globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
 
 	scProp := SorlConfigProperty{}
 	svMap := SorlMap{}
@@ -34,7 +35,8 @@ func main() {
 	hostList := sorlProcessCliArgs(scProp, cliArgsMap)
 	PrintList("All the selected hosts", hostList)
 
-	sorlStart(scProp, hostList)
+	sorlStart(globalOrchFilePath, scProp, hostList)
 
+	fmt.Println()
 	fmt.Println()
 }

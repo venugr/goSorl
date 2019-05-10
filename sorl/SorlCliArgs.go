@@ -50,8 +50,11 @@ func getCliArgs() map[string]string {
 	dryRunPtr := flag.Bool("dryrun", false, "Dry Run")
 	hostNamePtr := flag.String("host", "", "Host Name")
 	configFilePtr := flag.String("config", "", "Config File Path")
+	orchFilePtr := flag.String("orchfile", "", "Orchestration File Path")
+	allowPtr := flag.Bool("parallel", false, "Allow Parallel Go Routines")
 
 	flag.Parse()
+
 	/*
 		fmt.Println("Group:", *groupPtr)
 		fmt.Println("Max Go Routines:", *maxGoPtr)
@@ -68,6 +71,11 @@ func getCliArgs() map[string]string {
 	}
 	cliArgs["host"] = string(*hostNamePtr)
 	cliArgs["config"] = string(*configFilePtr)
+	cliArgs["orchfile"] = string(*orchFilePtr)
+	cliArgs["parallel"] = "false"
+	if *allowPtr {
+		cliArgs["parallel"] = "true"
+	}
 
 	return cliArgs
 

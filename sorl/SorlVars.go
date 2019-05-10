@@ -29,7 +29,7 @@ func readVarsFile(fileName string, svMap *SorlMap) error {
 		return errors.New("\nfile is not found")
 	}
 
-	fmt.Println("info: reading vars file:", fileName)
+	fmt.Println("\ninfo: reading vars file:", fileName)
 	lines, _ := ReadFile(fileName)
 	idx := -1
 	varKey := ""
