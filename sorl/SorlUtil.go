@@ -13,10 +13,46 @@ const (
 	cnt = 100
 )
 
-// Property
+// Property for maps
 type Property map[string]string
 
-// PrintList
+func (prop Property) replaceProp(line string) (string, error) {
+	return replaceProp(line, prop)
+}
+
+func replaceProp(line string, lMap Property) (string, error) {
+
+	sIdx := -1
+	lIdx := -1
+	lKey := ""
+	lMapKey := ""
+	lMapVal := ""
+	ok := false
+	//bakLine := line
+
+	for {
+		sIdx = strings.LastIndex(line, "{")
+		if sIdx < 0 {
+			break
+		}
+		tLine := line[sIdx+1:]
+		lIdx = strings.Index(tLine, "}")
+		lKey = line[sIdx+1 : sIdx+lIdx+1]
+		lMapKey = strings.TrimSpace(lKey)
+
+		if lMapVal, ok = lMap[lMapKey]; !ok {
+			return "", errors.New("Key:'" + lMapKey + "' not found")
+		}
+		//fmt.Printf("\n%s", lKey)
+		line = strings.ReplaceAll(line, "{"+lKey+"}", lMapVal)
+		//fmt.Printf("\n%s", line)
+
+	}
+
+	return line, nil
+}
+
+// PrintList for print
 func PrintList(title string, list []string) {
 
 	fmt.Println()
@@ -37,6 +73,7 @@ func printMap(title string, myMap SorlMap) {
 	PrintProperties(title, Property(myMap))
 }
 
+// PrintProperties to print
 func PrintProperties(title string, prop Property) {
 
 	keys := make([]string, 0, len(prop))
@@ -59,6 +96,7 @@ func PrintProperties(title string, prop Property) {
 	fmt.Println()
 }
 
+// LoadPropertyFile to load
 func LoadPropertyFile(fileName, sep string) (Property, error) {
 
 	prp := Property{}
@@ -89,6 +127,7 @@ func LoadPropertyFile(fileName, sep string) (Property, error) {
 	return prp, nil
 }
 
+// ReadFile to read a normal file
 func ReadFile(fileName string) ([]string, error) {
 
 	data, err := ioutil.ReadFile(fileName)
@@ -130,4 +169,11 @@ func chkFileOrDir(pathName string) (bool, error) {
 	}
 
 	return false, errors.New("Type Not Available")
+}
+
+func checkError(err error) {
+	if err != nil {
+		fmt.Printf("\nerror: %s\n", err)
+		os.Exit(-1)
+	}
 }

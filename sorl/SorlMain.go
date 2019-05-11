@@ -7,7 +7,22 @@ import (
 
 func main() {
 
+	testProp := Property{
+		"a":    "111",
+		"b":    "222",
+		"ab":   "1122",
+		"test": "Soooful",
+	}
+
+	//oLine := "abcd{hello}{world} {a{b{c{ d  }}}}this is a prop replace{name}{ lname    	}{doit{howtodo}}"
+	oLine := "{test},one={a} and two={b}, chk the prop replace{ab}"
+	mLine, err1 := replaceProp(oLine, testProp)
+	checkError(err1)
+
+	fmt.Printf("\n%s\n%s", oLine, mLine)
+
 	fmt.Println()
+	return
 
 	cliArgsMap := getCliArgs()
 	fmt.Println(cliArgsMap)

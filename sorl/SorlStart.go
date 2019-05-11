@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -40,10 +41,14 @@ func sorlStart(orchFile string, scProp SorlConfigProperty, hostsList []string) {
 
 }
 
-func sorlProcessOrchestration(orchFile, lHost string, scProp SorlConfigProperty) {
+func sorlProcessOrchestration(orchFile, lHost string, scProp SorlConfigProperty) error {
 
 	varsPerHostMap := SorlMap{}
 	lHostConfig := scProp["h:"+lHost]
+	lHostUser := ""
+	lHostUserPasswd := ""
+	lHostIP := ""
+	lHostPort := 22
 
 	fmt.Println("\n\ninfo: processing orchestration for Host:", lHost)
 
@@ -62,7 +67,51 @@ func sorlProcessOrchestration(orchFile, lHost string, scProp SorlConfigProperty)
 
 	}
 
-	sorlStartOrchestration(orchFile, lHost, varsPerHostMap, scProp)
+	if lVal, ok := lHostConfig["sorl_host_vars_file"]; ok {
+		readVarsFile(lVal, &varsPerHostMap)
+		printMap("Vars File: "+lVal, varsPerHostMap)
+	}
+
+	if lVal, ok := lHostConfig["sorl_host_orch_file"]; ok {
+		orchFile = lVal
+	}
+
+	if lVal, ok := lHostConfig["sorl_host_ssh_port"]; ok {
+		lPort, err := strconv.Atoi(lVal)
+		if err != nil {
+			fmt.Printf("error: in valid port num: %v for the host: %s ", lVal, lHost)
+			return err
+		}
+
+		lHostPort = lPort
+	}
+
+	if lVal, ok := lHostConfig["sorl_host_user"]; ok {
+		lHostUser = lVal
+	}
+
+	if lVal, ok := lHostConfig["sorl_host_user_pass"]; ok {
+		lHostUserPasswd = lVal
+	}
+
+	if lVal, ok := lHostConfig["sorl_host_ip"]; ok {
+		lHostIP = lVal
+	}
+
+	session, client, err := sorlParallerlSsh(lHostUser, lHostUserPasswd, lHostIP, lHostPort)
+
+	if err != nil {
+		fmt.Printf("\nerror: session is not created due to: %v", err)
+		fmt.Printf("\nerror: unable to proceed with orchestration")
+	}
+
+	runShell(session)
+	defer session.Close()
+	defer client.Close()
+
+	//sorlStartOrchestration(orchFile, lHost, varsPerHostMap, scProp)
 	//time.Sleep(2 * time.Second)
 	wgOrch.Done()
+
+	return nil
 }

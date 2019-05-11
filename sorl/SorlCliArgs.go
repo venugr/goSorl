@@ -34,7 +34,9 @@ func getEnvlist(keys []string) map[string]string {
 
 func getEnvVars() {
 
-	fmt.Println("\n")
+	fmt.Println()
+	fmt.Println()
+
 	for _, ev := range os.Environ() {
 		pairs := strings.Split(ev, "=")
 		fmt.Printf("%s=%s\n", pairs[0], pairs[1])

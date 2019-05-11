@@ -14,6 +14,27 @@ import (
 
 var wg = sync.WaitGroup{}
 
+func sorlParallerlSsh(userName, userPasswd, hostName string, portNum int) (*ssh.Session, *ssh.Client, error) {
+
+	sshConfig := configSsh(hostName, userName, userPasswd)
+	client, err := dialSsh(hostName, portNum, sshConfig)
+
+	if err != nil {
+		fmt.Printf("error: Host: %s, User: %s, Port: %v, Failed to create a session: %s\n", hostName, userName, portNum, err)
+		return nil, nil, err
+	}
+
+	session, err := createSSHSession(client)
+
+	if err != nil {
+		fmt.Printf("error: Host: %s, User: %s, Port: %v, Failed to create a session: %s\n", hostName, userName, portNum, err)
+		return nil, nil, err
+	}
+
+	return session, client, nil
+
+}
+
 func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
 
 	sshConfig := configSsh(hostName, userName, userPasswd)
@@ -43,6 +64,7 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
 func runShell(session *ssh.Session) error {
 
 	commands := []string{
+		"",
 		"uname -a",
 		"sleep 5",
 		"pwd",
