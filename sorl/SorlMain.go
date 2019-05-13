@@ -22,7 +22,7 @@ func main() {
 	fmt.Printf("\n%s\n%s", oLine, mLine)
 
 	fmt.Println()
-	return
+	//return
 
 	cliArgsMap := getCliArgs()
 	fmt.Println(cliArgsMap)
@@ -33,6 +33,7 @@ func main() {
 	homePath := envMap["HOME"]
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
 	globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
+	parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 
 	scProp := SorlConfigProperty{}
 	svMap := SorlMap{}
@@ -50,7 +51,7 @@ func main() {
 	hostList := sorlProcessCliArgs(scProp, cliArgsMap)
 	PrintList("All the selected hosts", hostList)
 
-	sorlStart(globalOrchFilePath, scProp, hostList)
+	sorlStart(parallelOk, globalOrchFilePath, scProp, hostList)
 
 	fmt.Println()
 	fmt.Println()

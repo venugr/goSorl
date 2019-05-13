@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
@@ -14,7 +16,12 @@ import (
 
 var wg = sync.WaitGroup{}
 
-func sorlParallerlSsh(userName, userPasswd, hostName string, portNum int) (*ssh.Session, *ssh.Client, error) {
+func sshPrint(prn string) {
+
+	fmt.Print(prn)
+}
+
+func sorlParallelSsh(userName, userPasswd, hostName string, portNum int) (*ssh.Session, *ssh.Client, error) {
 
 	sshConfig := configSsh(hostName, userName, userPasswd)
 	client, err := dialSsh(hostName, portNum, sshConfig)
@@ -61,6 +68,81 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
 	wg.Done()
 }
 
+func runShellCmd(cmd string, sshIn io.WriteCloser) {
+	//fmt.Println("in runShellCmd..")
+	_, err := sshIn.Write([]byte(cmd + "\r"))
+	checkError(err)
+	//fmt.Println("exit runShellCmd..")
+
+}
+
+func waitFor(wait string, sshOut io.Reader) string {
+
+	//fmt.Println("in waitFor..")
+	cmdOut := ""
+	cmdBuf := make([]byte, 1024)
+	tempOut := ""
+
+	for {
+		//fmt.Println("sshOut Read..")
+
+		n, err := sshOut.Read(cmdBuf)
+
+		//fmt.Println(n)
+
+		if err == nil {
+			tempOut = string(cmdBuf[:n])
+			sshPrint(tempOut)
+			cmdOut += tempOut
+		} else {
+			break
+		}
+
+		if strings.HasSuffix(strings.TrimSpace(tempOut), "~]$") {
+			//fmt.Println("break..")
+			break
+		}
+	}
+
+	//fmt.Println(cmdOut)
+	//fmt.Println("exit waitFor..")
+
+	return cmdOut
+
+}
+
+func setShell(session *ssh.Session) (io.Reader, io.WriteCloser, error) {
+
+	fmt.Println("in setShell..")
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          1,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	if err := session.RequestPty("xterm", 80, 80, modes); err != nil {
+		log.Fatal(err)
+	}
+
+	sshOut, sshOutErr := session.StdoutPipe()
+	if sshOutErr != nil {
+		return nil, nil, sshOutErr
+	}
+
+	sshIn, sshInErr := session.StdinPipe()
+	if sshInErr != nil {
+		return nil, nil, sshInErr
+	}
+
+	shellErr := session.Shell()
+	if shellErr != nil {
+		return nil, nil, shellErr
+	}
+
+	return sshOut, sshIn, nil
+
+}
+
 func runShell(session *ssh.Session) error {
 
 	commands := []string{
@@ -93,6 +175,12 @@ func runShell(session *ssh.Session) error {
 	session.Stdout = os.Stdout
 	session.Stderr = os.Stderr
 
+	/*
+		osFile, _ := os.Create("/tmp/dellme.dell")
+		session.Stdout = osFile
+		session.Stderr = osFile
+	*/
+
 	stdin, err := session.StdinPipe()
 	if err != nil {
 		return err
@@ -123,7 +211,7 @@ func runShell(session *ssh.Session) error {
 
 }
 
-func runCmd(session *ssh.Session) error {
+func runCmdOld(session *ssh.Session) error {
 
 	var b bytes.Buffer
 	session.Stdout = &b

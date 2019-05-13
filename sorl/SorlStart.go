@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -9,7 +10,7 @@ import (
 
 var wgOrch = sync.WaitGroup{}
 
-func sorlStart(orchFile string, scProp SorlConfigProperty, hostsList []string) {
+func sorlStart(parallelOk, orchFile string, scProp SorlConfigProperty, hostsList []string) {
 
 	varsPerHostMap := make([]SorlMap, len(hostsList))
 
@@ -33,11 +34,16 @@ func sorlStart(orchFile string, scProp SorlConfigProperty, hostsList []string) {
 	for _, lHost := range hostsList {
 		wgOrch.Add(1)
 		go sorlProcessOrchestration(orchFile, lHost, scProp)
-		wgOrch.Wait()
+
+		if parallelOk == "false" {
+			wgOrch.Wait()
+		}
 
 	}
 
-	//wgOrch.Wait()
+	if parallelOk == "true" {
+		wgOrch.Wait()
+	}
 
 }
 
@@ -98,14 +104,47 @@ func sorlProcessOrchestration(orchFile, lHost string, scProp SorlConfigProperty)
 		lHostIP = lVal
 	}
 
-	session, client, err := sorlParallerlSsh(lHostUser, lHostUserPasswd, lHostIP, lHostPort)
+	fmt.Println("Orchestration file:", orchFile)
+
+	session, client, err := sorlParallelSsh(lHostUser, lHostUserPasswd, lHostIP, lHostPort)
 
 	if err != nil {
 		fmt.Printf("\nerror: session is not created due to: %v", err)
 		fmt.Printf("\nerror: unable to proceed with orchestration")
 	}
 
-	runShell(session)
+	//runShell(session)
+
+	sshIn, sshOut, sshErr := setShell(session)
+
+	if sshErr != nil {
+		fmt.Println(sshErr)
+		os.Exit(1)
+	}
+
+	commands := []string{
+		"uname -a",
+		"pwd",
+		"sleep 5",
+		"pwd",
+		"echo 'bye'",
+		"ls -l /tmp",
+		"sqlplus --h",
+		"sleep 2",
+		"env | sort ",
+		"ls",
+		"#sqlplus /nolog @/media/common/db/versions",
+		"df -h",
+		"exit",
+	}
+
+	waitFor("", sshIn)
+	for _, cmd := range commands {
+		runShellCmd(cmd, sshOut)
+		waitFor("", sshIn)
+	}
+
+	session.Wait()
 	defer session.Close()
 	defer client.Close()
 
