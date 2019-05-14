@@ -2,15 +2,34 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 var wgOrch = sync.WaitGroup{}
 
 func sorlStart(parallelOk, orchFile string, scProp SorlConfigProperty, hostsList []string) {
+
+	SorlColors := []string{
+		"",
+		"\x1b[31;1m",
+		"\x1b[37;1m",
+		"\x1b[32;1m",
+		"\x1b[33;1m",
+		"\x1b[34;1m",
+		"\x1b[35;1m",
+		"\x1b[36;1m",
+		"\x1b[38;1m",
+		"\x1b[39;1m",
+		"\x1b[36;1m",
+	}
+	max := len(SorlColors)
+	min := 1
+	rand.Seed(time.Now().UnixNano())
 
 	varsPerHostMap := make([]SorlMap, len(hostsList))
 
@@ -33,7 +52,8 @@ func sorlStart(parallelOk, orchFile string, scProp SorlConfigProperty, hostsList
 
 	for _, lHost := range hostsList {
 		wgOrch.Add(1)
-		go sorlProcessOrchestration(orchFile, lHost, scProp)
+		trand := rand.Intn(max-min) + min
+		go sorlProcessOrchestration(SorlColors[trand], orchFile, lHost, scProp)
 
 		if parallelOk == "false" {
 			wgOrch.Wait()
@@ -47,7 +67,7 @@ func sorlStart(parallelOk, orchFile string, scProp SorlConfigProperty, hostsList
 
 }
 
-func sorlProcessOrchestration(orchFile, lHost string, scProp SorlConfigProperty) error {
+func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigProperty) error {
 
 	varsPerHostMap := SorlMap{}
 	lHostConfig := scProp["h:"+lHost]
@@ -122,26 +142,32 @@ func sorlProcessOrchestration(orchFile, lHost string, scProp SorlConfigProperty)
 		os.Exit(1)
 	}
 
-	commands := []string{
-		"uname -a",
-		"pwd",
-		"sleep 5",
-		"pwd",
-		"echo 'bye'",
-		"ls -l /tmp",
-		"sqlplus --h",
-		"sleep 2",
-		"env | sort ",
-		"ls",
-		"#sqlplus /nolog @/media/common/db/versions",
-		"df -h",
-		"exit",
-	}
+	/*
+		commands := []string{
+			"uname -a",
+			"pwd",
+			"sleep 5",
+			"pwd",
+			"echo 'bye'",
+			"ls -l /tmp",
+			"sqlplus --h",
+			"sleep 2",
+			"env | sort ",
+			"ls",
+			"#sqlplus /nolog @/media/common/db/versions",
+			"df -h",
+			"exit",
+		}
+	*/
+	commands, _ := ReadFile(orchFile)
 
-	waitFor("", sshIn)
+	//PrintList("FILE", commands)
+	waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
 	for _, cmd := range commands {
 		runShellCmd(cmd, sshOut)
-		waitFor("", sshIn)
+		//if cmd != "exit" {
+		waitFor(color, []string{"$"}, sshIn)
+		//}
 	}
 
 	session.Wait()

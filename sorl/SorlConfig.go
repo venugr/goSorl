@@ -129,7 +129,8 @@ func (scProp SorlConfigProperty) printConfig() {
 	scProp.printSection("h:", "HostName")
 
 	fmt.Println("\n" + strings.Repeat("=", cnt))
-	fmt.Println("\n")
+	fmt.Println()
+	fmt.Println()
 }
 
 func (scProp SorlConfigProperty) readConfig(configFile string) {

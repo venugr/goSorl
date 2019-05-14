@@ -136,8 +136,12 @@ func ReadFile(fileName string) ([]string, error) {
 		return nil, err
 	}
 
-	return strings.Split(string(data), "\n"), nil
+	//return strings.Split(string(data), "\n"), nil
 
+	// Remove EOF char from []string
+	lines := strings.Split(string(data), "\n")
+	lLen := len(lines)
+	return lines[:lLen-1], nil
 }
 
 func chkDir(pathName string) bool {

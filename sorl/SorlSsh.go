@@ -15,10 +15,12 @@ import (
 )
 
 var wg = sync.WaitGroup{}
+var mut = sync.RWMutex{}
 
-func sshPrint(prn string) {
-
-	fmt.Print(prn)
+func sshPrint(color, prn string) {
+	mut.Lock()
+	fmt.Print(ClrUnColor + color + prn + ClrUnColor)
+	mut.Unlock()
 }
 
 func sorlParallelSsh(userName, userPasswd, hostName string, portNum int) (*ssh.Session, *ssh.Client, error) {
@@ -55,7 +57,7 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
 	session, err := createSSHSession(client)
 
 	if err != nil {
-		fmt.Errorf("Failed to create a session: %s\n", err)
+		fmt.Errorf("failed to create a session: %s", err)
 		os.Exit(-1)
 	}
 
@@ -69,51 +71,66 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
 }
 
 func runShellCmd(cmd string, sshIn io.WriteCloser) {
-	//fmt.Println("in runShellCmd..")
+	//fmt.Println("in runShellCmd..->" + cmd + "<-")
+
 	_, err := sshIn.Write([]byte(cmd + "\r"))
 	checkError(err)
 	//fmt.Println("exit runShellCmd..")
 
 }
 
-func waitFor(wait string, sshOut io.Reader) string {
+func waitFor(color string, waitStr []string, sshOut io.Reader) (int, string) {
 
 	//fmt.Println("in waitFor..")
 	cmdOut := ""
 	cmdBuf := make([]byte, 1024)
 	tempOut := ""
+	breakOk := false
+	waitStrMatch := -1
 
 	for {
 		//fmt.Println("sshOut Read..")
 
+		breakOk = false
 		n, err := sshOut.Read(cmdBuf)
 
 		//fmt.Println(n)
 
 		if err == nil {
 			tempOut = string(cmdBuf[:n])
-			sshPrint(tempOut)
+			sshPrint(color, tempOut)
 			cmdOut += tempOut
 		} else {
 			break
 		}
 
-		if strings.HasSuffix(strings.TrimSpace(tempOut), "~]$") {
-			//fmt.Println("break..")
+		for idx, wStr := range waitStr {
+			//fmt.Println("Wait Str:->" + wStr + "<-")
+			//fmt.Println("->" + strings.TrimSpace(tempOut) + "<-")
+			if strings.HasSuffix(strings.TrimSpace(tempOut), wStr) {
+				//fmt.Println("break..")
+				breakOk = true
+				waitStrMatch = idx
+				break
+			}
+		}
+
+		if breakOk {
 			break
 		}
 	}
 
+	//sshPrint(color, cmdOut)
 	//fmt.Println(cmdOut)
 	//fmt.Println("exit waitFor..")
 
-	return cmdOut
+	return waitStrMatch, cmdOut
 
 }
 
 func setShell(session *ssh.Session) (io.Reader, io.WriteCloser, error) {
 
-	fmt.Println("in setShell..")
+	//fmt.Println("in setShell..")
 	modes := ssh.TerminalModes{
 		ssh.ECHO:          1,     // disable echoing
 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
@@ -191,7 +208,7 @@ func runShell(session *ssh.Session) error {
 		return err
 	}
 
-	fmt.Println("\n")
+	fmt.Println()
 	for _, cmd := range commands {
 		_, err = fmt.Fprintf(stdin, "%s\n", cmd)
 
@@ -200,7 +217,7 @@ func runShell(session *ssh.Session) error {
 		}
 
 	}
-	fmt.Println("\n")
+	fmt.Println()
 
 	err = session.Wait()
 	if err != nil {
@@ -232,7 +249,7 @@ func runCmdOld(session *ssh.Session) error {
 func createSSHSession(client *ssh.Client) (*ssh.Session, error) {
 
 	session, err := client.NewSession()
-	fmt.Println("Inside createSSH...")
+	//fmt.Println("Inside createSSH...")
 	if err != nil {
 		return nil, err
 	}
@@ -242,9 +259,9 @@ func createSSHSession(client *ssh.Client) (*ssh.Session, error) {
 
 func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Client, error) {
 
-	fmt.Println("Inside run dialSSH Cmd...")
+	//fmt.Println("Inside run dialSSH Cmd...")
 	serName := hostName + ":" + strconv.Itoa(portNum)
-	fmt.Println(serName)
+	fmt.Println("\nConnecting to ..." + serName)
 	client, err := ssh.Dial("tcp", serName, sshConfig)
 
 	if err != nil {
