@@ -142,7 +142,7 @@ func (scProp SorlConfigProperty) readConfig(configFile string) {
 	hostName := ""
 	groupName := ""
 	allGroups := ""
-	var sConfig, grpConfig, allHostNames, allGroup2Hosts SorlConfig
+	var sConfig, logConfig, grpConfig, allHostNames, allGroup2Hosts SorlConfig
 
 	allHostNames = SorlConfig{}
 	if val, ok := scProp["all.hosts"]; ok {
@@ -248,6 +248,18 @@ func (scProp SorlConfigProperty) readConfig(configFile string) {
 
 			sConfig[tagKey] = tagVal
 			scProp["ag:"+allGroups] = sConfig
+
+			//fmt.Println(sConfig)
+
+		}
+
+		if strings.HasPrefix(line, "sorl_log_path") {
+			idx := strings.Index(line, "=")
+			tagKey := line[:idx]
+			tagVal := strings.TrimSpace(line[idx+1:])
+			logConfig = SorlConfig{}
+			logConfig[tagKey] = tagVal
+			scProp["lp:logpath"] = logConfig
 
 			//fmt.Println(sConfig)
 

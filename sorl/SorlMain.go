@@ -51,7 +51,7 @@ func main() {
 	hostList := sorlProcessCliArgs(scProp, cliArgsMap)
 	PrintList("All the selected hosts", hostList)
 
-	sorlStart(parallelOk, globalOrchFilePath, scProp, hostList)
+	sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
 
 	fmt.Println()
 	fmt.Println()
