@@ -27,10 +27,11 @@ func sorlStart(parallelOk, orchFile string, scProp SorlConfigProperty,
 		"\x1b[36;1m",
 		"\x1b[38;1m",
 		"\x1b[39;1m",
-		"\x1b[36;1m",
+		"\x1b[3a;1m",
+		"\x1b[3b;1m",
 	}
 	max := len(SorlColors)
-	min := 1
+	min := 0
 	rand.Seed(time.Now().UnixNano())
 
 	varsPerHostMap := make([]SorlMap, len(hostsList))
@@ -83,6 +84,8 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	keepNoCmdLogs, _ := strconv.Atoi(cliArgsMap["keep"])
 	keepCmdLogs := make([]string, keepNoCmdLogs)
 	lLogPath := lLogConfig["sorl_log_path"]
+	display, _ := cliArgsMap["display"]
+	allProp := Property{}
 
 	for fKey, fVal := range svMap {
 		varsPerHostMap[fKey] = fVal
@@ -181,26 +184,44 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 		}
 	*/
 
-	commands, _ := ReadFile(orchFile)
+	allProp["sr:load"] = "no"
+	allProp["sr:orchfile"] = orchFile
+	allProp["sr:color"] = color
+	allProp["sr:keep"] = strconv.Itoa(keepNoCmdLogs)
+	allProp["sr:display"] = display
 
-	//PrintList("FILE", commands)
-	waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
-	for _, cmd := range commands {
-		cmd, err1 := replaceProp(cmd, Property(varsPerHostMap))
-		checkError(err1)
-		runShellCmd(cmd, sshOut)
-		//if cmd != "exit" {
-		_, cmdOut := waitFor(color, []string{"$"}, sshIn)
-		//}
+	for lKey, lVal := range varsPerHostMap {
+		allProp[lKey] = lVal
+	}
 
-		for i := 0; i < keepNoCmdLogs-1; i++ {
-			keepCmdLogs[i] = keepCmdLogs[i+1]
+	sorlRunOrchestration(session, sshIn, sshOut, allProp)
+	session.Wait()
+
+	if false {
+
+		commands, _ := ReadFile(orchFile)
+
+		//PrintList("FILE", commands)
+		waitFor(color, "", []string{"$", "[BAN83] ?"}, sshIn)
+		for _, cmd := range commands {
+			cmd, err1 := replaceProp(cmd, Property(varsPerHostMap))
+			checkError(err1)
+			runShellCmd(cmd, sshOut)
+			//if cmd != "exit" {
+			_, cmdOut := waitFor(color, "", []string{"$"}, sshIn)
+			//}
+
+			for i := 0; i < keepNoCmdLogs-1; i++ {
+				keepCmdLogs[i] = keepCmdLogs[i+1]
+			}
+			keepCmdLogs[keepNoCmdLogs-1] = cmdOut
+
 		}
-		keepCmdLogs[keepNoCmdLogs-1] = cmdOut
+
+		session.Wait()
 
 	}
 
-	session.Wait()
 	defer session.Close()
 	defer client.Close()
 

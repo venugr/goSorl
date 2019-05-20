@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -76,6 +77,7 @@ func printMap(title string, myMap SorlMap) {
 // PrintProperties to print
 func PrintProperties(title string, prop Property) {
 
+	mLogStr := ""
 	keys := make([]string, 0, len(prop))
 
 	for ky := range prop {
@@ -83,17 +85,28 @@ func PrintProperties(title string, prop Property) {
 	}
 
 	sort.Strings(keys)
-	fmt.Println()
-	fmt.Println("\n" + strings.Repeat("=", cnt))
-	fmt.Printf("                    %s\n", title)
-	fmt.Println(strings.Repeat("=", cnt))
+	/*
+		fmt.Println()
+		fmt.Println("\n" + strings.Repeat("=", cnt))
+		fmt.Printf("                    %s\n", title)
+		fmt.Println(strings.Repeat("=", cnt))
+	*/
+
+	mLogStr += "\n\n\n" + strings.Repeat("=", cnt)
+	mLogStr += "\n                         " + title + "\n"
+	mLogStr += strings.Repeat("=", cnt)
 
 	for i, ky := range keys {
-		fmt.Printf("%v. %v=%v\n", i+1, ky, prop[ky])
+		//fmt.Printf("%v. %v=%v\n", i+1, ky, prop[ky])
+		mLogStr += "\n" + strconv.Itoa(i+1) + ". " + ky + "=" + prop[ky]
+		//logit(mStr)
 	}
 
-	fmt.Println(strings.Repeat("=", cnt))
-	fmt.Println()
+	mLogStr += "\n" + strings.Repeat("=", cnt) + "\n"
+	//fmt.Println(strings.Repeat("=", cnt))
+	//fmt.Println()
+
+	logit(mLogStr)
 }
 
 // LoadPropertyFile to load
@@ -153,6 +166,10 @@ func chkDir(pathName string) bool {
 	}
 
 	return true
+}
+
+func chkFile(fileName string) bool {
+	return chkDir(fileName)
 }
 
 func chkFileOrDir(pathName string) (bool, error) {

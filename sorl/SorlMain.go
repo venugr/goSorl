@@ -14,21 +14,23 @@ func main() {
 		"test": "Soooful",
 	}
 
-	//oLine := "abcd{hello}{world} {a{b{c{ d  }}}}this is a prop replace{name}{ lname    	}{doit{howtodo}}"
-	oLine := "{test},one={a} and two={b}, chk the prop replace{ab}"
-	mLine, err1 := replaceProp(oLine, testProp)
-	checkError(err1)
+	if false {
+		//oLine := "abcd{hello}{world} {a{b{c{ d  }}}}this is a prop replace{name}{ lname    	}{doit{howtodo}}"
+		oLine := "{test},one={a} and two={b}, chk the prop replace{ab}"
+		mLine, err1 := replaceProp(oLine, testProp)
+		checkError(err1)
 
-	fmt.Printf("\n%s\n%s", oLine, mLine)
-
+		fmt.Printf("\n%s\n%s", oLine, mLine)
+	}
 	fmt.Println()
 	//return
 
 	cliArgsMap := getCliArgs()
-	fmt.Println(cliArgsMap)
+	//fmt.Println(cliArgsMap)
 
 	envMap := getEnvlist([]string{"USER", "HOME", "AVA"})
-	fmt.Println(envMap)
+	printMap("ENVIRONMENT", map[string]string(envMap))
+	logit("\n")
 
 	homePath := envMap["HOME"]
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
@@ -44,13 +46,13 @@ func main() {
 	err := sorlLoadGlobalVars(homePath, &svMap)
 
 	if err != nil {
-		fmt.Printf("\ninfo: %v", err)
+		logit(fmt.Sprintf("\ninfo: %v", err))
 	}
 	printMap("Global Vars", svMap)
 
 	hostList := sorlProcessCliArgs(scProp, cliArgsMap)
 	PrintList("All the selected hosts", hostList)
-
+	//os.Exit(1)
 	sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
 
 	fmt.Println()

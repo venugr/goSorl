@@ -73,13 +73,14 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
 func runShellCmd(cmd string, sshIn io.WriteCloser) {
 	//fmt.Println("in runShellCmd..->" + cmd + "<-")
 
+	//fmt.Println("***************************************")
 	_, err := sshIn.Write([]byte(cmd + "\r"))
 	checkError(err)
 	//fmt.Println("exit runShellCmd..")
 
 }
 
-func waitFor(color string, waitStr []string, sshOut io.Reader) (int, string) {
+func waitFor(color string, display string, waitStr []string, sshOut io.Reader) (int, string) {
 
 	//fmt.Println("in waitFor..")
 	cmdOut := ""
@@ -90,6 +91,7 @@ func waitFor(color string, waitStr []string, sshOut io.Reader) (int, string) {
 
 	for {
 		//fmt.Println("sshOut Read..")
+		//PrintList("CMD", waitStr)
 
 		breakOk = false
 		n, err := sshOut.Read(cmdBuf)
@@ -98,7 +100,9 @@ func waitFor(color string, waitStr []string, sshOut io.Reader) (int, string) {
 
 		if err == nil {
 			tempOut = string(cmdBuf[:n])
-			sshPrint(color, tempOut)
+			if !strings.HasPrefix(display, "clear") {
+				sshPrint(color, tempOut)
+			}
 			cmdOut += tempOut
 		} else {
 			break
@@ -123,6 +127,9 @@ func waitFor(color string, waitStr []string, sshOut io.Reader) (int, string) {
 	//sshPrint(color, cmdOut)
 	//fmt.Println(cmdOut)
 	//fmt.Println("exit waitFor..")
+	if strings.HasPrefix(display, "clear") {
+		sshPrint(color, cmdOut)
+	}
 
 	return waitStrMatch, cmdOut
 
@@ -261,13 +268,14 @@ func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Cl
 
 	//fmt.Println("Inside run dialSSH Cmd...")
 	serName := hostName + ":" + strconv.Itoa(portNum)
-	fmt.Println("\nConnecting to ..." + serName)
+	fmt.Print("\nConnecting to ..." + serName)
 	client, err := ssh.Dial("tcp", serName, sshConfig)
 
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Print("\nConnected to ..." + serName)
 	return client, nil
 }
 

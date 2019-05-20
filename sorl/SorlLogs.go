@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 )
 
@@ -10,9 +11,9 @@ var (
 	logger = log.New(&buf, "Logger: ", log.Lshortfile)
 )
 
-func logit(logStr ...string) {
+func logit(logStr string) {
 
-	logger.Print("Hello, Log file")
-	logger.Print(logStr)
+	//logger.Print(logStr)
+	fmt.Print(logStr)
 
 }
