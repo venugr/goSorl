@@ -31,6 +31,10 @@ func replaceProp(line string, lMap Property) (string, error) {
 	ok := false
 	//bakLine := line
 
+	if !strings.Contains(line, "}") {
+		return line, nil
+	}
+
 	for {
 		sIdx = strings.LastIndex(line, "{")
 		if sIdx < 0 {

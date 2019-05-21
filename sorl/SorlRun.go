@@ -15,12 +15,15 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	//fmt.Println("Run Orchestration....")
 
 	orchFile := string((*allProp)["sr:orchfile"])
-	//color := string(allProp["sr:color"])
+	//color := string((*allProp)["sr:color"])
 	keepNoCmdLogs, _ := strconv.Atoi((*allProp)["sr:keep"])
 	keepCmdLogs := make([]string, keepNoCmdLogs)
 	loadFile := string((*allProp)["sr:loadfile"])
 	loadOk := string((*allProp)["sr:load"])
 	//display := string(allProp["sr:display"])
+
+	skipTagLines := false
+	//tagName := ""
 
 	if loadOk == "yes" {
 		orchFile = loadFile
@@ -43,9 +46,27 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			return
 		}
 
-		cmd, err1 := replaceProp(cmd, Property(*allProp))
-
+		//cmd, err1 := replaceProp(cmd, Property(*allProp))
 		cmd = strings.TrimLeft(cmd, " ")
+
+		if strings.HasPrefix(cmd, "#") || cmd == "" {
+			continue
+		}
+
+		if strings.HasPrefix(cmd, "}") {
+			//fmt.Println("Skipping...1:", cmd)
+			if skipTagLines {
+				skipTagLines = false
+			}
+			continue
+		}
+
+		if skipTagLines {
+			//fmt.Println("Skipping...:", cmd)
+			continue
+		}
+
+		cmd, err1 := replaceProp(cmd, Property(*allProp))
 
 		if runWaitOk && (!strings.HasPrefix(cmd, "wait")) {
 			_, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
@@ -54,8 +75,14 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 		//prevWaitCmd = cmd
 
+		if strings.HasPrefix(cmd, "tag ") {
+			skipTagLines, _ = sorlOrchTag(cmd, session, sshIn, sshOut, allProp)
+			continue
+		}
+
 		if strings.HasPrefix(cmd, "var ") {
 			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
+			//printMap("Var Map", SorlMap(*allProp))
 			continue
 		}
 
@@ -90,6 +117,26 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	}
 
 	//session.Wait()
+}
+
+func sorlOrchTag(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
+
+	//fmt.Println("inside...tag")
+	cmd = strings.Replace(cmd, "tag ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.Replace(cmd, "{", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	tags := (*allProp)["sr:tags"]
+
+	if tags == "" {
+		return false, cmd
+	}
+	if strings.Contains(tags+",", cmd+",") {
+		return false, cmd
+	}
+
+	return true, cmd
 }
 
 func sorlOrchVar(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {

@@ -13,6 +13,7 @@ sorl_group_sub=dk1,dk2
 
 sorl_shell_cmd=uname -a
 sorl_exec_cmd=date
+sorl_log_path=/tmp/sorllogs
 
 
 
@@ -28,7 +29,7 @@ sorl_host_group=g1,g6
 sorl_host_name=dock1
 sorl_host_ip=149.24.204.111
 sorl_host_user=root
-sorl_host_user_pass=u_pick_it
+sorl_host_user_pass=*****
 sorl_host_ssh_keys=no
 sorl_host_ssh_keys_file=
 sorl_host_ssh_pass_less=no
@@ -57,9 +58,23 @@ sorl_host_group=g1
 sorl_host_user=user444
 
 
-sorl_host_name=555five
+sorl_host_name=dockjs
 sorl_host_group=g555
-sorl_host_ip=10.1.0.555
-sorl_host_user=user5
+sorl_host_ip=149.24.204.111
+sorl_host_user=banner
+sorl_host_user_pass=*****
 sorl_host_new_text=This is used for host name informations.
-sorl_host_ssh_port=2255
+sorl_host_ssh_port=9003
+sorl_host_vars_file=/Users/venul/.sorl/vars.sorl
+#sorl_host_orch_file=/Users/venul/main.sorl
+
+
+sorl_host_name=test2
+sorl_host_group=g555
+sorl_host_ip=149.24.204.111
+sorl_host_user=oracle
+sorl_host_user_pass=*****
+sorl_host_new_text=This is used for host name informations.
+sorl_host_ssh_port=9001
+sorl_host_orch_file=/Users/venul/main.sorl
+sorl_host_log_path=/tmp

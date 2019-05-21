@@ -55,7 +55,8 @@ func getCliArgs() map[string]string {
 	orchFilePtr := flag.String("orchfile", "", "Orchestration File Path")
 	allowPtr := flag.Bool("parallel", false, "Allow Parallel Go Routines")
 	keepPtr := flag.Int("keep", 5, "Keep no of command logs")
-	dispPtr := flag.String("display", "more", "display: [less | more | all | no]")
+	dispPtr := flag.String("display", "more", "display: [less | more | all | no | clear]")
+	tagsPtr := flag.String("tags", "", "Tag Names")
 
 	flag.Parse()
 
@@ -83,6 +84,7 @@ func getCliArgs() map[string]string {
 
 	cliArgs["keep"] = strconv.Itoa(*keepPtr)
 	cliArgs["display"] = string(*dispPtr)
+	cliArgs["tags"] = string(*tagsPtr)
 
 	return cliArgs
 

@@ -83,6 +83,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	keepCmdLogs := make([]string, keepNoCmdLogs)
 	lLogPath := lLogConfig["sorl_log_path"]
 	display, _ := cliArgsMap["display"]
+	tags, _ := cliArgsMap["tags"]
 	allProp := Property{}
 
 	for fKey, fVal := range svMap {
@@ -188,6 +189,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	allProp["sr:color"] = color
 	allProp["sr:keep"] = strconv.Itoa(keepNoCmdLogs)
 	allProp["sr:display"] = display
+	allProp["sr:tags"] = tags
 
 	for lKey, lVal := range varsPerHostMap {
 		allProp[lKey] = lVal
