@@ -10,22 +10,29 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp Property) {
+func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
 
-	fmt.Println("Run Orchestration....")
+	//fmt.Println("Run Orchestration....")
 
-	orchFile := string(allProp["sr:orchfile"])
+	orchFile := string((*allProp)["sr:orchfile"])
 	//color := string(allProp["sr:color"])
-	keepNoCmdLogs, _ := strconv.Atoi(allProp["sr:keep"])
+	keepNoCmdLogs, _ := strconv.Atoi((*allProp)["sr:keep"])
 	keepCmdLogs := make([]string, keepNoCmdLogs)
-	loadFile := string(allProp["sr:load"])
+	loadFile := string((*allProp)["sr:loadfile"])
+	loadOk := string((*allProp)["sr:load"])
 	//display := string(allProp["sr:display"])
+
+	if loadOk == "yes" {
+		orchFile = loadFile
+	}
+
 	commands, _ := ReadFile(orchFile)
+
 	cmdOut := ""
 	prevWaitCmd := ""
 	runWaitOk := false
 
-	if loadFile == "no" {
+	if loadOk == "no" {
 		//waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
 	}
 	for _, cmd := range commands {
@@ -36,7 +43,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			return
 		}
 
-		cmd, err1 := replaceProp(cmd, Property(allProp))
+		cmd, err1 := replaceProp(cmd, Property(*allProp))
 
 		cmd = strings.TrimLeft(cmd, " ")
 
@@ -45,13 +52,20 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		}
 		runWaitOk = false
 
-		if strings.HasPrefix(cmd, "load") {
+		//prevWaitCmd = cmd
+
+		if strings.HasPrefix(cmd, "var ") {
+			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, "load ") {
 			sorlOrchLoad(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
 		cmdOut = ""
-		if strings.HasPrefix(cmd, "wait") {
+		if strings.HasPrefix(cmd, "wait ") {
 			_, cmdOut = sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
 			prevWaitCmd = cmd
 			runWaitOk = false
@@ -60,6 +74,9 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 		checkError(err1)
 		runWaitOk = true
+		//color := (*allProp)["sr:color"]
+		//display := (*allProp)["sr:display"]
+		//sshPrint(color, cmd+"\n")
 		runShellCmd(cmd, sshOut)
 		//if cmd != "exit" {
 		//_, cmdOut := waitFor(color, []string{"$"}, sshIn)
@@ -75,32 +92,44 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	//session.Wait()
 }
 
-func sorlOrchWait(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp Property) (int, string) {
+func sorlOrchVar(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
+	cmd = strings.Replace(cmd, "var ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	vars := strings.Split(cmd, "=")
+	(*allProp)[vars[0]] = vars[1]
+
+	//printMap("Var Map", SorlMap(allProp))
+}
+
+func sorlOrchWait(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (int, string) {
 
 	cmd = strings.Replace(cmd, "wait", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	waitStr := strings.Split(cmd, "||")
-	color := allProp["sr:color"]
-	display := allProp["sr:display"]
+	color := (*allProp)["sr:color"]
+	display := (*allProp)["sr:display"]
 
 	return waitFor(color, display, waitStr, sshIn)
 
 }
 
-func sorlOrchLoad(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp Property) {
+func sorlOrchLoad(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
 
 	loadFile := strings.Split(cmd, " ")
 
 	locProp := Property{}
 
-	for lKey, lVal := range allProp {
+	for lKey, lVal := range *allProp {
 		locProp[lKey] = lVal
 	}
 
 	locProp["sr:orchfile"] = loadFile[1]
 	locProp["sr:load"] = "yes"
-	fmt.Println("Loading...", loadFile[1])
-	sorlRunOrchestration(session, sshIn, sshOut, locProp)
+	//fmt.Println("Loading...", loadFile[1])
+
+	(*allProp)["sr:loadfile"] = loadFile[1]
+	(*allProp)["sr:load"] = "yes"
+	sorlRunOrchestration(session, sshIn, sshOut, allProp)
 }
 
 func checkPauseAbort() bool {

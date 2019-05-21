@@ -27,8 +27,6 @@ func sorlStart(parallelOk, orchFile string, scProp SorlConfigProperty,
 		"\x1b[36;1m",
 		"\x1b[38;1m",
 		"\x1b[39;1m",
-		"\x1b[3a;1m",
-		"\x1b[3b;1m",
 	}
 	max := len(SorlColors)
 	min := 0
@@ -185,6 +183,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	*/
 
 	allProp["sr:load"] = "no"
+	allProp["sr:loadfile"] = ""
 	allProp["sr:orchfile"] = orchFile
 	allProp["sr:color"] = color
 	allProp["sr:keep"] = strconv.Itoa(keepNoCmdLogs)
@@ -194,7 +193,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 		allProp[lKey] = lVal
 	}
 
-	sorlRunOrchestration(session, sshIn, sshOut, allProp)
+	sorlRunOrchestration(session, sshIn, sshOut, &allProp)
 	session.Wait()
 
 	if false {
@@ -232,6 +231,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	}
 	//sorlStartOrchestration(orchFile, lHost, varsPerHostMap, scProp)
 	//time.Sleep(2 * time.Second)
+	fmt.Println("\n\ninfo: processed orchestration for Host:", lHost)
 	wgOrch.Done()
 
 	return nil
