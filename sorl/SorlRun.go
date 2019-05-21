@@ -23,6 +23,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	//display := string(allProp["sr:display"])
 
 	skipTagLines := false
+	skipIfLines := false
 	//tagName := ""
 
 	if loadOk == "yes" {
@@ -57,13 +58,21 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			//fmt.Println("Skipping...1:", cmd)
 			if skipTagLines {
 				skipTagLines = false
+
+			}
+			if skipIfLines {
+				skipIfLines = false
 			}
 			continue
 		}
 
-		if skipTagLines {
+		if skipTagLines || skipIfLines {
 			//fmt.Println("Skipping...:", cmd)
 			continue
+		}
+
+		if strings.HasSuffix(cmd, "{") {
+			cmd = strings.TrimRight(cmd, "{")
 		}
 
 		cmd, err1 := replaceProp(cmd, Property(*allProp))
@@ -77,6 +86,11 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 		if strings.HasPrefix(cmd, "tag ") {
 			skipTagLines, _ = sorlOrchTag(cmd, session, sshIn, sshOut, allProp)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, "if ") {
+			skipIfLines, _ = sorlOrchIf(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
@@ -117,6 +131,72 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	}
 
 	//session.Wait()
+}
+
+func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
+
+	idxMap := map[string]int{}
+	idx := -1
+	condStr := ""
+
+	idxMap["or"] = strings.Index(cmd, orStr)
+	idxMap["and"] = strings.Index(cmd, andStr)
+	idxMap["eq"] = strings.Index(cmd, eqStr)
+	idxMap["not"] = strings.Index(cmd, nEqStr)
+
+	for lKey, lVal := range idxMap {
+
+		if lVal == -1 {
+			continue
+		}
+
+		if idx == -1 && lVal > idx {
+			idx = lVal
+			condStr = lKey
+			continue
+		}
+
+		if lVal < idx {
+			idx = lVal
+			condStr = lKey
+		}
+
+	}
+
+	if idx == -1 {
+		return cmd, ""
+	}
+	return cmd[:idx], condStr
+
+}
+
+func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
+
+	//fmt.Println("inside...tag")
+	cmd = strings.Replace(cmd, "if ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	//cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
+	orStr := "||"
+	andStr := "&&"
+	eqStr := "=="
+	nEqStr := "!="
+
+	for {
+		condVal1, condOp1 := getIfData(cmd, orStr, andStr, eqStr, nEqStr)
+		condVal1 = strings.TrimSpace(condVal1)
+
+		if condOp1 == "" {
+			if condVal1 == "true" {
+				return false, ""
+			} else {
+				return true, ""
+			}
+		}
+
+	}
+
 }
 
 func sorlOrchTag(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
