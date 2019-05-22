@@ -139,10 +139,10 @@ func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
 	idx := -1
 	condStr := ""
 
-	idxMap["or"] = strings.Index(cmd, orStr)
-	idxMap["and"] = strings.Index(cmd, andStr)
-	idxMap["eq"] = strings.Index(cmd, eqStr)
-	idxMap["not"] = strings.Index(cmd, nEqStr)
+	idxMap[orStr] = strings.Index(cmd, orStr)
+	idxMap[andStr] = strings.Index(cmd, andStr)
+	idxMap[eqStr] = strings.Index(cmd, eqStr)
+	idxMap[nEqStr] = strings.Index(cmd, nEqStr)
 
 	for lKey, lVal := range idxMap {
 
@@ -172,6 +172,10 @@ func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
 
 func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
 
+	prevVal1 := ""
+	prevOp1 := ""
+	tVal1 := ""
+	tOp1 := ""
 	//fmt.Println("inside...tag")
 	cmd = strings.Replace(cmd, "if ", "", 1)
 	cmd = strings.TrimSpace(cmd)
@@ -186,6 +190,46 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 	for {
 		condVal1, condOp1 := getIfData(cmd, orStr, andStr, eqStr, nEqStr)
 		condVal1 = strings.TrimSpace(condVal1)
+		tVal1 = condVal1
+		tOp1 = condOp1
+
+		//fmt.Println(condVal1 + "," + condOp1)
+		if condOp1 == "" && prevOp1 == "" {
+			if condVal1 == "true" {
+				return false, ""
+			} else {
+				return true, ""
+			}
+		}
+
+		if prevOp1 != "" {
+			switch prevOp1 {
+			case orStr:
+				if prevVal1 == "true" || condVal1 == "true" {
+					condVal1 = "true"
+				} else {
+					condVal1 = "false"
+				}
+			case andStr:
+				if prevVal1 == "true" && condVal1 == "true" {
+					condVal1 = "true"
+				} else {
+					condVal1 = "false"
+				}
+			case eqStr:
+				if prevVal1 == condVal1 {
+					condVal1 = "true"
+				} else {
+					condVal1 = "false"
+				}
+			case nEqStr:
+				if prevVal1 != condVal1 {
+					condVal1 = "true"
+				} else {
+					condVal1 = "false"
+				}
+			}
+		}
 
 		if condOp1 == "" {
 			if condVal1 == "true" {
@@ -194,6 +238,14 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 				return true, ""
 			}
 		}
+
+		cmd = strings.Replace(cmd, tVal1, "", 1)
+		cmd = strings.TrimSpace(cmd)
+		cmd = strings.Replace(cmd, tOp1, "", 1)
+		cmd = strings.TrimSpace(cmd)
+
+		prevVal1 = condVal1
+		prevOp1 = condOp1
 
 	}
 

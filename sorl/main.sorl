@@ -2,8 +2,12 @@ wait ?||BAN83||$
 BAN83
 wait $
 cat /etc/passwd
+#
 var a=a11
 var b=b22
+var okif=true
+var ok2=true
+#
 tag test1 { 
    echo "{b}{b}==>{a}"
    date
@@ -20,11 +24,26 @@ tag abcd  {
    pwd
    echo "Done tag abcd."
 }
-
-if true {
+#
+if {okif}  &&  {ok2} || false || true {
    echo ""
    echo "*** IF works fine****"
    echo ""
+}
+#
+if venu == venu && {ok2} && true{
+
+   echo ""
+   echo "My Name: Venu Lella"
+   echo "-------------------"
+}
+#
+if deal != done {
+   echo "echo" > /tmp/test.dell
+   echo "echo \"My Name: Venu Lella\"" >> /tmp/test.dell
+   echo "echo \"-------------------\"" >> /tmp/test.dell
+   echo "echo" >> /tmp/test.dell
+   sh /tmp/test.dell
 }
 echo "SORL DONE"
 exit
