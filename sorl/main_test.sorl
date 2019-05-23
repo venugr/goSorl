@@ -1,10 +1,37 @@
 .print 
-.print ================================
-.print Welcome to SORL dot(.) Scripting
-.print ================================
+.println ================================
+.println Welcome to SORL dot(.) Scripting
+.println ================================
 .print
 .sleep 1
 #
+#####################
+# Function helloWorld
+#####################
+.func helloWorld {
+   .var fname=helloWorld
+   .print Hello World
+   ls /tmp
+   .wait $||#
+   df -h
+   echo "Function concept works: {fname}"
+   .sleep 5
+}
+###############
+# Function fact
+###############
+.func fact {
+   .setwait $||#
+   echo "Factorial function"
+   .print {_wait.string}
+   .sleep 2
+}
+#
+#
+.show    {_func.helloWorld}
+.print ====================
+.show {_func.fact}
+.sleep 5
 .var {
    v1=This is from var group
    v2=if this works, var group is done
@@ -30,6 +57,16 @@ cat /etc/passwd
 .clear
 .sleep 1
 #
+.print
+.println =========================
+.println       Wait String
+.println =========================
+.show {_wait.string}
+.setwait helloWaitStr
+.show {_wait.string}
+.println =========================
+.sleep 5
+.setwait $||#
 .var a=a11
 .var b=b22
 .var okif=true
@@ -72,11 +109,11 @@ echo "***DONE***"
    echo "echo '-----------------------------------'" >> /tmp/test.dell
    echo "echo" >> /tmp/test.dell
    sh /tmp/test.dell
-   .print {_cmd.output}
+   .println {_cmd.output}
    .clear
 }
 echo "SORL DONE"
-.print COMMANDOUTPUT====>{_cmd.output}<====
+.println COMMANDOUTPUT====>{_cmd.output}<====
 #
 #
 .var {
@@ -84,10 +121,10 @@ echo "SORL DONE"
    v22=**** if this works, var group is done **** 
 }
 #
-.print
-.print -------------------------------------
-.print v1={v11}
-.print v2={v22}
-.print -------------------------------------
-.print
+.println
+.println -------------------------------------
+.println v1={v11}
+.println v2={v22}
+.println -------------------------------------
+.println
 exit
