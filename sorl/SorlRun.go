@@ -35,6 +35,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	cmdOut := ""
 	prevWaitCmd := ""
 	runWaitOk := false
+	tempCmdOut := ""
 
 	if loadOk == "no" {
 		//waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
@@ -51,6 +52,21 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		cmd = strings.TrimLeft(cmd, " ")
 
 		if strings.HasPrefix(cmd, "#") || cmd == "" {
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".print") {
+			sorlOrchPrint(cmd, (*allProp)["sr:color"])
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".sleep") {
+			sorlOrchSleep(cmd)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".clear") {
+			tempCmdOut = ""
 			continue
 		}
 
@@ -76,44 +92,50 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		}
 
 		cmd, err1 := replaceProp(cmd, Property(*allProp))
+		checkError(err1)
 
-		if runWaitOk && (!strings.HasPrefix(cmd, "wait")) {
+		if runWaitOk && (!strings.HasPrefix(cmd, ".wait")) {
 			_, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
+			tempCmdOut += cmdOut
 		}
 		runWaitOk = false
 
 		//prevWaitCmd = cmd
 
-		if strings.HasPrefix(cmd, "tag ") {
+		if strings.HasPrefix(cmd, ".tag ") {
 			skipTagLines, _ = sorlOrchTag(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, "if ") {
+		if strings.HasPrefix(cmd, ".if ") {
 			skipIfLines, _ = sorlOrchIf(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, "var ") {
+		if strings.HasPrefix(cmd, ".var ") {
 			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
 			//printMap("Var Map", SorlMap(*allProp))
 			continue
 		}
 
-		if strings.HasPrefix(cmd, "load ") {
+		if strings.HasPrefix(cmd, ".load ") {
 			sorlOrchLoad(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
 		cmdOut = ""
-		if strings.HasPrefix(cmd, "wait ") {
+		if strings.HasPrefix(cmd, ".wait ") {
 			_, cmdOut = sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
 			prevWaitCmd = cmd
 			runWaitOk = false
+			tempCmdOut += cmdOut
 			continue
 		}
 
-		checkError(err1)
+		if strings.HasPrefix(cmd, ".enter") {
+			cmd = ""
+		}
+
 		runWaitOk = true
 		//color := (*allProp)["sr:color"]
 		//display := (*allProp)["sr:display"]
@@ -177,7 +199,7 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 	tVal1 := ""
 	tOp1 := ""
 	//fmt.Println("inside...tag")
-	cmd = strings.Replace(cmd, "if ", "", 1)
+	cmd = strings.Replace(cmd, ".if ", "", 1)
 	cmd = strings.TrimSpace(cmd)
 	//cmd = strings.TrimRight(cmd, "{")
 	cmd = strings.TrimSpace(cmd)
@@ -254,7 +276,7 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 func sorlOrchTag(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
 
 	//fmt.Println("inside...tag")
-	cmd = strings.Replace(cmd, "tag ", "", 1)
+	cmd = strings.Replace(cmd, ".tag ", "", 1)
 	cmd = strings.TrimSpace(cmd)
 	cmd = strings.Replace(cmd, "{", "", 1)
 	cmd = strings.TrimSpace(cmd)
@@ -264,15 +286,36 @@ func sorlOrchTag(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wr
 	if tags == "" {
 		return false, cmd
 	}
-	if strings.Contains(tags+",", cmd+",") {
-		return false, cmd
+
+	for _, lCmd := range strings.Split(cmd, ",") {
+		if strings.Contains(tags+",", lCmd+",") {
+			return false, cmd
+		}
 	}
 
 	return true, cmd
 }
 
+func sorlOrchPrint(cmd string, color string) {
+	cmd = strings.Replace(cmd, ".print", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	sshPrint(color, cmd+"\n")
+}
+
+func sorlOrchSleep(cmd string) {
+
+	cmd = strings.Replace(cmd, ".sleep", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	lVal, err := strconv.Atoi(cmd)
+
+	if err != nil {
+		lVal = 1
+	}
+	time.Sleep(time.Second * time.Duration(lVal))
+}
+
 func sorlOrchVar(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
-	cmd = strings.Replace(cmd, "var ", "", 1)
+	cmd = strings.Replace(cmd, ".var ", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	vars := strings.Split(cmd, "=")
 	(*allProp)[vars[0]] = vars[1]
@@ -282,7 +325,7 @@ func sorlOrchVar(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wr
 
 func sorlOrchWait(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (int, string) {
 
-	cmd = strings.Replace(cmd, "wait", "", 1)
+	cmd = strings.Replace(cmd, ".wait", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	waitStr := strings.Split(cmd, "||")
 	color := (*allProp)["sr:color"]

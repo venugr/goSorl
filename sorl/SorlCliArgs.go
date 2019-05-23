@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -57,6 +58,7 @@ func getCliArgs() map[string]string {
 	keepPtr := flag.Int("keep", 5, "Keep no of command logs")
 	dispPtr := flag.String("display", "more", "display: [less | more | all | no | clear]")
 	tagsPtr := flag.String("tags", "", "Tag Names")
+	versionPtr := flag.Bool("version", false, "Version details")
 
 	flag.Parse()
 
@@ -86,18 +88,23 @@ func getCliArgs() map[string]string {
 	cliArgs["display"] = string(*dispPtr)
 	cliArgs["tags"] = string(*tagsPtr)
 
+	cliArgs["version"] = "false"
+	if *versionPtr {
+		cliArgs["version"] = "true"
+	}
+
 	return cliArgs
 
 }
 
-func sorlProcessCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) []string {
+func sorlProcessCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) ([]string, error) {
 
-	grpCliOk := false
-	hostCliOk := false
+	//grpCliOk := false
+	//hostCliOk := false
 
 	hostCli := strings.TrimSpace(cliArgsMap["host"])
 	grpCli := strings.TrimSpace(cliArgsMap["group"])
-	maxGoRout := cliArgsMap["max"]
+	//maxGoRout := cliArgsMap["max"]
 
 	if hostCli != "" && grpCli != "" {
 		fmt.Println("\nError: Both 'host' and 'group' can not be present.")
@@ -112,22 +119,25 @@ func sorlProcessCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 	}
 
 	hostGrpCli := hostCli
-	hostCliOk = true
+	//hostCliOk = true
 	selType := "host"
 
 	if strings.TrimSpace(grpCli) != "" {
 		hostGrpCli = grpCli
 		selType = "group"
-		grpCliOk = true
-		hostCliOk = false
+		//grpCliOk = true
+		//hostCliOk = false
 	}
 
 	fmt.Println("Host/Group:", hostGrpCli)
-	fmt.Println(grpCliOk, hostCliOk, selType, maxGoRout)
+	//fmt.Println(grpCliOk, hostCliOk, selType, maxGoRout)
 
-	hostList, _ := getHostList(selType, hostGrpCli, scProp)
+	hostList, err := getHostList(selType, hostGrpCli, scProp)
+	if err != nil {
+		return nil, err
+	}
 
-	return hostList
+	return hostList, nil
 
 }
 
@@ -135,6 +145,22 @@ func getHostList(selType, hostGrpCli string, scProp SorlConfigProperty) ([]strin
 	hostList := []string{}
 
 	if strings.EqualFold(selType, "host") && hostGrpCli != "all" {
+		allHostNames := scProp["all.hosts"]
+		allHostsStr := ""
+
+		for k := range allHostNames {
+			allHostsStr += k + ","
+		}
+
+		for _, lVal := range strings.Split(hostGrpCli, ",") {
+
+			if !strings.Contains(allHostsStr, lVal+",") {
+				fmt.Printf("\nerror: config info for host '%v' is not found", lVal)
+				fmt.Printf("\nerror: aborting orchestration...")
+				return nil, errors.New("host info not found")
+			}
+		}
+
 		return strings.Split(hostGrpCli, ","), nil
 	}
 
@@ -161,7 +187,7 @@ func getHostList(selType, hostGrpCli string, scProp SorlConfigProperty) ([]strin
 				hostsStr = hostsStr + "," + mVal
 
 			} else {
-				return nil, fmt.Errorf("Error: group id '%s' is not found", hostGrpCli)
+				return nil, fmt.Errorf("Error: group id '%s' is not found", grpVal)
 			}
 
 		}

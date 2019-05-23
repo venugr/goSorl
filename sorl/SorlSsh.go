@@ -276,6 +276,7 @@ func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Cl
 	}
 
 	fmt.Print("\nConnected to ..." + serName)
+	fmt.Println()
 	return client, nil
 }
 

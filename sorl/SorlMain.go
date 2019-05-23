@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -22,15 +23,21 @@ func main() {
 
 		fmt.Printf("\n%s\n%s", oLine, mLine)
 	}
-	fmt.Println()
+	//fmt.Println()
 	//return
 
 	cliArgsMap := getCliArgs()
 	//fmt.Println(cliArgsMap)
+	printVersion()
+	versionOk := strings.TrimSpace(cliArgsMap["version"])
+
+	if versionOk == "true" {
+		return
+	}
 
 	envMap := getEnvlist([]string{"USER", "HOME", "AVA"})
-	printMap("ENVIRONMENT", map[string]string(envMap))
-	logit("\n")
+	//printMap("ENVIRONMENT", map[string]string(envMap))
+	//logit("\n")
 
 	homePath := envMap["HOME"]
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
@@ -50,11 +57,26 @@ func main() {
 	}
 	printMap("Global Vars", svMap)
 
-	hostList := sorlProcessCliArgs(scProp, cliArgsMap)
+	hostList, err := sorlProcessCliArgs(scProp, cliArgsMap)
+
+	if err != nil {
+		fmt.Println()
+		fmt.Println(err)
+		fmt.Println()
+		return
+	}
 	PrintList("All the selected hosts", hostList)
 	//os.Exit(1)
 	sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
 
 	fmt.Println()
+	fmt.Println()
+}
+
+func printVersion() {
+	fmt.Println()
+	fmt.Println("SORL: Solution ORchection Language, the .(dot) scripting")
+	fmt.Println("Version: 0.1-beta-build-1.0")
+	time.Sleep(1 * time.Second)
 	fmt.Println()
 }
