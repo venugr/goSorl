@@ -17,10 +17,18 @@
 .print -------------------------------------
 .print
 #
+.clear
 .wait ?||BAN83||$||#
 BAN83
 .wait $||#
+.print ****{_cmd.output}****
+.pass BAN83
+.fail SMPL
+.clear
 cat /etc/passwd
+.fail bansrs
+.clear
+.sleep 1
 #
 .var a=a11
 .var b=b22
@@ -37,7 +45,7 @@ echo "{a}{a}=>{b}" > /tmp/dellme.dell
 cat /tmp/dellme.dell
 echo "***DONE***"
 #
-.sleep 2
+.sleep 1
 .tag abcd  {  
    cd /tmp
    pwd
@@ -58,13 +66,17 @@ echo "***DONE***"
 }
 #
 .if deal != done {
+   .clear
    echo "echo" > /tmp/test.dell
    echo "echo 'My Name: Sorl, the .(dot) scripting'" >> /tmp/test.dell
    echo "echo '-----------------------------------'" >> /tmp/test.dell
    echo "echo" >> /tmp/test.dell
    sh /tmp/test.dell
+   .print {_cmd.output}
+   .clear
 }
 echo "SORL DONE"
+.print COMMANDOUTPUT====>{_cmd.output}<====
 #
 #
 .var {

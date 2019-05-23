@@ -13,6 +13,7 @@ import (
 func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
 
 	//fmt.Println("Run Orchestration....")
+	(*allProp)["_cmd.output"] = ""
 
 	orchFile := string((*allProp)["sr:orchfile"])
 	//color := string((*allProp)["sr:color"])
@@ -42,7 +43,15 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	if loadOk == "no" {
 		//waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
 	}
+
 	for _, cmd := range commands {
+
+		if runWaitOk && (!strings.HasPrefix(cmd, ".wait")) {
+			_, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
+			tempCmdOut += cmdOut
+			(*allProp)["_cmd.output"] = tempCmdOut
+		}
+		runWaitOk = false
 
 		if checkPauseAbort() {
 			fmt.Println("info: abort file is found")
@@ -54,16 +63,6 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		cmd = strings.TrimLeft(cmd, " ")
 
 		if strings.HasPrefix(cmd, "#") || cmd == "" {
-			continue
-		}
-
-		if strings.HasPrefix(cmd, ".sleep") {
-			sorlOrchSleep(cmd)
-			continue
-		}
-
-		if strings.HasPrefix(cmd, ".clear") {
-			tempCmdOut = ""
 			continue
 		}
 
@@ -107,16 +106,39 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			cmd = cmd + "{"
 		}
 
+		if strings.HasPrefix(cmd, ".sleep") {
+			sorlOrchSleep(cmd)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".clear") {
+			tempCmdOut = ""
+			(*allProp)["_cmd.output"] = tempCmdOut
+			continue
+		}
+
 		if strings.HasPrefix(cmd, ".print") {
 			sorlOrchPrint(cmd, (*allProp)["sr:color"])
 			continue
 		}
 
-		if runWaitOk && (!strings.HasPrefix(cmd, ".wait")) {
-			_, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
-			tempCmdOut += cmdOut
+		if strings.HasPrefix(cmd, ".pass") {
+			if sorlOrchPass(cmd, (*allProp)["sr:color"], tempCmdOut) {
+				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
+				session.Close()
+				return
+			}
+			continue
 		}
-		runWaitOk = false
+
+		if strings.HasPrefix(cmd, ".fail") {
+			if sorlOrchFail(cmd, (*allProp)["sr:color"], tempCmdOut) {
+				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
+				session.Close()
+				return
+			}
+			continue
+		}
 
 		//prevWaitCmd = cmd
 
@@ -154,6 +176,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			prevWaitCmd = cmd
 			runWaitOk = false
 			tempCmdOut += cmdOut
+			(*allProp)["_cmd.output"] = tempCmdOut
 			continue
 		}
 
@@ -178,6 +201,31 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	}
 
 	//session.Wait()
+}
+
+func sorlOrchFail(cmd, color, tempCmdOut string) bool {
+
+	cmd = strings.Replace(cmd, ".fail ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	if strings.Contains(tempCmdOut, cmd) {
+		return true
+	}
+
+	return false
+
+}
+
+func sorlOrchPass(cmd, color, tempCmdOut string) bool {
+	cmd = strings.Replace(cmd, ".pass ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	if strings.Contains(tempCmdOut, cmd) {
+		return false
+	}
+
+	return true
+
 }
 
 func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
