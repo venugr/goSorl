@@ -36,6 +36,8 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	prevWaitCmd := ""
 	runWaitOk := false
 	tempCmdOut := ""
+	skipVarLines := false
+	isRemoved := false
 
 	if loadOk == "no" {
 		//waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
@@ -52,11 +54,6 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		cmd = strings.TrimLeft(cmd, " ")
 
 		if strings.HasPrefix(cmd, "#") || cmd == "" {
-			continue
-		}
-
-		if strings.HasPrefix(cmd, ".print") {
-			sorlOrchPrint(cmd, (*allProp)["sr:color"])
 			continue
 		}
 
@@ -79,6 +76,16 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			if skipIfLines {
 				skipIfLines = false
 			}
+
+			if skipVarLines {
+				skipVarLines = false
+			}
+
+			continue
+		}
+
+		if skipVarLines {
+			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
@@ -87,12 +94,23 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			continue
 		}
 
+		isRemoved = false
 		if strings.HasSuffix(cmd, "{") {
 			cmd = strings.TrimRight(cmd, "{")
+			isRemoved = true
 		}
 
 		cmd, err1 := replaceProp(cmd, Property(*allProp))
 		checkError(err1)
+
+		if isRemoved {
+			cmd = cmd + "{"
+		}
+
+		if strings.HasPrefix(cmd, ".print") {
+			sorlOrchPrint(cmd, (*allProp)["sr:color"])
+			continue
+		}
 
 		if runWaitOk && (!strings.HasPrefix(cmd, ".wait")) {
 			_, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
@@ -112,9 +130,16 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".var ") {
+		if strings.HasPrefix(cmd, ".var ") && (!strings.Contains(cmd, "{")) {
+			//fmt.Printf("var single %v", cmd)
 			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
 			//printMap("Var Map", SorlMap(*allProp))
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".var ") && strings.Contains(cmd, "{") {
+			skipVarLines = true
+			//fmt.Printf("var group")
 			continue
 		}
 

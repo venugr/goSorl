@@ -3,7 +3,19 @@
 .print Welcome to SORL dot(.) Scripting
 .print ================================
 .print
-.sleep 5
+.sleep 1
+#
+.var {
+   v1=This is from var group
+   v2=if this works, var group is done
+}
+#
+.print
+.print -------------------------------------
+.print v1={v1}
+.print v2={v2}
+.print -------------------------------------
+.print
 #
 .wait ?||BAN83||$||#
 BAN83
@@ -53,4 +65,17 @@ echo "***DONE***"
    sh /tmp/test.dell
 }
 echo "SORL DONE"
+#
+#
+.var {
+   v11=**** This is from var group **** 
+   v22=**** if this works, var group is done **** 
+}
+#
+.print
+.print -------------------------------------
+.print v1={v11}
+.print v2={v22}
+.print -------------------------------------
+.print
 exit
