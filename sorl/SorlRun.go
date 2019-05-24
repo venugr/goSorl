@@ -41,6 +41,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	skipFuncLines := false
 	funcName := ""
 	isRemoved := false
+	waitMatchId := -1
 
 	mapFuncs := map[string]string{}
 
@@ -50,12 +51,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 	for _, cmd := range commands {
 
-		if runWaitOk && (!strings.HasPrefix(cmd, ".wait")) {
-			_, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
-			tempCmdOut += cmdOut
-			(*allProp)["_cmd.output"] = tempCmdOut
-		}
-		runWaitOk = false
+		cmd = strings.TrimLeft(cmd, " ")
 
 		if checkPauseAbort() {
 			fmt.Println("info: abort file is found")
@@ -106,6 +102,14 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			//fmt.Println("Skipping...:", cmd)
 			continue
 		}
+
+		if runWaitOk && (!strings.HasPrefix(cmd, ".wait")) {
+			waitMatchId, cmdOut = sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
+			(*allProp)["_wait.match.id"] = strconv.Itoa(waitMatchId)
+			tempCmdOut += cmdOut
+			(*allProp)["_cmd.output"] = tempCmdOut
+		}
+		runWaitOk = false
 
 		isRemoved = false
 		if strings.HasSuffix(cmd, "{") {
@@ -210,9 +214,10 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 		cmdOut = ""
 		if strings.HasPrefix(cmd, ".wait ") {
-			_, cmdOut = sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
+			waitMatchId, cmdOut = sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
 			prevWaitCmd = cmd
 			(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(cmd, ".wait ", "", 1))
+			(*allProp)["_wait.match.id"] = strconv.Itoa(waitMatchId)
 			runWaitOk = false
 			tempCmdOut += cmdOut
 			(*allProp)["_cmd.output"] = tempCmdOut
@@ -313,7 +318,7 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 	//fmt.Println("inside...tag")
 	cmd = strings.Replace(cmd, ".if ", "", 1)
 	cmd = strings.TrimSpace(cmd)
-	//cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimRight(cmd, "{")
 	cmd = strings.TrimSpace(cmd)
 
 	orStr := "||"

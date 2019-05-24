@@ -46,6 +46,22 @@
 #
 .clear
 .wait ?||BAN83||$||#
+#
+.println =====>{_wait.match.id}<====
+.sleep 5
+.if {_wait.match.id} == 2 {
+   .println
+   .println Wait Matched at 2, $
+   .println
+   .sleep 5
+}
+.if {_wait.match.id} == 1 {
+   .println
+   .println Wait Matched at 1, BAN83
+   .println
+   .sleep 5
+}
+#
 BAN83
 .wait $||#
 .print ****{_cmd.output}****

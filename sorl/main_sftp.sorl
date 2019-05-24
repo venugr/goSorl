@@ -1,0 +1,33 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+cd /tmp
+#
+.var sftpIp=149.24.204.111
+.var sftpPort=9011
+.var sftpUser=banner
+.var sftpPasswd=u_pick_it
+#
+sftp -P {sftpPort} {sftpUser}@{sftpIp} 
+.wait password:||(yes/no)?
+.if {_wait.match.id} == 1 {
+   yes
+   .wait password:
+}
+.if {_wait.match.id} == 0 {
+   {sftpPasswd}
+}
+.wait sftp>
+ls -ltr
+help
+cd /tmp/testsorl
+put test.dell
+exit
+.wait $||#
+#
+exit
