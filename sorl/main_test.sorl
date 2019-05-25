@@ -1,8 +1,8 @@
-.print 
+.println 
 .println ================================
 .println Welcome to SORL dot(.) Scripting
 .println ================================
-.print
+.println
 .sleep 1
 #
 #####################
@@ -29,7 +29,7 @@
 #
 #
 .show    {_func.helloWorld}
-.print ====================
+.println ====================
 .show {_func.fact}
 .sleep 5
 .var {
@@ -37,12 +37,12 @@
    v2=if this works, var group is done
 }
 #
-.print
-.print -------------------------------------
-.print v1={v1}
-.print v2={v2}
-.print -------------------------------------
-.print
+.println
+.println -------------------------------------
+.println v1={v1}
+.println v2={v2}
+.println -------------------------------------
+.println
 #
 .clear
 .wait ?||BAN83||$||#
@@ -64,7 +64,7 @@
 #
 BAN83
 .wait $||#
-.print ****{_cmd.output}****
+.println ****{_cmd.output}****
 .pass BAN83
 .fail SMPL
 .clear
@@ -73,7 +73,7 @@ cat /etc/passwd
 .clear
 .sleep 1
 #
-.print
+.println
 .println =========================
 .println       Wait String
 .println =========================

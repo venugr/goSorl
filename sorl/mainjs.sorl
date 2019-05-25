@@ -1,4 +1,4 @@
-.wait $||?||BAN83
+wait $||?||BAN83
 unalias ls
 uname -a
 pwd
@@ -12,5 +12,8 @@ env | sort
 ls
 df -h
 cat /etc/passwd
-sleep 5 
+sqlplus /nolog @versions
+wait baninst1_password:
+u_pick_it
+wait $
 exit

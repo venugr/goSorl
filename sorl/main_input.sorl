@@ -1,0 +1,20 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+cd /tmp
+#
+.println
+.println
+.input my.name Enter Name:
+.input my.num  Enter Number:
+.println
+.println Name={my.name}<===
+.println Numb={my.num}<===
+#
+ls -ltr
+exit

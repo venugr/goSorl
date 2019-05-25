@@ -1,0 +1,36 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+cd /tmp
+#
+.if ok == ok {
+
+   .println 
+   .println If is Ok
+   .println
+
+   .if yes != no {
+      pwd
+   }
+
+   .if pwd == pwd {
+
+      ls -ltr /
+      
+      .if do == done {
+         .println Do is done
+      }
+
+      echo "DOIT from linux"
+
+   }
+
+}
+#
+ls -ltr
+exit

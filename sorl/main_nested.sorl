@@ -1,0 +1,46 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+cd /tmp
+#
+.tag tag1 {
+
+   .tag doit {
+
+   .tag tag21 {
+
+      .var {
+         abc=Halloooo
+      }
+
+   }
+
+
+   .if hello == hello {
+      .println 
+      .println Hello is Hello
+      .println Hal={abc}
+
+      .if abc == abc {
+         hostname
+      }
+      .sleep 5
+
+   }
+
+   }
+
+   .var {
+
+
+   }
+
+}
+#
+ls -ltr
+exit
