@@ -1,0 +1,48 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+#
+.func firstFunc {
+
+
+   .println
+   .println Hello firstFunc is called
+   .println
+
+ .tag tt1,t1 {
+     .println Inside a tag
+     hostname
+     ls -l /
+     df -h
+     ls -l /tmp
+     
+     .if vl == vl {
+        echo "If works in func and tag"
+        df -h
+        echo "Df works"
+     }
+     df -h 
+     .println 
+     .println Done with firstFunc
+ }
+
+ .println
+ .println Is tag skipped?(y/n)
+ .input cmd.in Enter:
+ .println {cmd.in}
+ .println
+
+}
+#
+.wait ?||BAN83||$||#
+cd /tmp
+unalias ls
+ls -l /tmp
+#
+#
+.call firstFunc
+exit

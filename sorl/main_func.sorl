@@ -1,0 +1,44 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+#
+.func firstFunc {
+
+   .println
+   .println Hello firstFunc is called
+   .println
+
+   hostname
+   ls -l /tmp
+   pwd
+   ls -l /
+   df -h
+ 
+   .println 
+   .println Done with firstFunc
+
+ .println
+ .println Is tag skipped
+ .println
+
+}
+#
+.wait ?||BAN83||$||#
+cd /tmp
+unalias ls
+#
+.println
+.println Calling firstFunc
+#.call firstFunc
+sqlplus --help
+java -help
+.println
+.println Calling firstFunc done
+#
+.call firstFunc
+ls -ltr
+exit

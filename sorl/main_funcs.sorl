@@ -1,0 +1,86 @@
+.println 
+.println ================================
+.println Welcome to SORL .(Dot) Scripting
+.println ================================
+.println
+.sleep 1
+#
+#
+.func fls {
+
+   .println 
+   .println Function Name: fls
+   .println 
+
+   ls -ltr
+
+   .println 
+   .println Function Name: fls...Done.
+   .println 
+   .call fthree
+   .println Back to fls function
+   
+}
+
+#####
+
+.func fcat {
+
+   .println 
+   .println Function Name: cat 
+   .println 
+
+   .setwait >
+   cat > /tmp/file.dell.me << EOF
+   Hello
+   FileInfo
+   Delete the file
+   EOF
+   .wait $||# 
+
+   .println
+   .println Function Name: cat...Done.
+   .println
+
+}
+
+
+.func fthree {
+
+   .println
+   .println Function Name: fthree
+   .println
+
+    df -h
+
+   .println
+   .println Function Name: fthree...Done.
+   .println
+
+   .sleep 1
+  
+#   .call fthree
+
+}
+
+
+#
+.wait ?||BAN83||$||#
+#
+unalias ls
+#
+.call fls
+#
+.println 
+.println ===============================
+.println 
+.call fcat
+#
+cat /tmp/file.dell.me
+.wait $||#
+.println 
+.println ===============================
+.println 
+.call fthree
+#
+exit

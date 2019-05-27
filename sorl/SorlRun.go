@@ -19,10 +19,36 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	(*allProp)["_cmd.output"] = ""
 
 	orchFile := string((*allProp)["sr:orchfile"])
+	loadFile := string((*allProp)["sr:loadfile"])
+	loadOk := string((*allProp)["sr:load"])
+
+	if loadOk == "yes" {
+		orchFile = loadFile
+	}
+
+	if _, ok := (*allProp)["_wait.prev.cmd"]; !ok {
+		(*allProp)["_wait.prev.cmd"] = ""
+	}
+
+	if _, ok := (*allProp)["_wait.done"]; !ok {
+		(*allProp)["_wait.done"] = "-1"
+	}
+
+	commands, _ := ReadFile(orchFile)
+
+	sorlOrchestration(strings.Join(commands, "\n"), session, sshIn, sshOut, allProp)
+}
+
+func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
+
+	//fmt.Println("Run Orchestration....")
+	(*allProp)["_cmd.output"] = ""
+
+	//orchFile := string((*allProp)["sr:orchfile"])
 	//color := string((*allProp)["sr:color"])
 	keepNoCmdLogs, _ := strconv.Atoi((*allProp)["sr:keep"])
 	keepCmdLogs := make([]string, keepNoCmdLogs)
-	loadFile := string((*allProp)["sr:loadfile"])
+	//loadFile := string((*allProp)["sr:loadfile"])
 	loadOk := string((*allProp)["sr:load"])
 	//display := string(allProp["sr:display"])
 
@@ -30,24 +56,26 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	skipIfLines := false
 	//tagName := ""
 
-	if loadOk == "yes" {
-		orchFile = loadFile
-	}
+	//if loadOk == "yes" {
+	//	orchFile = loadFile
+	//}
 
-	commands, _ := ReadFile(orchFile)
+	commands := strings.Split(cmdLines, "\n")
 
 	cmdOut := ""
-	prevWaitCmd := ""
+	prevWaitCmd := (*allProp)["_wait.prev.cmd"]
 	runWaitOk := false
 	tempCmdOut := ""
 	skipVarLines := false
 	skipFuncLines := false
 	funcName := ""
+	funcLoops := 0
 	isRemoved := false
 	waitMatchId := -1
 	ifReq := false
 	tagsOrder := ""
 	lastTag := ""
+	waitDone := (*allProp)["_wait.done"]
 
 	mapFuncs := map[string]string{}
 
@@ -102,7 +130,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			}
 
 			if skipFuncLines && strings.EqualFold(lastTag, "func,") {
-				skipFuncLines = false
+				//skipFuncLines = false
 			}
 
 			if tagsOrder != "" {
@@ -115,17 +143,37 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 			//fmt.Println("2.", tagsOrder, lastTag)
 			//fmt.Println("1.True/False", skipTagLines, skipIfLines)
-			continue
+
+			if !skipFuncLines {
+				continue
+			}
 		}
 
-		//fmt.Println("2.True/False", skipTagLines, skipIfLines)
+		//fmt.Println("2.True/False", skipTagLines, skipIfLines, skipFuncLines)
 
 		if skipVarLines && (!(skipTagLines || skipIfLines)) {
 			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
-		if skipFuncLines && (!skipTagLines) {
+		if skipFuncLines && strings.HasSuffix(strings.TrimRight(cmd, " "), "{") {
+			funcLoops++
+		}
+
+		bracStr := strings.TrimSpace(cmd)
+		//fmt.Printf("Cmd:==>%v<==", bracStr)
+		if skipFuncLines && (bracStr == "}") {
+			funcLoops--
+			if funcLoops == 0 {
+				skipFuncLines = false
+				continue
+			}
+
+		}
+
+		//fmt.Println("Ture/Value:", skipFuncLines, funcLoops)
+
+		if skipFuncLines && funcLoops != 0 {
 			mapFuncs[funcName] += cmd + "\n"
 			(*allProp)["_func."+funcName] = mapFuncs[funcName]
 			continue
@@ -139,6 +187,9 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			cmdList := strings.Split(cmdOut, "\n")
 			cmdListLen := len(cmdList) - 1
 			(*allProp)["_wait.matched.prompt"] = cmdList[cmdListLen]
+			//waitDone = "0"
+			//(*allProp)["_wait.done"] = "0"
+
 		}
 		runWaitOk = false
 
@@ -163,6 +214,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 		if strings.HasPrefix(cmd, ".setwait ") && (!(skipTagLines || skipIfLines)) {
 			prevWaitCmd = strings.Replace(cmd, ".setwait", ".wait", 1)
+			(*allProp)["_wait.prev.cmd"] = prevWaitCmd
 			(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(cmd, ".setwait ", "", 1))
 			continue
 		}
@@ -206,6 +258,15 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			continue
 		}
 
+		if strings.HasPrefix(cmd, ".call ") && (!(skipTagLines || skipIfLines)) {
+			callName, _ := sorlOrchCall(cmd, (*allProp)["sr:color"], allProp)
+			//ifReq = true
+
+			//fmt.Println((*allProp)["_func."+callName])
+			sorlOrchestration((*allProp)["_func."+callName], session, sshIn, sshOut, allProp)
+			continue
+		}
+
 		if strings.HasPrefix(cmd, ".pass") && (!(skipTagLines || skipIfLines)) {
 			if sorlOrchPass(cmd, (*allProp)["sr:color"], tempCmdOut) {
 				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
@@ -236,6 +297,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			}
 			tagsOrder += "func,"
 			lastTag = "func,"
+			funcLoops++
 			continue
 		}
 
@@ -291,6 +353,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		if strings.HasPrefix(cmd, ".wait ") && (!(skipTagLines || skipIfLines)) {
 			waitMatchId, cmdOut = sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
 			prevWaitCmd = cmd
+			(*allProp)["_wait.prev.cmd"] = prevWaitCmd
 			(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(cmd, ".wait ", "", 1))
 			(*allProp)["_wait.match.id"] = strconv.Itoa(waitMatchId)
 			runWaitOk = false
@@ -299,6 +362,9 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 			cmdList := strings.Split(cmdOut, "\n")
 			cmdListLen := len(cmdList) - 1
 			(*allProp)["_wait.matched.prompt"] = cmdList[cmdListLen]
+			//waitDone = "0"
+			//(*allProp)["_wait.done"] = "0"
+			//ifReq = false
 			continue
 		}
 
@@ -315,10 +381,13 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 		//color := (*allProp)["sr:color"]
 		//display := (*allProp)["sr:display"]
-		if ifReq {
+		if ifReq && waitDone != "-1" {
 			sshPrint((*allProp)["sr:color"], (*allProp)["_wait.matched.prompt"])
 		}
 		ifReq = false
+		waitDone = "0"
+		(*allProp)["_wait.done"] = "0"
+		//fmt.Println("R: Cmd:", cmd)
 		runShellCmd(cmd, sshOut)
 		//if cmd != "exit" {
 		//_, cmdOut := waitFor(color, []string{"$"}, sshIn)
@@ -502,12 +571,21 @@ func sorlOrchTag(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wr
 	}
 
 	for _, lCmd := range strings.Split(cmd, ",") {
-		if strings.Contains(tags+",", lCmd+",") {
+		if strings.Contains(","+tags+",", ","+lCmd+",") {
 			return false, cmd
 		}
 	}
 
 	return true, cmd
+}
+
+func sorlOrchCall(cmd string, color string, allProp *Property) (string, error) {
+
+	cmd = strings.Replace(cmd, ".call", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	return cmd, nil
+
 }
 
 func sorlOrchInput(cmd string, color string, allProp *Property) error {
