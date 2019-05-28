@@ -1,0 +1,40 @@
+
+.func funcIncr {
+
+   .incr {me.val}
+   .println Val={me.val}
+   .sleep 1
+
+   .if {me.val} == 9 {
+      .return 0
+   }
+
+   .call funcIncr
+
+}
+
+.func funcDecr {
+
+   .decr {me.val}
+   .println Val={me.val}
+   .sleep 1
+
+   .if {me.val} == 0 {
+      .return 0
+   }
+   
+   .call funcDecr
+
+}
+
+
+.wait $||?||BAN83
+unalias ls
+uname -a
+.name This is to test .incr/.decr
+.var me.val=0
+.call funcIncr
+.call funcDecr
+cat /etc/passwd
+sleep 5 
+exit

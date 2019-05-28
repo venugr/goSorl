@@ -234,6 +234,16 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
+		if strings.HasPrefix(cmd, ".incr ") && (!(skipTagLines || skipIfLines)) {
+			sorlOrchIncr(cmd, allProp)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".decr ") && (!(skipTagLines || skipIfLines)) {
+			sorlOrchDecr(cmd, allProp)
+			continue
+		}
+
 		err1 := errors.New("")
 		if !(skipTagLines || skipIfLines) {
 			cmd, err1 = replaceProp(cmd, Property(*allProp))
@@ -251,8 +261,12 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		}
 
 		if strings.HasPrefix(cmd, ".return") && (!(skipTagLines || skipIfLines)) {
-			fmt.Printf("return: with error %v", sorlOrchReturn(cmd))
-			session.Close()
+			retCode := sorlOrchReturn(cmd)
+
+			if retCode != 0 {
+				fmt.Printf("return: %v\n", retCode)
+				session.Close()
+			}
 			return
 		}
 
@@ -668,6 +682,42 @@ func sorlOrchLower(cmd string, allProp *Property) {
 	cmd, _ = replaceProp(cmd, (*allProp))
 
 	(*allProp)[propName] = strings.ToLower(cmd)
+
+}
+
+func sorlOrchIncr(cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".incr", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	propName := strings.TrimLeft(cmd, "{")
+	propName = strings.TrimRight(propName, "}")
+	propName = strings.TrimSpace(propName)
+
+	cmd, _ = replaceProp(cmd, (*allProp))
+
+	lVal, _ := strconv.Atoi(cmd)
+
+	lVal++
+
+	(*allProp)[propName] = strconv.Itoa(lVal)
+
+}
+
+func sorlOrchDecr(cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".decr", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	propName := strings.TrimLeft(cmd, "{")
+	propName = strings.TrimRight(propName, "}")
+	propName = strings.TrimSpace(propName)
+
+	cmd, _ = replaceProp(cmd, (*allProp))
+
+	lVal, _ := strconv.Atoi(cmd)
+
+	lVal--
+
+	(*allProp)[propName] = strconv.Itoa(lVal)
 
 }
 
