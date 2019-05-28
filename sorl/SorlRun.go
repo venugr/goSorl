@@ -219,6 +219,21 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
+		if strings.HasPrefix(cmd, ".upper ") && (!(skipTagLines || skipIfLines)) {
+			sorlOrchUpper(cmd, allProp)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".lower ") && (!(skipTagLines || skipIfLines)) {
+			sorlOrchLower(cmd, allProp)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".replace ") && (!(skipTagLines || skipIfLines)) {
+			sorlOrchReplace(cmd, allProp)
+			continue
+		}
+
 		err1 := errors.New("")
 		if !(skipTagLines || skipIfLines) {
 			cmd, err1 = replaceProp(cmd, Property(*allProp))
@@ -227,6 +242,18 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		if isRemoved {
 			cmd = cmd + "{"
+		}
+
+		if strings.HasPrefix(cmd, ".name") && (!(skipTagLines || skipIfLines)) {
+			sorlOrchName(cmd, (*allProp)["sr:color"])
+			ifReq = true
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".return") && (!(skipTagLines || skipIfLines)) {
+			fmt.Printf("return: with error %v", sorlOrchReturn(cmd))
+			session.Close()
+			return
 		}
 
 		if strings.HasPrefix(cmd, ".sleep") && (!(skipTagLines || skipIfLines)) {
@@ -614,6 +641,68 @@ func sorlOrchInput(cmd string, color string, allProp *Property) error {
 
 }
 
+func sorlOrchUpper(cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".upper", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	idx := strings.Index(cmd, " ")
+	propName := cmd[:idx+1]
+	propName = strings.TrimSpace(propName)
+
+	cmd = strings.Replace(cmd, propName, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd, _ = replaceProp(cmd, (*allProp))
+
+	(*allProp)[propName] = strings.ToUpper(cmd)
+
+}
+
+func sorlOrchLower(cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".lower", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	idx := strings.Index(cmd, " ")
+	propName := cmd[:idx+1]
+	propName = strings.TrimSpace(propName)
+
+	cmd = strings.Replace(cmd, propName, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd, _ = replaceProp(cmd, (*allProp))
+
+	(*allProp)[propName] = strings.ToLower(cmd)
+
+}
+
+func sorlOrchReplace(cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".replace", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	idx := strings.Index(cmd, " ")
+	propName := cmd[:idx+1]
+	propName = strings.TrimSpace(propName)
+
+	cmd = strings.Replace(cmd, propName, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	idx = strings.Index(cmd, " ")
+	srcProp := cmd[:idx+1]
+	srcProp = strings.TrimSpace(srcProp)
+
+	cmd = strings.Replace(cmd, srcProp, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	idx = strings.Index(cmd, " ")
+	oldProp := cmd[:idx+1]
+	oldProp = strings.TrimSpace(oldProp)
+
+	newProp := strings.Replace(cmd, oldProp, "", 1)
+	newProp = strings.TrimSpace(newProp)
+
+	srcProp, _ = replaceProp(srcProp, (*allProp))
+	oldProp, _ = replaceProp(oldProp, (*allProp))
+	newProp, _ = replaceProp(newProp, (*allProp))
+
+	(*allProp)[propName] = strings.ReplaceAll(srcProp, oldProp, newProp)
+
+}
+
 func sorlOrchPrint(cmd string, color string) {
 	cmd = strings.Replace(cmd, ".println", "", 1)
 	cmd = strings.Replace(cmd, ".print", "", 1)
@@ -623,6 +712,29 @@ func sorlOrchPrint(cmd string, color string) {
 
 func sorlOrchPrintln(cmd string, color string) {
 	sorlOrchPrint(cmd+"\n", color)
+}
+
+func sorlOrchReturn(cmd string) int {
+	cmd = strings.Replace(cmd, ".return", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	retCode, err := strconv.Atoi(cmd)
+
+	if err != nil {
+		return -1
+	}
+
+	return retCode
+}
+func sorlOrchName(cmd string, color string) {
+
+	cmd = strings.Replace(cmd, ".name", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmdLen := len(cmd)
+
+	sshPrint(color, "\n\n"+strings.Repeat("*", cmdLen+2)+"\n")
+	sshPrint(color, "* "+cmd+"\n")
+	sshPrint(color, strings.Repeat("*", cmdLen+2)+"\n")
+
 }
 
 func sorlOrchShow(cmd string) string {

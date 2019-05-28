@@ -1,0 +1,12 @@
+.wait $||?||BAN83
+unalias ls
+uname -a
+.name This is to test .replace
+.var aa=This is a go scripting for go goers
+.var rep=go 
+.var new=golan 
+.replace me.new.str {aa} {rep} {new}
+.name {me.new.str}
+cat /etc/passwd
+sleep 5 
+exit

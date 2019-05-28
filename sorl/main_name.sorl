@@ -1,0 +1,28 @@
+.wait $||?||BAN83
+unalias ls
+uname -a
+.name This is to verify the .name command
+.upper me.upper This will be in upper case, Chk it.
+.println
+.println {me.upper}
+.sleep 1
+.lower me.lower {me.upper}
+.println
+.println {me.lower}
+.name {me.upper}
+.name {me.lower}
+.sleep 2
+pwd
+echo "{sorl.tlu}"
+pwd
+echo {sorl.three.key}
+echo 'bye'
+ls -l /tmp
+sqlplus --h
+env | sort 
+ls
+df -h
+.name To print debug info once can use .named
+cat /etc/passwd
+sleep 5 
+exit
