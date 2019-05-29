@@ -59,6 +59,7 @@ func getCliArgs() map[string]string {
 	dispPtr := flag.String("display", "more", "display: [less | more | all | no | clear]")
 	tagsPtr := flag.String("tags", "", "Tag Names")
 	versionPtr := flag.Bool("version", false, "Version details")
+	debugPtr := flag.Bool("debug", false, "Include debug blocks")
 
 	flag.Parse()
 
@@ -91,6 +92,11 @@ func getCliArgs() map[string]string {
 	cliArgs["version"] = "false"
 	if *versionPtr {
 		cliArgs["version"] = "true"
+	}
+
+	cliArgs["debug"] = "false"
+	if *debugPtr {
+		cliArgs["debug"] = "true"
 	}
 
 	return cliArgs

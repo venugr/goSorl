@@ -1,0 +1,61 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+cd /tmp
+unalias ls
+#
+.debug {
+
+   .println 
+   .println debug is Ok
+   .println
+
+   .if yes != no {
+      pwd
+   }
+
+}
+
+ls -ltr /
+
+.debug {
+
+   .if pwd == pwd {
+
+      ls -ltr /
+      
+      .if do == done {
+         .println Do is done
+      }
+
+      echo "DOIT from linux"
+
+   }
+
+}
+#
+ls -ltr
+#
+.if true == true {
+
+   .println
+   .println Inside if block
+   .println 
+
+   .debug {
+
+      .println
+      .println Inside debug in if blk
+      .println
+   }
+
+   echo $PWD
+
+
+}
+exit

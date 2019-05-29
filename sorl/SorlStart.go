@@ -190,11 +190,13 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	allProp["sr:keep"] = strconv.Itoa(keepNoCmdLogs)
 	allProp["sr:display"] = display
 	allProp["sr:tags"] = tags
+	allProp["sr:debug"] = cliArgsMap["debug"]
 
 	for lKey, lVal := range varsPerHostMap {
 		allProp[lKey] = lVal
 	}
 
+	//fmt.Println("==>0." + allProp["sr:debug"] + "<==")
 	sorlRunOrchestration(session, sshIn, sshOut, &allProp)
 	session.Wait()
 

@@ -36,6 +36,8 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 	commands, _ := ReadFile(orchFile)
 
+	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
+
 	sorlOrchestration(strings.Join(commands, "\n"), session, sshIn, sshOut, allProp)
 }
 
@@ -54,6 +56,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 	skipTagLines := false
 	skipIfLines := false
+	skipDebugLines := false
 	//tagName := ""
 
 	//if loadOk == "yes" {
@@ -76,6 +79,8 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	tagsOrder := ""
 	lastTag := ""
 	waitDone := (*allProp)["_wait.done"]
+
+	//fmt.Println("==>2." + (*allProp)["sr:debug"] + "<==")
 
 	mapFuncs := map[string]string{}
 
@@ -117,10 +122,16 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			tagsOrder = strings.TrimSuffix(tagsOrder, lastTag)
 			tagsOrder = strings.TrimSuffix(tagsOrder, "skip.")
 
+			if skipDebugLines && strings.EqualFold(lastTag, "debug,") && (!strings.Contains(tagsOrder, "skip.debug,")) {
+				skipDebugLines = false
+
+			}
+
 			if skipTagLines && strings.EqualFold(lastTag, "tag,") && (!strings.Contains(tagsOrder, "skip.tag,")) {
 				skipTagLines = false
 
 			}
+
 			if skipIfLines && strings.EqualFold(lastTag, "if,") && (!strings.Contains(tagsOrder, "skip.if,")) {
 				skipIfLines = false
 			}
@@ -151,7 +162,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		//fmt.Println("2.True/False", skipTagLines, skipIfLines, skipFuncLines)
 
-		if skipVarLines && (!(skipTagLines || skipIfLines)) {
+		if skipVarLines && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
@@ -205,47 +216,47 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			isRemoved = true
 		}
 
-		if strings.HasPrefix(cmd, ".show ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".show ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			lProp := sorlOrchShow(cmd)
 			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[lProp])
 			ifReq = true
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".setwait ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".setwait ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			prevWaitCmd = strings.Replace(cmd, ".setwait", ".wait", 1)
 			(*allProp)["_wait.prev.cmd"] = prevWaitCmd
 			(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(cmd, ".setwait ", "", 1))
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".upper ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".upper ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchUpper(cmd, allProp)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".lower ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".lower ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchLower(cmd, allProp)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".replace ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".replace ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchReplace(cmd, allProp)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".incr ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".incr ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchIncr(cmd, allProp)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".decr ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".decr ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchDecr(cmd, allProp)
 			continue
 		}
 
 		err1 := errors.New("")
-		if !(skipTagLines || skipIfLines) {
+		if !(skipTagLines || skipIfLines || skipDebugLines) {
 			cmd, err1 = replaceProp(cmd, Property(*allProp))
 			checkError(err1)
 		}
@@ -254,13 +265,13 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			cmd = cmd + "{"
 		}
 
-		if strings.HasPrefix(cmd, ".name") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".name") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchName(cmd, (*allProp)["sr:color"])
 			ifReq = true
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".return") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".return") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			retCode := sorlOrchReturn(cmd)
 
 			if retCode != 0 {
@@ -270,36 +281,36 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			return
 		}
 
-		if strings.HasPrefix(cmd, ".sleep") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".sleep") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchSleep(cmd)
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".clear") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".clear") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			tempCmdOut = ""
 			(*allProp)["_cmd.output"] = tempCmdOut
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".println") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".println") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchPrintln(cmd, (*allProp)["sr:color"])
 			ifReq = true
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".print") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".print") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchPrint(cmd, (*allProp)["sr:color"])
 			ifReq = true
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".input ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".input ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchInput(cmd, (*allProp)["sr:color"], allProp)
 			ifReq = true
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".call ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".call ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			callName, _ := sorlOrchCall(cmd, (*allProp)["sr:color"], allProp)
 			//ifReq = true
 
@@ -308,7 +319,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".pass") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".pass") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			if sorlOrchPass(cmd, (*allProp)["sr:color"], tempCmdOut) {
 				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
 				ifReq = true
@@ -318,7 +329,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".fail") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".fail") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			if sorlOrchFail(cmd, (*allProp)["sr:color"], tempCmdOut) {
 				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
 				ifReq = true
@@ -354,6 +365,24 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
+		if strings.HasPrefix(cmd, ".debug ") {
+			//fmt.Println("==>3." + (*allProp)["sr:debug"] + "<==")
+			if !skipTagLines {
+
+				//fmt.Println("Debug block found!")
+				//time.Sleep(1 * time.Second)
+				skipDebugLines, _ = sorlOrchDebug(cmd, session, sshIn, sshOut, allProp)
+				if skipDebugLines {
+					//fmt.Println("Debug no run!")
+					//time.Sleep(1 * time.Second)
+					tagsOrder += "skip."
+				}
+			}
+			tagsOrder += "debug,"
+			lastTag = "debug,"
+			continue
+		}
+
 		if strings.HasPrefix(cmd, ".if ") {
 			if !skipTagLines {
 				skipIfLines, _ = sorlOrchIf(cmd, session, sshIn, sshOut, allProp)
@@ -366,7 +395,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".var ") && (!strings.Contains(cmd, "{")) && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".var ") && (!strings.Contains(cmd, "{")) && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			//fmt.Printf("var single %v", cmd)
 
 			sorlOrchVar(cmd, session, sshIn, sshOut, allProp)
@@ -385,13 +414,13 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".load ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".load ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchLoad(cmd, session, sshIn, sshOut, allProp)
 			continue
 		}
 
 		cmdOut = ""
-		if strings.HasPrefix(cmd, ".wait ") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".wait ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			waitMatchId, cmdOut = sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
 			prevWaitCmd = cmd
 			(*allProp)["_wait.prev.cmd"] = prevWaitCmd
@@ -409,11 +438,11 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
-		if strings.HasPrefix(cmd, ".enter") && (!(skipTagLines || skipIfLines)) {
+		if strings.HasPrefix(cmd, ".enter") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			cmd = ""
 		}
 
-		if skipTagLines || skipIfLines {
+		if skipTagLines || skipIfLines || skipDebugLines {
 			continue
 		}
 
@@ -503,6 +532,22 @@ func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
 		return cmd, ""
 	}
 	return cmd[:idx], condStr
+
+}
+
+func sorlOrchDebug(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
+	cmd = strings.Replace(cmd, ".debug ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
+	//fmt.Println("==>" + (*allProp)["sr:debug"] + "<==")
+	//time.Sleep(1 * time.Second)
+	if (*allProp)["sr:debug"] == "true" {
+		return false, cmd
+	}
+
+	return true, cmd
 
 }
 
