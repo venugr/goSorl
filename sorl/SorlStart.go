@@ -76,6 +76,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	lLogConfig := scProp["lp:logpath"]
 	lHostUser := ""
 	lHostUserPasswd := ""
+	lHostSshKeysFile := ""
 	lHostIP := ""
 	lHostPort := 22
 	lHostLogName := "_sorl.log"
@@ -142,6 +143,10 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 		lHostIP = lVal
 	}
 
+	if lVal, ok := lHostConfig["sorl_host_ssh_keys_file"]; ok {
+		lHostSshKeysFile = lVal
+	}
+
 	lLogPath = lLogPath + PathSep + lHostLogName
 
 	fmt.Println("Orchestration file:", orchFile)
@@ -149,7 +154,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 
 	time.Sleep(2 * time.Second)
 
-	session, client, err := sorlParallelSsh(lHostUser, lHostUserPasswd, lHostIP, lHostPort)
+	session, client, err := sorlParallelSsh(lHostUser, lHostUserPasswd, lHostIP, lHostPort, lHostSshKeysFile)
 
 	if err != nil {
 		fmt.Printf("\nerror: session is not created due to: %v", err)

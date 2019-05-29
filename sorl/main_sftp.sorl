@@ -11,7 +11,7 @@ cd /tmp
 .var sftpIp=149.24.204.111
 .var sftpPort=9011
 .var sftpUser=banner
-.var sftpPasswd=u_pick_it
+.var sftpPasswd=*******
 #
 sftp -P {sftpPort} {sftpUser}@{sftpIp} 
 .wait password:||(yes/no)?

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -23,9 +24,9 @@ func sshPrint(color, prn string) {
 	mut.Unlock()
 }
 
-func sorlParallelSsh(userName, userPasswd, hostName string, portNum int) (*ssh.Session, *ssh.Client, error) {
+func sorlParallelSsh(userName, userPasswd, hostName string, portNum int, userSshKeyFile string) (*ssh.Session, *ssh.Client, error) {
 
-	sshConfig := configSsh(hostName, userName, userPasswd)
+	sshConfig := configSsh(hostName, userName, userPasswd, userSshKeyFile)
 	client, err := dialSsh(hostName, portNum, sshConfig)
 
 	if err != nil {
@@ -44,9 +45,9 @@ func sorlParallelSsh(userName, userPasswd, hostName string, portNum int) (*ssh.S
 
 }
 
-func runParallelSsh(userName, userPasswd, hostName string, portNum int) {
+func runParallelSsh(userName, userPasswd, hostName string, portNum int, userSshKeyFile string) {
 
-	sshConfig := configSsh(hostName, userName, userPasswd)
+	sshConfig := configSsh(hostName, userName, userPasswd, userSshKeyFile)
 	client, err := dialSsh(hostName, portNum, sshConfig)
 
 	if err != nil {
@@ -280,12 +281,16 @@ func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Cl
 	return client, nil
 }
 
-func configSsh(hostName, userName, userPasswd string) *ssh.ClientConfig {
+func configSsh(hostName, userName, userPasswd string, userSshKeyFile string) *ssh.ClientConfig {
+
+	//sshPasswd := ssh.Password(userPasswd)
+	lKey, _ := configSshKey(userSshKeyFile)
 
 	sshConfig := &ssh.ClientConfig{
 		User: userName,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(userPasswd),
+			ssh.PublicKeys(lKey),
 		},
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
@@ -293,4 +298,22 @@ func configSsh(hostName, userName, userPasswd string) *ssh.ClientConfig {
 	}
 
 	return sshConfig
+}
+
+func configSshKey(userSshKeyFile string) (ssh.Signer, error) {
+
+	buf, err := ioutil.ReadFile(userSshKeyFile)
+
+	if err != nil {
+		return nil, err
+	}
+
+	lKey, err := ssh.ParsePrivateKey(buf)
+
+	if err != nil {
+		return lKey, err
+	}
+
+	return lKey, err
+
 }

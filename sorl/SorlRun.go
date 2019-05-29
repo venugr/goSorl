@@ -826,9 +826,9 @@ func sorlOrchName(cmd string, color string) {
 	cmd = strings.TrimLeft(cmd, " ")
 	cmdLen := len(cmd)
 
-	sshPrint(color, "\n\n"+strings.Repeat("*", cmdLen+2)+"\n")
-	sshPrint(color, "* "+cmd+"\n")
-	sshPrint(color, strings.Repeat("*", cmdLen+2)+"\n")
+	sshPrint(color, "\n\n\n"+strings.Repeat("*", cmdLen+4)+"\n")
+	sshPrint(color, "* "+cmd+" *\n")
+	sshPrint(color, strings.Repeat("*", cmdLen+4)+"\n")
 
 }
 

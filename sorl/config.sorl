@@ -59,22 +59,36 @@ sorl_host_user=user444
 
 
 sorl_host_name=dockjs
-sorl_host_group=g555
+sorl_host_group=dockg
 sorl_host_ip=149.24.204.111
 sorl_host_user=banner
 sorl_host_user_pass=*****
 sorl_host_new_text=This is used for host name informations.
-sorl_host_ssh_port=9003
+sorl_host_ssh_port=9009
 sorl_host_vars_file=/Users/venul/.sorl/vars.sorl
 #sorl_host_orch_file=/Users/venul/main.sorl
 
 
-sorl_host_name=test2
-sorl_host_group=g555
+sorl_host_name=dockdb
+sorl_host_group=dockg
 sorl_host_ip=149.24.204.111
 sorl_host_user=oracle
 sorl_host_user_pass=*****
 sorl_host_new_text=This is used for host name informations.
-sorl_host_ssh_port=9001
-sorl_host_orch_file=/Users/venul/main.sorl
+sorl_host_ssh_port=9007
 sorl_host_log_path=/tmp
+
+
+sorl_host_name=sorl
+sorl_host_group=dockg
+sorl_host_ip=149.24.204.111
+sorl_host_user=banner
+sorl_host_user_pass=*****
+sorl_host_new_text=This is used for host name informations.
+sorl_host_ssh_port=9011
+sorl_host_log_path=/tmp
+
+sorl_host_name=bas
+sorl_host_ip=3.217.140.52
+sorl_host_user=ec2-user
+sorl_host_ssh_keys_file=/Users/venul/.ssh/test.pem
