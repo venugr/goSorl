@@ -34,3 +34,36 @@ Following .(dot) commands have been implemented...
 
 .load
 
+.debug
+
+.input
+
+.incr/.decr
+
+.name
+
+.upper/.lower
+
+.replace
+
+.return
+
+.call
+
+.set
+
+.for
+
+.range
+
+.sort
+
+.contains
+
+.repeat
+
+.test
+
+.log/.unlog
+
+
