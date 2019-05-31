@@ -1,0 +1,21 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.echo off
+.wait ?||BAN83||$||#
+cd /tmp
+.echo on
+alias ls
+unalias ls
+ls -l /tmp
+#
+.echo off
+ls -ltr
+echo "Chekcing echo off"
+.echo on
+echo "Chekcing echo on"
+exit

@@ -14,6 +14,6 @@ df -h
 cat /etc/passwd
 sqlplus /nolog @versions
 wait baninst1_password:
-******
+u_pick_it
 wait $
 exit

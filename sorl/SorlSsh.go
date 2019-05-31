@@ -81,7 +81,7 @@ func runShellCmd(cmd string, sshIn io.WriteCloser) {
 
 }
 
-func waitFor(color string, display string, waitStr []string, sshOut io.Reader) (int, string) {
+func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut io.Reader) (int, string) {
 
 	//fmt.Println("in waitFor..")
 	cmdOut := ""
@@ -101,7 +101,7 @@ func waitFor(color string, display string, waitStr []string, sshOut io.Reader) (
 
 		if err == nil {
 			tempOut = string(cmdBuf[:n])
-			if !strings.HasPrefix(display, "clear") {
+			if echoOn && !strings.HasPrefix(display, "clear") {
 				sshPrint(color, tempOut)
 			}
 			cmdOut += tempOut
@@ -128,7 +128,7 @@ func waitFor(color string, display string, waitStr []string, sshOut io.Reader) (
 	//sshPrint(color, cmdOut)
 	//fmt.Println(cmdOut)
 	//fmt.Println("exit waitFor..")
-	if strings.HasPrefix(display, "clear") {
+	if echoOn && strings.HasPrefix(display, "clear") {
 		sshPrint(color, cmdOut)
 	}
 
@@ -283,7 +283,6 @@ func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Cl
 
 func configSsh(hostName, userName, userPasswd string, userSshKeyFile string) *ssh.ClientConfig {
 
-	//sshPasswd := ssh.Password(userPasswd)
 	lKey, _ := configSshKey(userSshKeyFile)
 
 	sshConfig := &ssh.ClientConfig{

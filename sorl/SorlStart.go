@@ -210,13 +210,13 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 		commands, _ := ReadFile(orchFile)
 
 		//PrintList("FILE", commands)
-		waitFor(color, "", []string{"$", "[BAN83] ?"}, sshIn)
+		waitFor(true, color, "", []string{"$", "[BAN83] ?"}, sshIn)
 		for _, cmd := range commands {
 			cmd, err1 := replaceProp(cmd, Property(varsPerHostMap))
 			checkError(err1)
 			runShellCmd(cmd, sshOut)
 			//if cmd != "exit" {
-			_, cmdOut := waitFor(color, "", []string{"$"}, sshIn)
+			_, cmdOut := waitFor(true, color, "", []string{"$"}, sshIn)
 			//}
 
 			for i := 0; i < keepNoCmdLogs-1; i++ {

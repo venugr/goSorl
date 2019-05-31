@@ -79,6 +79,8 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	tagsOrder := ""
 	lastTag := ""
 	waitDone := (*allProp)["_wait.done"]
+	//echoOn := true
+	(*allProp)["sr:echo"] = "on"
 
 	//fmt.Println("==>2." + (*allProp)["sr:debug"] + "<==")
 
@@ -201,6 +203,14 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			//waitDone = "0"
 			//(*allProp)["_wait.done"] = "0"
 
+			/*
+				tEchoOn := (*allProp)["sr:echo"]
+				(*allProp)["sr:echo"] = "off"
+				runShellCmd("echo $?", sshOut)
+				sorlOrchWait(prevWaitCmd, session, sshIn, sshOut, allProp)
+				(*allProp)["sr:echo"] = tEchoOn
+			*/
+
 		}
 		runWaitOk = false
 
@@ -252,6 +262,14 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		if strings.HasPrefix(cmd, ".decr ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			sorlOrchDecr(cmd, allProp)
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".echo ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
+			//ifReq = false
+			if sorlOrchEcho(cmd, allProp) {
+				ifReq = true
+			}
 			continue
 		}
 
@@ -435,6 +453,15 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			//waitDone = "0"
 			//(*allProp)["_wait.done"] = "0"
 			//ifReq = false
+
+			/*
+				tEchoOn := (*allProp)["sr:echo"]
+				(*allProp)["sr:echo"] = "off"
+				runShellCmd("echo $?", sshOut)
+				sorlOrchWait(cmd, session, sshIn, sshOut, allProp)
+				(*allProp)["sr:echo"] = tEchoOn
+			*/
+
 			continue
 		}
 
@@ -452,7 +479,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		//color := (*allProp)["sr:color"]
 		//display := (*allProp)["sr:display"]
 		if ifReq && waitDone != "-1" {
-			sshPrint((*allProp)["sr:color"], (*allProp)["_wait.matched.prompt"])
+			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
 		}
 		ifReq = false
 		waitDone = "0"
@@ -748,6 +775,20 @@ func sorlOrchIncr(cmd string, allProp *Property) {
 
 }
 
+func sorlOrchEcho(cmd string, allProp *Property) bool {
+	cmd = strings.Replace(cmd, ".echo", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	if cmd == "off" {
+		(*allProp)["sr:echo"] = "off"
+		return false
+	}
+
+	(*allProp)["sr:echo"] = "on"
+	return true
+
+}
+
 func sorlOrchDecr(cmd string, allProp *Property) {
 	cmd = strings.Replace(cmd, ".decr", "", 1)
 	cmd = strings.TrimSpace(cmd)
@@ -871,8 +912,13 @@ func sorlOrchWait(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.W
 	waitStr := strings.Split(cmd, "||")
 	color := (*allProp)["sr:color"]
 	display := (*allProp)["sr:display"]
+	echoOn := false
 
-	return waitFor(color, display, waitStr, sshIn)
+	if (*allProp)["sr:echo"] == "on" {
+		echoOn = true
+	}
+
+	return waitFor(echoOn, color, display, waitStr, sshIn)
 
 }
 
