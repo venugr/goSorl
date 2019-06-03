@@ -16,7 +16,7 @@ ls -l /tmp
 .print Found:{me.testok}
 mkdir -p /tmp/okdell
 cd /tmp/okdell
-rm -rf *
+rm    -rf    *
 #
 ls -ltr /
 exit

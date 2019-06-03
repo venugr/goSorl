@@ -498,9 +498,9 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		waitDone = "0"
 		(*allProp)["_wait.done"] = "0"
 		//fmt.Println("R: Cmd:", cmd)
-		lCmd := strings.ReplaceAll(cmd, " ", " ")
-		if strings.Contains(lCmd, "rm -rf *") {
-			sshPrint((*allProp)["sr:color"], "\nsorl: can not process rm -rf *")
+		lCmd := strings.ReplaceAll(cmd, " ", "")
+		if strings.Contains(lCmd, "rm-rf*") {
+			sshPrint((*allProp)["sr:color"], "\nsorl: can not process "+cmd)
 			reader := bufio.NewReader(os.Stdin)
 			sshPrint((*allProp)["sr:color"], "\nDo you want to proceed(yes/no)? ")
 			yesNo, _ := reader.ReadString('\n')
