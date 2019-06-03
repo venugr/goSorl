@@ -357,6 +357,19 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			continue
 		}
 
+		if strings.HasPrefix(cmd, ".test") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
+
+			propName, testOk := sorlOrchTest(cmd, (*allProp)["sr:color"], tempCmdOut)
+
+			(*allProp)[propName] = "false"
+
+			if testOk {
+				(*allProp)[propName] = "true"
+			}
+
+			continue
+		}
+
 		//prevWaitCmd = cmd
 
 		if strings.HasPrefix(cmd, ".func ") {
@@ -478,13 +491,32 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		//color := (*allProp)["sr:color"]
 		//display := (*allProp)["sr:display"]
+		//if ifReq && waitDone != "-1" {
+		//	sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
+		//}
+		//ifReq = false
+		waitDone = "0"
+		(*allProp)["_wait.done"] = "0"
+		//fmt.Println("R: Cmd:", cmd)
+		lCmd := strings.ReplaceAll(cmd, " ", " ")
+		if strings.Contains(lCmd, "rm -rf *") {
+			sshPrint((*allProp)["sr:color"], "\nsorl: can not process rm -rf *")
+			reader := bufio.NewReader(os.Stdin)
+			sshPrint((*allProp)["sr:color"], "\nDo you want to proceed(yes/no)? ")
+			yesNo, _ := reader.ReadString('\n')
+			yesNo = strings.TrimRight(yesNo, "\n")
+			ifReq = true
+			if yesNo != "yes" {
+				runWaitOk = false
+				continue
+			}
+		}
+
 		if ifReq && waitDone != "-1" {
 			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
 		}
 		ifReq = false
-		waitDone = "0"
-		(*allProp)["_wait.done"] = "0"
-		//fmt.Println("R: Cmd:", cmd)
+
 		runShellCmd(cmd, sshOut)
 		//if cmd != "exit" {
 		//_, cmdOut := waitFor(color, []string{"$"}, sshIn)
@@ -498,6 +530,23 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	}
 
 	//session.Wait()
+}
+
+func sorlOrchTest(cmd, color, tempCmdOut string) (string, bool) {
+
+	cmd = strings.Replace(cmd, ".test ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	propName := strings.Split(cmd, " ")[0]
+
+	cmd = strings.TrimLeft(cmd, propName)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	if strings.Contains(tempCmdOut, cmd) {
+		return propName, true
+	}
+
+	return propName, false
+
 }
 
 func sorlOrchFail(cmd, color, tempCmdOut string) bool {
