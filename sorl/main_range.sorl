@@ -1,0 +1,32 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+alias ls
+unalias ls
+.clear
+ls -l /tmp
+#
+.range {_cmd.output} {
+
+   #.println
+   #.println {range.value}
+   echo "{range.value}" | wc -c
+   echo "{range.value}" | awk '\{print $9\}'
+   echo "{range.value}" | awk '\{print $9\}' | wc -c
+}
+.setwait >||$
+for i in `ls /`
+do
+echo $i
+sleep 1
+done
+#
+ls /
+pwd
+#
+exit

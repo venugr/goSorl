@@ -63,6 +63,8 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	//	orchFile = loadFile
 	//}
 
+	//rangeSeq := 0
+
 	commands := strings.Split(cmdLines, "\n")
 
 	cmdOut := ""
@@ -71,6 +73,8 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	tempCmdOut := ""
 	skipVarLines := false
 	skipFuncLines := false
+	skipRangeLines := false
+	rangePropName := ""
 	funcName := ""
 	funcLoops := 0
 	isRemoved := false
@@ -85,6 +89,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	//fmt.Println("==>2." + (*allProp)["sr:debug"] + "<==")
 
 	mapFuncs := map[string]string{}
+	mapRanges := map[string]string{}
 
 	if loadOk == "no" {
 		//waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
@@ -110,7 +115,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		}
 
 		isTag := strings.HasPrefix(cmd, "}") || strings.HasPrefix(cmd, ".if") || strings.HasPrefix(cmd, ".func")
-		isTag = isTag || strings.HasPrefix(cmd, ".var") || strings.HasPrefix(cmd, ".tag")
+		isTag = isTag || strings.HasPrefix(cmd, ".var") || strings.HasPrefix(cmd, ".tag") || strings.HasPrefix(cmd, ".range")
 
 		if (!isTag) && (skipTagLines || skipIfLines) {
 			//fmt.Println("Skipping...:", cmd)
@@ -146,6 +151,22 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 				//skipFuncLines = false
 			}
 
+			if skipRangeLines && strings.EqualFold(lastTag, "range,") {
+				//skipFuncLines = false
+				rangeValue, _ := replaceProp(rangePropName, Property(*allProp))
+				for _, idxVal := range strings.Split(rangeValue, "\n") {
+					idxVal = strings.TrimRight(idxVal, string(10))
+					idxVal = strings.TrimRight(idxVal, string(13))
+
+					(*allProp)["range.value"] = idxVal
+					sorlOrchestration((*allProp)["_range."+rangePropName], session, sshIn, sshOut, allProp)
+				}
+
+				ifReq = true
+				skipRangeLines = false
+
+			}
+
 			if tagsOrder != "" {
 				tagsList := strings.Split(tagsOrder, ",")
 				lastTag = tagsList[len(tagsList)-2] + ","
@@ -158,6 +179,10 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			//fmt.Println("1.True/False", skipTagLines, skipIfLines)
 
 			if !skipFuncLines {
+				continue
+			}
+
+			if !skipRangeLines {
 				continue
 			}
 		}
@@ -189,6 +214,12 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		if skipFuncLines && funcLoops != 0 {
 			mapFuncs[funcName] += cmd + "\n"
 			(*allProp)["_func."+funcName] = mapFuncs[funcName]
+			continue
+		}
+
+		if skipRangeLines {
+			mapRanges["_range."+rangePropName] += cmd + "\n"
+			(*allProp)["_range."+rangePropName] = mapRanges["_range."+rangePropName]
 			continue
 		}
 
@@ -311,6 +342,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		}
 
 		if strings.HasPrefix(cmd, ".println") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
+			//fmt.Printf("Cmd: --->" + cmd + "<----\n")
 			sorlOrchPrintln(cmd, (*allProp)["sr:color"])
 			ifReq = true
 			continue
@@ -371,6 +403,19 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		}
 
 		//prevWaitCmd = cmd
+
+		if strings.HasPrefix(cmd, ".range ") {
+			if !skipTagLines {
+				skipRangeLines, rangePropName = sorlOrchRange(cmd, session, sshIn, sshOut, allProp)
+				//rangeSeq += 1
+				mapRanges["_range."+rangePropName] = ""
+				(*allProp)["_range."+rangePropName] = ""
+			}
+			tagsOrder += "range,"
+			lastTag = "range,"
+			funcLoops++
+			continue
+		}
 
 		if strings.HasPrefix(cmd, ".func ") {
 			if !skipTagLines {
@@ -706,6 +751,16 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 
 	}
 
+}
+
+func sorlOrchRange(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
+
+	cmd = strings.Replace(cmd, ".range ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
+	return true, cmd
 }
 
 func sorlOrchFunc(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {

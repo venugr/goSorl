@@ -76,7 +76,7 @@ func main() {
 func printVersion() {
 	fmt.Println()
 	fmt.Println("SORL: Solution ORchestration Language, the .(dot) scripting")
-	fmt.Println("Version: 0.1-beta-build-1.0")
+	fmt.Println("Version: 0.1-beta, build-1.0")
 	time.Sleep(3 * time.Second)
 	fmt.Println()
 }

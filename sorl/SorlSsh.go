@@ -145,7 +145,7 @@ func setShell(session *ssh.Session) (io.Reader, io.WriteCloser, error) {
 		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
 	}
 
-	if err := session.RequestPty("xterm", 80, 80, modes); err != nil {
+	if err := session.RequestPty("xterm", 80, 180, modes); err != nil {
 		log.Fatal(err)
 	}
 
