@@ -34,6 +34,9 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 		(*allProp)["_wait.done"] = "-1"
 	}
 
+	(*allProp)["_tags.order"] = ""
+	(*allProp)["_last.tag"] = ""
+
 	commands, _ := ReadFile(orchFile)
 
 	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
@@ -74,14 +77,17 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 	skipVarLines := false
 	skipFuncLines := false
 	skipRangeLines := false
+	skipWhileLines := false
+	whileCondStr := ""
 	rangePropName := ""
 	funcName := ""
 	funcLoops := 0
+	whileLoops := 0
 	isRemoved := false
 	waitMatchId := -1
 	ifReq := false
-	tagsOrder := ""
-	lastTag := ""
+	tagsOrder := (*allProp)["_tags.order"]
+	lastTag := (*allProp)["_last.tag"]
 	waitDone := (*allProp)["_wait.done"]
 	//echoOn := true
 	(*allProp)["sr:echo"] = "on"
@@ -90,6 +96,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 	mapFuncs := map[string]string{}
 	mapRanges := map[string]string{}
+	mapWhile := map[string]string{}
 
 	if loadOk == "no" {
 		//waitFor(color, []string{"$", "[BAN83] ?"}, sshIn)
@@ -116,6 +123,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		isTag := strings.HasPrefix(cmd, "}") || strings.HasPrefix(cmd, ".if") || strings.HasPrefix(cmd, ".func")
 		isTag = isTag || strings.HasPrefix(cmd, ".var") || strings.HasPrefix(cmd, ".tag") || strings.HasPrefix(cmd, ".range")
+		isTag = isTag || strings.HasPrefix(cmd, ".while")
 
 		if (!isTag) && (skipTagLines || skipIfLines) {
 			//fmt.Println("Skipping...:", cmd)
@@ -126,8 +134,11 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			//fmt.Println("Skipping...1:", cmd)
 			//fmt.Println("1.", tagsOrder, lastTag)
 
-			tagsOrder = strings.TrimSuffix(tagsOrder, lastTag)
-			tagsOrder = strings.TrimSuffix(tagsOrder, "skip.")
+			if whileLoops == 0 {
+				tagsOrder = strings.TrimSuffix(tagsOrder, lastTag)
+				tagsOrder = strings.TrimSuffix(tagsOrder, "skip.")
+				(*allProp)["_tags.order"] = tagsOrder
+			}
 
 			if skipDebugLines && strings.EqualFold(lastTag, "debug,") && (!strings.Contains(tagsOrder, "skip.debug,")) {
 				skipDebugLines = false
@@ -167,24 +178,38 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 			}
 
-			if tagsOrder != "" {
-				tagsList := strings.Split(tagsOrder, ",")
-				lastTag = tagsList[len(tagsList)-2] + ","
-				lastTag = strings.TrimPrefix(lastTag, "skip.")
-			} else {
-				lastTag = ""
+			if whileLoops == 0 {
+				if tagsOrder != "" {
+					tagsList := strings.Split(tagsOrder, ",")
+					lastTag = tagsList[len(tagsList)-2] + ","
+					lastTag = strings.TrimPrefix(lastTag, "skip.")
+				} else {
+					lastTag = ""
+				}
+
+				(*allProp)["_tags.order"] = tagsOrder
+				(*allProp)["_last.tag"] = lastTag
+				//fmt.Println("2.", tagsOrder, lastTag)
+				//fmt.Println("1.True/False", skipTagLines, skipIfLines)
 			}
+			/*
+				if !skipFuncLines {
+					continue
+				}
 
-			//fmt.Println("2.", tagsOrder, lastTag)
-			//fmt.Println("1.True/False", skipTagLines, skipIfLines)
+				if !skipRangeLines {
+					continue
+				}
 
-			if !skipFuncLines {
+				if !skipWhileLines {
+					continue
+				}
+			*/
+			if !(skipFuncLines || skipRangeLines || skipWhileLines) {
 				continue
 			}
 
-			if !skipRangeLines {
-				continue
-			}
+			//fmt.Println("I AM HERE...")
 		}
 
 		//fmt.Println("2.True/False", skipTagLines, skipIfLines, skipFuncLines)
@@ -198,12 +223,43 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			funcLoops++
 		}
 
+		if skipWhileLines && strings.HasSuffix(strings.TrimRight(cmd, " "), "{") {
+			whileLoops++
+		}
+
 		bracStr := strings.TrimSpace(cmd)
 		//fmt.Printf("Cmd:==>%v<==", bracStr)
 		if skipFuncLines && (bracStr == "}") {
 			funcLoops--
 			if funcLoops == 0 {
 				skipFuncLines = false
+				continue
+			}
+
+		}
+
+		if skipWhileLines && (bracStr == "}") {
+			whileLoops--
+			if whileLoops == 0 {
+				skipWhileLines = false
+
+				for {
+					whileValue, _ := replaceProp(whileCondStr, Property(*allProp))
+					//fmt.Println("WhileValue: " + whileValue)
+					lOk, _ := sorlOrchIf(whileValue, session, sshIn, sshOut, allProp)
+					//fmt.Println("WhileOk: ", lOk)
+
+					if lOk {
+						break
+					}
+
+					//fmt.Println((*allProp)["_while."+whileCondStr])
+					//fmt.Println("2.", tagsOrder, lastTag)
+					sorlOrchestration((*allProp)["_while."+whileCondStr], session, sshIn, sshOut, allProp)
+				}
+				ifReq = true
+				skipWhileLines = false
+
 				continue
 			}
 
@@ -220,6 +276,14 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		if skipRangeLines {
 			mapRanges["_range."+rangePropName] += cmd + "\n"
 			(*allProp)["_range."+rangePropName] = mapRanges["_range."+rangePropName]
+			continue
+		}
+
+		if skipWhileLines {
+			mapWhile["_while."+whileCondStr] += cmd + "\n"
+			(*allProp)["_while."+whileCondStr] = mapWhile["_while."+whileCondStr]
+			//fmt.Println("Add/While:" + cmd)
+			//fmt.Println("While Loop: ", whileLoops)
 			continue
 		}
 
@@ -301,6 +365,23 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			if sorlOrchEcho(cmd, allProp) {
 				ifReq = true
 			}
+			continue
+		}
+
+		if strings.HasPrefix(cmd, ".while ") {
+			if !skipTagLines {
+				skipWhileLines, whileCondStr = sorlOrchWhile(cmd, session, sshIn, sshOut, allProp)
+				//rangeSeq += 1
+				mapWhile["_while."+whileCondStr] = ""
+				(*allProp)["_while."+whileCondStr] = ""
+			}
+			tagsOrder += "while,"
+			lastTag = "while,"
+
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
+			whileLoops++
+			//funcLoops++
 			continue
 		}
 
@@ -413,7 +494,10 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			}
 			tagsOrder += "range,"
 			lastTag = "range,"
-			funcLoops++
+			//funcLoops++
+
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
 			continue
 		}
 
@@ -426,6 +510,9 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			tagsOrder += "func,"
 			lastTag = "func,"
 			funcLoops++
+
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
 			continue
 		}
 
@@ -438,6 +525,9 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			}
 			tagsOrder += "tag,"
 			lastTag = "tag,"
+
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
 			continue
 		}
 
@@ -456,6 +546,8 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			}
 			tagsOrder += "debug,"
 			lastTag = "debug,"
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
 			continue
 		}
 
@@ -468,6 +560,9 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			}
 			tagsOrder += "if,"
 			lastTag = "if,"
+
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
 			continue
 		}
 
@@ -487,6 +582,9 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 			tagsOrder += "var,"
 			lastTag = "var,"
 			//fmt.Printf("var group")
+
+			(*allProp)["_tags.order"] = tagsOrder
+			(*allProp)["_last.tag"] = lastTag
 			continue
 		}
 
@@ -751,6 +849,16 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 
 	}
 
+}
+
+func sorlOrchWhile(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {
+
+	cmd = strings.Replace(cmd, ".while ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
+	return true, cmd
 }
 
 func sorlOrchRange(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) (bool, string) {

@@ -1,0 +1,39 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+#
+.wait ?||BAN83||$||#
+alias ls
+unalias ls
+.clear
+ls -l /tmp
+#
+.var me.count=0
+#.if {me.count} != 10 {
+#
+#   .println
+#   .println Count={me.count}
+#}
+
+.println 
+.while {me.count} != 5 {
+   .println {me.count}
+   .sleep 1
+   
+   .if {me.count} == 3 {
+
+      .name Count={me.count}
+      .sleep 2
+
+   }
+
+   .incr {me.count}
+}
+#
+ls /
+pwd
+#
+exit
