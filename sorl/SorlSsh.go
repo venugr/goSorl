@@ -18,10 +18,37 @@ import (
 var wg = sync.WaitGroup{}
 var mut = sync.RWMutex{}
 
+func (ss SorlSSH) sshPrint(prn string) {
+	mut.Lock()
+	fmt.Print(ClrUnColor + ss.sorlSshColor + prn + ClrUnColor)
+	mut.Unlock()
+}
+
 func sshPrint(color, prn string) {
 	mut.Lock()
 	fmt.Print(ClrUnColor + color + prn + ClrUnColor)
 	mut.Unlock()
+}
+
+func (ss *SorlSSH) sorlParallelSsh() error {
+
+	ss.configSsh()
+	err := ss.dialSsh()
+
+	if err != nil {
+		fmt.Printf("error: Host: %s, User: %s, Port: %v, Failed to create a session: %s\n", ss.sorlSshHostName, ss.sorlSshUserName, ss.sorlSshHostPortNum, err)
+		return err
+	}
+
+	err = ss.createSSHSession()
+
+	if err != nil {
+		fmt.Printf("error: Host: %s, User: %s, Port: %v, Failed to create a session: %s\n", ss.sorlSshHostName, ss.sorlSshUserName, ss.sorlSshHostPortNum, err)
+		return err
+	}
+
+	return nil
+
 }
 
 func sorlParallelSsh(userName, userPasswd, hostName string, portNum int, userSshKeyFile string) (*ssh.Session, *ssh.Client, error) {
@@ -43,6 +70,32 @@ func sorlParallelSsh(userName, userPasswd, hostName string, portNum int, userSsh
 
 	return session, client, nil
 
+}
+
+func (ss *SorlSSH) runParallelSsh() {
+
+	ss.configSsh()
+	err := ss.dialSsh()
+
+	if err != nil {
+		fmt.Printf("Failed to dial: %s\n", err)
+		os.Exit(-1)
+	}
+
+	err = ss.createSSHSession()
+
+	if err != nil {
+		fmt.Errorf("failed to create a session: %s", err)
+		os.Exit(-1)
+	}
+
+	defer ss.sorlSshSession.Close()
+	defer ss.sorlSshClient.Close()
+
+	//runCmd(session)
+	runShell(ss.sorlSshSession)
+
+	wg.Done()
 }
 
 func runParallelSsh(userName, userPasswd, hostName string, portNum int, userSshKeyFile string) {
@@ -69,6 +122,13 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int, userSshK
 	runShell(session)
 
 	wg.Done()
+}
+
+func (ss *SorlSSH) runShellCmd(cmd string) {
+
+	_, err := ss.sorlSshIn.Write([]byte(cmd + "\r"))
+	checkError(err)
+
 }
 
 func runShellCmd(cmd string, sshIn io.WriteCloser) {
@@ -133,6 +193,40 @@ func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut
 	}
 
 	return waitStrMatch, cmdOut
+
+}
+
+func (ss *SorlSSH) setShell() error {
+
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          1,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	if err := ss.sorlSshSession.RequestPty("xterm", 80, 180, modes); err != nil {
+		log.Fatal(err)
+	}
+
+	sshOut, sshOutErr := ss.sorlSshSession.StdoutPipe()
+	if sshOutErr != nil {
+		return sshOutErr
+	}
+
+	sshIn, sshInErr := ss.sorlSshSession.StdinPipe()
+	if sshInErr != nil {
+		return sshInErr
+	}
+
+	shellErr := ss.sorlSshSession.Shell()
+	if shellErr != nil {
+		return shellErr
+	}
+
+	ss.sorlSshIn = sshIn
+	ss.sorlSshOut = sshOut
+
+	return nil
 
 }
 
@@ -254,6 +348,21 @@ func runCmdOld(session *ssh.Session) error {
 
 }
 
+func (ss *SorlSSH) createSSHSession() error {
+
+	lClient := ss.sorlSshClient
+
+	session, err := lClient.NewSession()
+
+	if err != nil {
+		return err
+	}
+
+	ss.sorlSshSession = session
+
+	return nil
+}
+
 func createSSHSession(client *ssh.Client) (*ssh.Session, error) {
 
 	session, err := client.NewSession()
@@ -263,6 +372,27 @@ func createSSHSession(client *ssh.Client) (*ssh.Session, error) {
 	}
 
 	return session, nil
+}
+
+func (ss *SorlSSH) dialSsh() error {
+
+	lHostIP := ss.sorlSshHostIP
+	lPortNum := ss.sorlSshHostPortNum
+	lUserName := ss.sorlSshUserName
+
+	//fmt.Println("Inside run dialSSH Cmd...")
+	serName := lHostIP + ":" + strconv.Itoa(lPortNum)
+	fmt.Print("\nConnecting to ..." + lUserName + "@" + serName)
+	client, err := ssh.Dial("tcp", serName, ss.sorlSshClientConfig)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("\nConnected to ..." + lUserName + "@" + serName)
+	fmt.Println()
+	ss.sorlSshClient = client
+	return nil
 }
 
 func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Client, error) {
@@ -281,6 +411,28 @@ func dialSsh(hostName string, portNum int, sshConfig *ssh.ClientConfig) (*ssh.Cl
 	return client, nil
 }
 
+func (ss *SorlSSH) configSsh() {
+
+	lUserName := ss.sorlSshUserName
+	lUserPassword := ss.sorlSshUserPassword
+
+	lKey, _ := ss.configSshKey()
+
+	sshConfig := &ssh.ClientConfig{
+		User: lUserName,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(lUserPassword),
+			ssh.PublicKeys(lKey),
+		},
+		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+			return nil
+		},
+	}
+
+	ss.sorlSshClientConfig = sshConfig
+
+}
+
 func configSsh(hostName, userName, userPasswd string, userSshKeyFile string) *ssh.ClientConfig {
 
 	lKey, _ := configSshKey(userSshKeyFile)
@@ -297,6 +449,23 @@ func configSsh(hostName, userName, userPasswd string, userSshKeyFile string) *ss
 	}
 
 	return sshConfig
+}
+
+func (ss *SorlSSH) configSshKey() (ssh.Signer, error) {
+
+	buf, err := ioutil.ReadFile(ss.sorlSshHostKeyFile)
+
+	if err != nil {
+		return nil, err
+	}
+
+	lKey, err := ssh.ParsePrivateKey(buf)
+
+	if err != nil {
+		return lKey, err
+	}
+
+	return lKey, err
 }
 
 func configSshKey(userSshKeyFile string) (ssh.Signer, error) {

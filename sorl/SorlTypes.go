@@ -1,5 +1,11 @@
 package main
 
+import (
+	"io"
+
+	"golang.org/x/crypto/ssh"
+)
+
 // SorlMap for Vars
 type SorlMap map[string]string
 
@@ -32,3 +38,20 @@ const (
 
 	ClrUnColor = "\x1b[0m"
 )
+
+type SorlSSH struct {
+	sorlSshHostName, sorlSshHostIP                                  string
+	sorlSshUserName, sorlSshUserPassword, sorlSshHostKeyFile        string
+	sorlSshHostVarsFile, sorlSshHostOrchFile, sorlSshHostConfigFile string
+
+	sorlSshSession      *ssh.Session
+	sorlSshClient       *ssh.Client
+	sorlSshClientConfig *ssh.ClientConfig
+
+	sorlSshOut io.Reader
+	sorlSshIn  io.WriteCloser
+
+	sorlSshColor string
+
+	sorlSshHostPortNum int
+}
