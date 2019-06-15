@@ -9,6 +9,12 @@ import (
 // SorlMap for Vars
 type SorlMap map[string]string
 
+// SorlCmdMap for Vars
+type SorlCmdMap map[string]func(string, *Property)
+
+//SorlProcMap for Vars
+type SorlProcMap map[string]func(*SorlSSH, string, *Property)
+
 // SorlConfig for Sorl Config
 type SorlConfig map[string]string
 

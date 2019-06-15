@@ -13,6 +13,60 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+func getCmd2FuncMap() SorlCmdMap {
+
+	cmdFuncs := SorlCmdMap{}
+
+	cmdFuncs[".upper"] = callSorlOrchUpper
+	cmdFuncs[".lower"] = callSorlOrchLower
+	cmdFuncs[".print"] = callSorlOrchPrint
+	cmdFuncs[".println"] = callSorlOrchPrintln
+	cmdFuncs[".var"] = callSorlOrchVar
+	cmdFuncs[".debug"] = callSorlOrchDebug
+	cmdFuncs[".if"] = callSorlOrchIf
+
+	return cmdFuncs
+}
+
+func getProc2FuncMap() SorlProcMap {
+
+	procFuncs := SorlProcMap{}
+
+	procFuncs[".var"] = procSorlOrchVar
+	procFuncs[".debug"] = procSorlOrchDebug
+	procFuncs[".if"] = procSorlOrchIf
+
+	return procFuncs
+}
+
+func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
+
+	//fmt.Println("Run Orchestration....")
+	(*allProp)["_cmd.output"] = ""
+
+	orchFile := string((*allProp)["sr:orchfile"])
+	loadFile := string((*allProp)["sr:loadfile"])
+	loadOk := string((*allProp)["sr:load"])
+
+	if loadOk == "yes" {
+		orchFile = loadFile
+	}
+
+	if _, ok := (*allProp)["_wait.prev.cmd"]; !ok {
+		(*allProp)["_wait.prev.cmd"] = ""
+	}
+
+	if _, ok := (*allProp)["_wait.done"]; !ok {
+		(*allProp)["_wait.done"] = "-1"
+	}
+
+	commands, _ := ReadFile(orchFile)
+
+	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
+
+	ss.sorlOrchestration(strings.Join(commands, "\n"), allProp)
+}
+
 func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
 
 	//fmt.Println("Run Orchestration....")
@@ -39,6 +93,77 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
 
 	sorlOrchestration(strings.Join(commands, "\n"), session, sshIn, sshOut, allProp)
+}
+
+func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
+
+	cmdFuncs := getCmd2FuncMap()
+	procFuncs := getProc2FuncMap()
+
+	commands := strings.Split(cmdLines, "\n")
+	oCnt := 0
+	blockStarted := false
+	blockProcessed := false
+	blockCmds := ""
+
+	for _, cmd := range commands {
+
+		cmd = strings.TrimLeft(cmd, " ")
+		if strings.HasPrefix(cmd, "#") || cmd == "" {
+			continue
+		}
+
+		if checkPauseAbort() {
+			fmt.Println("info: abort file is found")
+			fmt.Println("info: aborting orchestration")
+			return
+		}
+
+		tCmd := strings.TrimRight(cmd, " ")
+
+		if strings.HasSuffix(tCmd, "{") {
+			oCnt++
+			blockStarted = true
+
+		}
+
+		if strings.EqualFold(tCmd, "}") {
+			oCnt--
+		}
+
+		if blockStarted && oCnt == 0 {
+			blockStarted = false
+
+			procName := (*allProp)["_block.current"]
+			blockCmds = strings.TrimRight(blockCmds, "\n")
+			(procFuncs[procName])(ss, blockCmds, allProp)
+			blockProcessed = false
+			blockCmds = ""
+			continue
+
+		}
+
+		if blockStarted {
+			blockCmds += cmd + "\n"
+		}
+
+		if blockProcessed {
+			continue
+		}
+
+		funcName := strings.Split(cmd, " ")[0]
+		//fmt.Println("Func Name:" + funcName)
+		if strings.HasPrefix(funcName, ".") {
+			(cmdFuncs[funcName])(cmd, allProp)
+			if blockStarted {
+				blockProcessed = true
+			}
+			continue
+		}
+
+		fmt.Println("Run Cmd: " + cmd)
+
+	}
 }
 
 func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {
