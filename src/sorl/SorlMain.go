@@ -78,14 +78,116 @@ func callTest5() {
 
 	fmt.Println(alp["c.z"])
 }
+
+func callTest6() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .sleep\n"
+	cmd += ".println sleep test\n"
+	cmd += ".println sleep for 5s\n"
+	cmd += ".sleep 5\n"
+	cmd += ".var helo.help=Hello World, Welcome to Go Lang...\n"
+	cmd += ".println another wait sleep for 5s\n"
+	cmd += ".sleep 5\n"
+	cmd += ".show {helo.help}\n"
+	cmd += ".println "
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
+func callTest7() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .input\n"
+	cmd += ".println input test\n"
+	cmd += ".input sl.emp.no Enter Emp Number? \n"
+	cmd += ".input sl.emp.name Enter Emp Name? \n"
+	cmd += ".println\n"
+	cmd += ".println Num={sl.emp.no}\n"
+	cmd += ".println Name={sl.emp.name}\n"
+	cmd += ".println\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
+func callTest8() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .name\n"
+	cmd += ".println name test\n"
+	cmd += ".input sl.emp.no Enter Emp Number? \n"
+	cmd += ".input sl.emp.name Enter Emp Name? \n"
+	cmd += ".println\n"
+	cmd += ".println Num={sl.emp.no}\n"
+	cmd += ".println Name={sl.emp.name}\n"
+	cmd += ".name {sl.emp.no}\n"
+	cmd += ".name {sl.emp.name}\n"
+	cmd += ".println\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
+func callTest9() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .incr/.decr/.echo\n"
+	cmd += ".println name .incr/.decr/.echo\n"
+	cmd += ".input sl.no1 Enter Emp Number? \n"
+	cmd += ".println\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".incr {sl.no1}\n.incr {sl.no1}\n"
+	cmd += ".println Num={sl.no1}\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".decr {sl.no1}\n.decr {sl.no1}\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".println\n"
+	cmd += ".echo off\n"
+	cmd += ".println Echo off\n"
+	cmd += ".echo on\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
+func callTest10() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .pass/.fail\n"
+
+	cmd += ".var  _cmd.temp.out=This is test logoutin\n"
+	cmd += ".pass logoutin\n"
+	cmd += ".name {_cmd.temp.out}\n"
+	cmd += ".fail logouin\n"
+	cmd += ".name NAME={_cmd.temp.out}\n"
+	cmd += ".test h.t1 logoutin\n"
+	cmd += ".name {h.t1}\n"
+	cmd += ".test h.t2 logotin\n"
+	cmd += ".name {h.t2}\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
 func main() {
 
-	//callTest1()
-	//callTest2()
-	//callTest3()
-	//callTest4()
+	callTest1()
+	callTest2()
+	callTest3()
+	callTest4()
 	callTest5()
-
+	callTest6()
+	callTest7()
+	callTest8()
+	callTest9()
+	callTest10()
 	return
 
 	testProp := Property{

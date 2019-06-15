@@ -24,6 +24,17 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".var"] = callSorlOrchVar
 	cmdFuncs[".debug"] = callSorlOrchDebug
 	cmdFuncs[".if"] = callSorlOrchIf
+	cmdFuncs[".sleep"] = callSorlOrchSleep
+	cmdFuncs[".show"] = callSorlOrchShow
+	cmdFuncs[".input"] = callSorlOrchInput
+	cmdFuncs[".name"] = callSorlOrchName
+	cmdFuncs[".incr"] = callSorlOrchIncr
+	cmdFuncs[".decr"] = callSorlOrchDecr
+	cmdFuncs[".echo"] = callSorlOrchEcho
+
+	cmdFuncs[".pass"] = callSorlOrchPass
+	cmdFuncs[".fail"] = callSorlOrchFail
+	cmdFuncs[".test"] = callSorlOrchTest
 
 	return cmdFuncs
 }
@@ -151,12 +162,18 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			continue
 		}
 
+		(*allProp)["_pass.test"] = ""
+		(*allProp)["_fail.test"] = ""
 		funcName := strings.Split(cmd, " ")[0]
 		//fmt.Println("Func Name:" + funcName)
 		if strings.HasPrefix(funcName, ".") {
 			(cmdFuncs[funcName])(cmd, allProp)
 			if blockStarted {
 				blockProcessed = true
+			}
+
+			if (*allProp)["_pass.test"] == "false" || (*allProp)["_fail.test"] == "true" {
+				return
 			}
 			continue
 		}
