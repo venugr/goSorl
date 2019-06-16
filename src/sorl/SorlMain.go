@@ -176,18 +176,51 @@ func callTest10() {
 
 }
 
+func callTest11() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .func\n"
+
+	cmd += ".println funcname first\n"
+	cmd += "# start the func name\n"
+	cmd += ".func firstname {\n"
+	cmd += "   .println Hello, I as in func 'firstname'\n"
+	cmd += "   .if 10 != 10 {\n"
+	cmd += "      .println 10 is not 1\n"
+	cmd += "      .println good..and done.\n"
+	cmd += "   }\n"
+	cmd += "   .println After If inside func\n"
+	cmd += "}\n"
+	cmd += ".println Done Function..\n"
+	cmd += ".name  FuncName: firstname\n"
+	cmd += ".show {_func.name.firstname}\n"
+	cmd += ".println \n"
+	cmd += ".call firstname"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+	//fmt.Println(alp["_func.name.firstname"])
+
+}
+
 func main() {
 
-	callTest1()
-	callTest2()
-	callTest3()
-	callTest4()
-	callTest5()
-	callTest6()
-	callTest7()
-	callTest8()
-	callTest9()
-	callTest10()
+	/*
+		callTest1()
+		callTest2()
+		callTest3()
+		callTest4()
+		callTest5()
+		callTest6()
+		callTest7()
+		callTest8()
+		callTest9()
+		callTest10()
+	*/
+
+	callTest11()
+
 	return
 
 	testProp := Property{

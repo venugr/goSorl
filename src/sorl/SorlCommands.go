@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func callSorlOrchUpper(cmd string, allProp *Property) {
+func callSorlOrchUpper(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".upper", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
@@ -26,7 +26,7 @@ func callSorlOrchUpper(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchLower(cmd string, allProp *Property) {
+func callSorlOrchLower(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".lower", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
@@ -42,20 +42,21 @@ func callSorlOrchLower(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchPrint(cmd string, allProp *Property) {
+func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	color := (*allProp)["sr:color"]
 	cmd = strings.Replace(cmd, ".println", "", 1)
 	cmd = strings.Replace(cmd, ".print", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	cmd, _ = replaceProp(cmd, (*allProp))
+
 	sshPrint(color, cmd)
 }
 
-func callSorlOrchPrintln(cmd string, allProp *Property) {
-	callSorlOrchPrint(cmd+"\n", allProp)
+func callSorlOrchPrintln(ss *SorlSSH, cmd string, allProp *Property) {
+	callSorlOrchPrint(ss, cmd+"\n", allProp)
 }
 
-func callSorlOrchVar(cmd string, allProp *Property) {
+func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
 
 	//fmt.Println(cmd)
 
@@ -81,7 +82,7 @@ func callSorlOrchVar(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchDebug(cmd string, allProp *Property) {
+func callSorlOrchDebug(ss *SorlSSH, cmd string, allProp *Property) {
 
 	(*allProp)["_block.started"] += ".debug.yes,"
 	(*allProp)["_block.names"] += ".debug,"
@@ -89,7 +90,7 @@ func callSorlOrchDebug(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchIf(cmd string, allProp *Property) {
+func callSorlOrchIf(ss *SorlSSH, cmd string, allProp *Property) {
 
 	(*allProp)["_block.started"] += ".if.yes,"
 	(*allProp)["_block.names"] += ".if,"
@@ -97,7 +98,20 @@ func callSorlOrchIf(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchSleep(cmd string, allProp *Property) {
+func callSorlOrchFunc(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".func ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.Replace(cmd, "{", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)["_block.started"] += ".func.yes,"
+	(*allProp)["_block.names"] += ".func,"
+	(*allProp)["_block.current"] = ".func"
+	(*allProp)["_block.current.funcName"] = cmd
+}
+
+func callSorlOrchSleep(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".sleep", "", 1)
 	cmd = strings.TrimSpace(cmd)
@@ -109,7 +123,7 @@ func callSorlOrchSleep(cmd string, allProp *Property) {
 	time.Sleep(time.Second * time.Duration(lVal))
 }
 
-func callSorlOrchShow(cmd string, allProp *Property) {
+func callSorlOrchShow(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".show", "", 1)
 	cmd = strings.TrimSpace(cmd)
@@ -120,7 +134,7 @@ func callSorlOrchShow(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchInput(cmd string, allProp *Property) {
+func callSorlOrchInput(ss *SorlSSH, cmd string, allProp *Property) {
 
 	color := (*allProp)["sr:color"]
 	tCmd := cmd
@@ -145,7 +159,7 @@ func callSorlOrchInput(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchName(cmd string, allProp *Property) {
+func callSorlOrchName(ss *SorlSSH, cmd string, allProp *Property) {
 
 	color := (*allProp)["sr:color"]
 	cmd, _ = replaceProp(cmd, (*allProp))
@@ -160,7 +174,7 @@ func callSorlOrchName(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchIncr(cmd string, allProp *Property) {
+func callSorlOrchIncr(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.Replace(cmd, ".incr", "", 1)
 	cmd = strings.TrimSpace(cmd)
 
@@ -178,7 +192,7 @@ func callSorlOrchIncr(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchEcho(cmd string, allProp *Property) {
+func callSorlOrchEcho(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.Replace(cmd, ".echo", "", 1)
 	cmd = strings.TrimSpace(cmd)
 
@@ -192,7 +206,7 @@ func callSorlOrchEcho(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchDecr(cmd string, allProp *Property) {
+func callSorlOrchDecr(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.Replace(cmd, ".decr", "", 1)
 	cmd = strings.TrimSpace(cmd)
 
@@ -210,7 +224,7 @@ func callSorlOrchDecr(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchFail(cmd string, allProp *Property) {
+func callSorlOrchFail(ss *SorlSSH, cmd string, allProp *Property) {
 
 	tempCmdOut := (*allProp)["_cmd.temp.out"]
 	cmd = strings.Replace(cmd, ".fail ", "", 1)
@@ -225,7 +239,7 @@ func callSorlOrchFail(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchPass(cmd string, allProp *Property) {
+func callSorlOrchPass(ss *SorlSSH, cmd string, allProp *Property) {
 
 	tempCmdOut := (*allProp)["_cmd.temp.out"]
 	cmd = strings.Replace(cmd, ".pass ", "", 1)
@@ -240,7 +254,7 @@ func callSorlOrchPass(cmd string, allProp *Property) {
 
 }
 
-func callSorlOrchTest(cmd string, allProp *Property) {
+func callSorlOrchTest(ss *SorlSSH, cmd string, allProp *Property) {
 
 	tempCmdOut := (*allProp)["_cmd.temp.out"]
 
@@ -256,5 +270,13 @@ func callSorlOrchTest(cmd string, allProp *Property) {
 		(*allProp)[propName] = "true"
 
 	}
+
+}
+
+func callSorlOrchCall(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".call", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	ss.sorlOrchestration((*allProp)["_func.name."+cmd], allProp)
 
 }

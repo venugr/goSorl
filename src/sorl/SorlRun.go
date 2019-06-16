@@ -36,6 +36,9 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".fail"] = callSorlOrchFail
 	cmdFuncs[".test"] = callSorlOrchTest
 
+	cmdFuncs[".func"] = callSorlOrchFunc
+	cmdFuncs[".call"] = callSorlOrchCall
+
 	return cmdFuncs
 }
 
@@ -46,6 +49,7 @@ func getProc2FuncMap() SorlProcMap {
 	procFuncs[".var"] = procSorlOrchVar
 	procFuncs[".debug"] = procSorlOrchDebug
 	procFuncs[".if"] = procSorlOrchIf
+	procFuncs[".func"] = procSorlOrchFunc
 
 	return procFuncs
 }
@@ -167,7 +171,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		funcName := strings.Split(cmd, " ")[0]
 		//fmt.Println("Func Name:" + funcName)
 		if strings.HasPrefix(funcName, ".") {
-			(cmdFuncs[funcName])(cmd, allProp)
+			(cmdFuncs[funcName])(ss, cmd, allProp)
 			if blockStarted {
 				blockProcessed = true
 			}

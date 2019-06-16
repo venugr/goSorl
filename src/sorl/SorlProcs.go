@@ -35,6 +35,18 @@ func procSorlOrchDebug(ss *SorlSSH, cmds string, allProp *Property) {
 
 }
 
+func procSorlOrchFunc(ss *SorlSSH, cmds string, allProp *Property) {
+
+	cmdsList := strings.Split(cmds, "\n")[1:]
+	//PrintList("Debug CMDS", cmdsList)
+	cmds = strings.Join(cmdsList, "\n")
+	cmds = strings.TrimRight(cmds, "\n")
+	funcName := (*allProp)["_block.current.funcName"]
+	(*allProp)["_func.name."+funcName] = cmds
+	(*allProp)["_block.current.funcName"] = ""
+
+}
+
 func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 
 	prevVal1 := ""
