@@ -1,0 +1,16 @@
+#Sorl Load
+.println File /tmp/main_load.sorl is loaded
+.name {load.file.name}
+#.var sr:debug=true
+.debug {
+   .println Debug is ok
+}
+.return -1
+#
+.println load is ok
+.println
+
+.range  {he.range.list} {
+
+   .name {range.value}
+}

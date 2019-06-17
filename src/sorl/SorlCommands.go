@@ -280,3 +280,88 @@ func callSorlOrchCall(ss *SorlSSH, cmd string, allProp *Property) {
 	ss.sorlOrchestration((*allProp)["_func.name."+cmd], allProp)
 
 }
+
+func callSorlOrchTag(ss *SorlSSH, cmd string, allProp *Property) {
+
+	//fmt.Println("inside...tag")
+	cmd = strings.Replace(cmd, ".tag ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.Replace(cmd, "{", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)["_block.started"] += ".tag.yes,"
+	(*allProp)["_block.names"] += ".tag,"
+	(*allProp)["_block.current"] = ".tag"
+	(*allProp)["_block.current.tag"] = cmd
+}
+
+func callSorlOrchRange(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".range ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)["_block.started"] += ".range.yes,"
+	(*allProp)["_block.names"] += ".range,"
+	(*allProp)["_block.current"] = ".range"
+	(*allProp)["_block.current.range"] = cmd
+}
+
+func callSorlOrchLoad(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".load ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	loadFile, _ := replaceProp(cmd, (*allProp))
+
+	(*allProp)["sr:loadfile"] = loadFile
+	(*allProp)["sr:load"] = "yes"
+	ss.sorlRunOrchestration(allProp)
+}
+
+func callSorlOrchReturn(ss *SorlSSH, cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".return", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)["_return"] = "true"
+	(*allProp)["_return.code"] = cmd
+
+}
+
+func callSorlOrchEnter(ss *SorlSSH, cmd string, allProp *Property) {
+
+}
+
+func callSorlOrchReplace(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".replace", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	idx := strings.Index(cmd, " ")
+	propName := cmd[:idx+1]
+	propName = strings.TrimSpace(propName)
+
+	cmd = strings.Replace(cmd, propName, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	idx = strings.Index(cmd, " ")
+	srcProp := cmd[:idx+1]
+	srcProp = strings.TrimSpace(srcProp)
+
+	cmd = strings.Replace(cmd, srcProp, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	idx = strings.Index(cmd, " ")
+	oldProp := cmd[:idx+1]
+	oldProp = strings.TrimSpace(oldProp)
+
+	newProp := strings.Replace(cmd, oldProp, "", 1)
+	newProp = strings.TrimSpace(newProp)
+
+	srcProp, _ = replaceProp(srcProp, (*allProp))
+	oldProp, _ = replaceProp(oldProp, (*allProp))
+	newProp, _ = replaceProp(newProp, (*allProp))
+
+	(*allProp)[propName] = strings.ReplaceAll(srcProp, oldProp, newProp)
+
+}

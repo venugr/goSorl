@@ -35,6 +35,30 @@ func procSorlOrchDebug(ss *SorlSSH, cmds string, allProp *Property) {
 
 }
 
+func procSorlOrchTag(ss *SorlSSH, cmds string, allProp *Property) {
+
+	cliTags := (*allProp)["sr:tags"]
+	tags := (*allProp)["_block.current.tag"]
+
+	cmdsList := strings.Split(cmds, "\n")[1:]
+	//PrintList("Tag CMDS,"+tags+", "+cliTags, cmdsList)
+	cmds = strings.Join(cmdsList, "\n")
+	cmds = strings.TrimRight(cmds, "\n")
+
+	if cliTags == "" {
+		ss.sorlOrchestration(cmds, allProp)
+		return
+	}
+
+	for _, lCmd := range strings.Split(tags, ",") {
+		if strings.Contains(","+cliTags+",", ","+lCmd+",") {
+			ss.sorlOrchestration(cmds, allProp)
+			return
+		}
+	}
+
+}
+
 func procSorlOrchFunc(ss *SorlSSH, cmds string, allProp *Property) {
 
 	cmdsList := strings.Split(cmds, "\n")[1:]
@@ -138,6 +162,23 @@ func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 		prevVal1 = condVal1
 		prevOp1 = condOp1
 
+	}
+
+}
+
+func procSorlOrchRange(ss *SorlSSH, cmds string, allProp *Property) {
+
+	cmdsList := strings.Split(cmds, "\n")[1:]
+	//PrintList("Debug CMDS", cmdsList)
+	cmds = strings.Join(cmdsList, "\n")
+	cmds = strings.TrimRight(cmds, "\n")
+	rangeCmd := (*allProp)["_block.current.range"]
+
+	rangeCmd, _ = replaceProp(rangeCmd, (*allProp))
+
+	for _, lVal1 := range strings.Split(rangeCmd, "\n") {
+		(*allProp)["range.value"] = lVal1
+		ss.sorlOrchestration(cmds, allProp)
 	}
 
 }

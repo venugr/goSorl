@@ -204,6 +204,117 @@ func callTest11() {
 
 }
 
+func callTest12() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .tag\n"
+
+	cmd += ".println tag name tag1\n"
+	cmd += ".var sr:tags=tag\n"
+	cmd += "# start the tag tag1\n"
+	cmd += ".tag tag1,tagone {\n"
+	cmd += "   .println Hello, I as in tag 'tag1,tagone\n"
+	cmd += "   .if 10 == 10 {\n"
+	cmd += "      .println 10 is 10\n"
+	cmd += "      .println good..and done.\n"
+	cmd += "   }\n"
+	cmd += "   .println After IF inside TAG\n"
+	cmd += "}\n"
+	cmd += ".println Done tag..\n"
+	cmd += ".println \n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+	//fmt.Println(alp["_func.name.firstname"])
+
+}
+
+func callTest13() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	alp["he.range.list"] = "Helo\n1one\n2-two-2\n33-three-333\n4-fortyfour"
+
+	cmd := "#Testcase for .range\n"
+
+	cmd += ".println range name \n"
+
+	cmd += "# start the range\n"
+	cmd += ".range  {he.range.list} {\n"
+	cmd += "   .println Hello, I as in range={range.value}\n"
+	cmd += "   .if 10 == 10 {\n"
+	cmd += "      .println 10 is 10\n"
+	cmd += "      .println good..and done.\n"
+	cmd += "   }\n"
+	cmd += "   .println After IF inside TAG\n"
+	cmd += "   .println\n"
+	cmd += "}\n"
+	cmd += ".println Done tag..\n"
+	cmd += ".println \n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+	//fmt.Println(alp["_func.name.firstname"])
+
+}
+
+func callTest14() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	alp["he.range.list"] = "Helo\n1one\n2-two-2\n33-three-333\n4-fortyfour"
+
+	cmd := "#Testcase for .load\n"
+	cmd += ".var load.file.name=/tmp/main_load.sorl\n"
+	cmd += ".println .load test \n"
+	cmd += "# start the range\n"
+	cmd += ".load {load.file.name}\n"
+	cmd += ".println Done load..\n"
+	cmd += ".println \n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+	//fmt.Println(alp["_func.name.firstname"])
+
+}
+
+func callTest15() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	alp["he.range.list"] = "Helo\n1one\n2-two-2\n33-three-333\n4-fortyfour"
+
+	cmd := "#Testcase for .load\n"
+	cmd += ".var load.file.name=/tmp/main_load.sorl\n"
+	cmd += ".println .load test \n"
+	cmd += "# start the range\n"
+	cmd += ".load {load.file.name}\n"
+	cmd += ".println Done load..\n"
+	cmd += ".println \n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+	//fmt.Println(alp["_func.name.firstname"])
+
+}
+
+func callTest16() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .load\n"
+	cmd += ".var aa=This is a go scripting for go goers\n"
+	cmd += ".var rep=go\n"
+	cmd += ".var new=golang\n"
+	cmd += ".replace me.new.str {aa} {rep} {new}\n"
+	cmd += ".name {aa}\n"
+	cmd += ".name {me.new.str}\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
 func main() {
 
 	/*
@@ -217,9 +328,16 @@ func main() {
 		callTest8()
 		callTest9()
 		callTest10()
+		callTest11()
+		callTest12()
+		callTest13()
+		callTest14()
+		callTest15()
+
+
 	*/
 
-	callTest11()
+	callTest16()
 
 	return
 

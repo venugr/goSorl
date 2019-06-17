@@ -38,6 +38,13 @@ func getCmd2FuncMap() SorlCmdMap {
 
 	cmdFuncs[".func"] = callSorlOrchFunc
 	cmdFuncs[".call"] = callSorlOrchCall
+	cmdFuncs[".tag"] = callSorlOrchTag
+	cmdFuncs[".range"] = callSorlOrchRange
+
+	cmdFuncs[".load"] = callSorlOrchLoad
+	cmdFuncs[".return"] = callSorlOrchReturn
+	cmdFuncs[".enter"] = callSorlOrchEnter
+	cmdFuncs[".replace"] = callSorlOrchReplace
 
 	return cmdFuncs
 }
@@ -50,6 +57,8 @@ func getProc2FuncMap() SorlProcMap {
 	procFuncs[".debug"] = procSorlOrchDebug
 	procFuncs[".if"] = procSorlOrchIf
 	procFuncs[".func"] = procSorlOrchFunc
+	procFuncs[".tag"] = procSorlOrchTag
+	procFuncs[".range"] = procSorlOrchRange
 
 	return procFuncs
 }
@@ -73,6 +82,10 @@ func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
 
 	if _, ok := (*allProp)["_wait.done"]; !ok {
 		(*allProp)["_wait.done"] = "-1"
+	}
+
+	if _, ok := (*allProp)["_return"]; !ok {
+		(*allProp)["_return"] = ""
 	}
 
 	commands, _ := ReadFile(orchFile)
@@ -168,6 +181,11 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 		(*allProp)["_pass.test"] = ""
 		(*allProp)["_fail.test"] = ""
+
+		if (*allProp)["_return"] == "true" {
+			return
+		}
+
 		funcName := strings.Split(cmd, " ")[0]
 		//fmt.Println("Func Name:" + funcName)
 		if strings.HasPrefix(funcName, ".") {
@@ -177,6 +195,10 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			}
 
 			if (*allProp)["_pass.test"] == "false" || (*allProp)["_fail.test"] == "true" {
+				return
+			}
+
+			if (*allProp)["_return"] == "true" {
 				return
 			}
 			continue
