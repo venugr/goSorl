@@ -45,6 +45,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".return"] = callSorlOrchReturn
 	cmdFuncs[".enter"] = callSorlOrchEnter
 	cmdFuncs[".replace"] = callSorlOrchReplace
+	cmdFuncs[".while"] = callSorlOrchWhile
+	cmdFuncs[".animate"] = callSorlOrchAnimate
 
 	return cmdFuncs
 }
@@ -59,6 +61,7 @@ func getProc2FuncMap() SorlProcMap {
 	procFuncs[".func"] = procSorlOrchFunc
 	procFuncs[".tag"] = procSorlOrchTag
 	procFuncs[".range"] = procSorlOrchRange
+	procFuncs[".while"] = procSorlOrchWhile
 
 	return procFuncs
 }
@@ -784,6 +787,216 @@ func sorlOrchPass(cmd, color, tempCmdOut string) bool {
 	}
 
 	return true
+
+}
+
+func evalCondition(cmd string) bool {
+
+	s := ""
+	vs := ""
+	tt := ""
+
+	for _, i := range cmd {
+
+		s = s + string(i)
+
+		if strings.Contains(s, "&&") {
+			tt = "false && "
+			s = strings.TrimRight(s, "&&")
+			if compareCondition(s) {
+				tt = "true && "
+			}
+
+			vs = vs + tt
+			s = ""
+
+		}
+
+		if strings.Contains(s, "||") {
+			tt = "false || "
+			s = strings.TrimRight(s, "||")
+			if compareCondition(s) {
+				tt = "true || "
+			}
+
+			vs = vs + tt
+			s = ""
+
+		}
+
+	}
+
+	tt = "false"
+	if compareCondition(s) {
+		tt = "true"
+	}
+
+	vs = vs + tt
+
+	//fmt.Println("==>" + vs + "<==")
+
+	//return true
+
+	conList := strings.Split(vs, " ")
+	lenCon := len(conList)
+	i := 0
+
+	if lenCon < 3 {
+		if conList[0] == "true" {
+			return true
+		}
+
+		return false
+	}
+
+	once := true
+
+	tf1 := ""
+	tf2 := ""
+	lc1 := ""
+	rs := ""
+
+	for i < lenCon {
+
+		//fmt.Println(tf1 + ", " + lc1 + ", " + tf2)
+
+		if once {
+			tf1 = conList[i]
+			i++
+			lc1 = conList[i]
+			i++
+			tf2 = conList[i]
+			i++
+			once = false
+
+			switch lc1 {
+			case "&&":
+			}
+			rs = "false"
+			if lc1 == "&&" && (tf1 == "true" && tf2 == "true") {
+				rs = "true"
+			}
+
+			if lc1 == "||" && (tf1 == "true" || tf2 == "true") {
+				rs = "true"
+			}
+
+			continue
+		}
+
+		if (i + 1) < lenCon {
+			lc1 = conList[i]
+			i++
+			tf2 = conList[i]
+			i++
+
+			trs := rs
+			rs = "false"
+			if lc1 == "&&" && (trs == "true" && tf2 == "true") {
+				rs = "true"
+			}
+
+			if lc1 == "||" && (trs == "true" || tf2 == "true") {
+				rs = "true"
+			}
+
+			//fmt.Println("*" + tf1 + ", " + lc1 + ", " + tf2)
+			continue
+
+		}
+
+		//fmt.Println(tf1 + ", " + lc1 + ", " + tf2)
+
+		i++
+
+	}
+
+	if rs == "true" {
+		return true
+	}
+
+	return false
+
+}
+
+func evalCondition1(cmd string) bool {
+
+	//s := ""
+	for {
+		for _, i := range cmd {
+
+			fmt.Print(string(i))
+			time.Sleep(time.Millisecond * 20)
+		}
+		for range cmd {
+			fmt.Print("\b")
+			fmt.Print(" ")
+			time.Sleep(time.Millisecond * 20)
+			fmt.Print("\b")
+
+		}
+
+		for range cmd {
+			fmt.Print(" ")
+		}
+
+		for range cmd {
+			fmt.Print("\b")
+		}
+	}
+	fmt.Println()
+	return true
+
+	cmdAndList := strings.Split(cmd, "&&")
+
+	al := true
+	for _, aVal := range cmdAndList {
+
+		cmdOrList := strings.Split(aVal, "||")
+
+		ol := false
+		for _, oVal := range cmdOrList {
+			ol = compareCondition(oVal) || ol
+		}
+
+		al = ol && al
+
+	}
+
+	return al
+
+}
+
+func compareCondition(cmd string) bool {
+
+	eqStr := "=="
+	nEqStr := "!="
+	op := ""
+
+	tList := []string{}
+
+	if strings.Contains(cmd, eqStr) {
+		op = eqStr
+		tList = strings.Split(cmd, eqStr)
+	}
+
+	if strings.Contains(cmd, nEqStr) {
+		op = nEqStr
+		tList = strings.Split(cmd, nEqStr)
+	}
+
+	tList[0] = strings.TrimSpace(tList[0])
+	tList[1] = strings.TrimSpace(tList[1])
+
+	if op == eqStr && tList[0] == tList[1] {
+		return true
+	}
+
+	if op == nEqStr && tList[0] != tList[1] {
+		return true
+	}
+
+	return false
 
 }
 

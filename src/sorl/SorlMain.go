@@ -307,10 +307,43 @@ func callTest16() {
 	cmd := "#Testcase for .load\n"
 	cmd += ".var aa=This is a go scripting for go goers\n"
 	cmd += ".var rep=go\n"
-	cmd += ".var new=golang\n"
+	cmd += ".var new=golang hjh;l\n"
 	cmd += ".replace me.new.str {aa} {rep} {new}\n"
 	cmd += ".name {aa}\n"
 	cmd += ".name {me.new.str}\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
+func callTest17() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .while\n"
+	cmd += ".println Welcome to .while command\n"
+	cmd += ".var c.i=1\n"
+	cmd += ".while  10 != 10 || {c.i} != 11 {\n"
+	cmd += "   .name {c.i}\n"
+	cmd += "   .incr {c.i}\n"
+	cmd += "   .sleep 1\n"
+	cmd += "}\n"
+	cmd += ".println\n"
+	cmd += ".println While is done.\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
+func callTest18() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .animate\n"
+	cmd += ".println Welcome to .animate command\n"
+	cmd += ".animate 44 Hello World, Welcome to Google's golang and Solution Orchestration Language\n"
+	cmd += ".println\n"
+	cmd += ".println Animate is done.\n"
 
 	ss.sorlOrchestration(cmd, &alp)
 }
@@ -333,11 +366,15 @@ func main() {
 		callTest13()
 		callTest14()
 		callTest15()
+		callTest16()
+		callTest17()
 
 
 	*/
 
-	callTest16()
+	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
+	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
+	callTest17()
 
 	return
 

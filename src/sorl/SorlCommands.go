@@ -10,6 +10,23 @@ import (
 	"time"
 )
 
+func callSorlOrchAnimate(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".animate", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	aniTimeStr := strings.Split(cmd, " ")[0]
+	cmd = strings.TrimLeft(cmd, aniTimeStr)
+	cmd = strings.TrimSpace(cmd)
+
+	aniTime, _ := strconv.Atoi(aniTimeStr)
+
+	for _, i := range cmd {
+		fmt.Print(string(i))
+		time.Sleep(time.Millisecond * time.Duration(aniTime))
+	}
+
+}
+
 func callSorlOrchUpper(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".upper", "", 1)
@@ -306,6 +323,20 @@ func callSorlOrchRange(ss *SorlSSH, cmd string, allProp *Property) {
 	(*allProp)["_block.names"] += ".range,"
 	(*allProp)["_block.current"] = ".range"
 	(*allProp)["_block.current.range"] = cmd
+}
+
+func callSorlOrchWhile(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".while ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)["_block.started"] += ".while.yes,"
+	(*allProp)["_block.names"] += ".while,"
+	(*allProp)["_block.current"] = ".while"
+	(*allProp)["_block.current.while"] = cmd
+
 }
 
 func callSorlOrchLoad(ss *SorlSSH, cmd string, allProp *Property) {

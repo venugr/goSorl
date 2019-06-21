@@ -71,6 +71,33 @@ func procSorlOrchFunc(ss *SorlSSH, cmds string, allProp *Property) {
 
 }
 
+func procSorlOrchWhile(ss *SorlSSH, cmds string, allProp *Property) {
+
+	whileCondStr := (*allProp)["_block.current.while"]
+	cmdsList := strings.Split(cmds, "\n")[1:]
+	cmds = strings.Join(cmdsList, "\n")
+	cmds = strings.TrimRight(cmds, "\n")
+
+	for {
+
+		(*allProp)["_while.if"] = ""
+		whileValue, _ := replaceProp(whileCondStr, Property(*allProp))
+		//whileValue = whileValue + "\n" + cmds
+		//fmt.Println("WhileValue: " + whileValue)
+		//procSorlOrchIf(ss, whileValue, allProp)
+		//fmt.Println("WhileOk: ", lOk)
+
+		if evalCondition(whileValue) {
+			ss.sorlOrchestration(cmds, allProp)
+			continue
+		}
+
+		break
+
+	}
+
+}
+
 func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 
 	prevVal1 := ""
@@ -106,12 +133,14 @@ func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 		tVal1 = condVal1
 		tOp1 = condOp1
 
-		//fmt.Println(condVal1 + "," + condOp1)
+		//fmt.Println(prevVal1 + "," + prevOp1 + "," + condVal1 + "," + condOp1)
 		if condOp1 == "" && prevOp1 == "" {
 			if condVal1 == "true" {
+				(*allProp)["_while.if"] = "true"
 				ss.sorlOrchestration(cmds, allProp)
 				return
 			} else {
+				(*allProp)["_while.if"] = "false"
 				return
 			}
 		}
@@ -147,9 +176,11 @@ func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 
 		if condOp1 == "" {
 			if condVal1 == "true" {
+				(*allProp)["_while.if"] = "true"
 				ss.sorlOrchestration(cmds, allProp)
 				return
 			} else {
+				(*allProp)["_while.if"] = "false"
 				return
 			}
 		}
