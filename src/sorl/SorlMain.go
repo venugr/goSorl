@@ -348,6 +348,30 @@ func callTest18() {
 	ss.sorlOrchestration(cmd, &alp)
 }
 
+func callTest19() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .while\n"
+	cmd += ".println Welcome to .while command\n"
+	cmd += ".var c.i=1\n"
+	cmd += ".while  10 != 10 || {c.i} != 11 {\n"
+	cmd += "   .var lw.i=0\n"
+	cmd += "   .name {c.i}\n"
+	cmd += "   .while {lw.i} != {c.i} {\n"
+	cmd += "      .println lw.i={lw.i}\n"
+	cmd += "      .incr {lw.i}\n"
+	cmd += "   }\n"
+	cmd += "   .incr {c.i}\n"
+	cmd += "#   .sleep 1\n"
+	cmd += "}\n"
+	cmd += ".println\n"
+	cmd += ".println While is done.\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
 func main() {
 
 	/*
@@ -374,7 +398,7 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest17()
+	callTest19()
 
 	return
 
