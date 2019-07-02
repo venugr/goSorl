@@ -60,8 +60,8 @@ func callTest5() {
 	cmd += ".println Nested IF\n"
 	cmd += ".if 10 == 10 {\n"
 	cmd += "   .println 10 == 10\n"
-	cmd += "   .if 5 == 10 {\n"
-	cmd += "      .println 5 == 10 \n"
+	cmd += "   .if 5 <= 10 {\n"
+	cmd += "      .println 5 <= 10 \n"
 	cmd += "   }\n"
 	cmd += "   .println Middle of If\n"
 	cmd += "   .if tt == tt {\n"
@@ -72,7 +72,33 @@ func callTest5() {
 	cmd += ".println\n"
 	cmd += "ls -ltr\n"
 	cmd += ".println Hello Linux\n"
-	cmd += "df -h"
+	cmd += "df -h\n"
+	cmd += ".if 5 > 5 && 1 <= 10 {\n"
+	cmd += "   .println Multi if conditon works!\n"
+	cmd += "   .if 5 >= 8 {\n"
+	cmd += "      .println Inner If works\n"
+	cmd += "   }\n"
+	cmd += "   .println Hello IF done.\n"
+	cmd += "}\n"
+	cmd += ".name DONE DUNA DONE\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+	fmt.Println(alp["c.z"])
+}
+
+func callTest5_1() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for If\n"
+	cmd += ".println Test case for if\n"
+	cmd += "\n"
+	cmd += ".var exp.v=1 != 2 && 1 == 1 && 5 == 5 && 4 <= 1\n"
+	cmd += ".println exp={exp.v}\n"
+	cmd += ".if {exp.v} {\n"
+	cmd += "   .name It Work's\n"
+	cmd += "}\n"
 
 	ss.sorlOrchestration(cmd, &alp)
 
@@ -372,6 +398,25 @@ func callTest19() {
 	ss.sorlOrchestration(cmd, &alp)
 }
 
+func callTest20() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .while\n"
+	cmd += ".println Welcome to .while command\n"
+	cmd += ".var c.i=1\n"
+	cmd += ".while  {c.i} < 10 || {c.i} <= 10 {\n"
+	cmd += "   .name {c.i}\n"
+	cmd += "   .incr {c.i}\n"
+	cmd += "   .sleep 1\n"
+	cmd += "}\n"
+	cmd += ".println\n"
+	cmd += ".println While is done.\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
 func main() {
 
 	/*
@@ -398,7 +443,7 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest19()
+	callTest5_1()
 
 	return
 

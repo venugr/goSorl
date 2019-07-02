@@ -85,7 +85,10 @@ func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
 		cmd = strings.TrimLeft(cmd, " ")
 
 		vars := strings.Split(cmd, "=")
-		(*allProp)[vars[0]] = vars[1]
+		cmd = strings.TrimLeft(cmd, vars[0])
+		cmd = strings.TrimLeft(cmd, " ")
+		cmd = strings.TrimLeft(cmd, "=")
+		(*allProp)[vars[0]] = cmd
 
 	}
 
@@ -109,9 +112,15 @@ func callSorlOrchDebug(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchIf(ss *SorlSSH, cmd string, allProp *Property) {
 
+	cmd = strings.Replace(cmd, ".if ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+
 	(*allProp)["_block.started"] += ".if.yes,"
 	(*allProp)["_block.names"] += ".if,"
 	(*allProp)["_block.current"] = ".if"
+	(*allProp)["_block.current.if"] = cmd
 
 }
 

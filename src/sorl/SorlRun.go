@@ -971,10 +971,16 @@ func compareCondition(cmd string) bool {
 
 	eqStr := "=="
 	nEqStr := "!="
+	lesStr := "<"
+	grtStr := ">"
+	lesEqStr := "<="
+	grtEqStr := ">="
+
 	op := ""
 
 	tList := []string{}
 
+	//fmt.Println("CMD:" + cmd)
 	if strings.Contains(cmd, eqStr) {
 		op = eqStr
 		tList = strings.Split(cmd, eqStr)
@@ -985,8 +991,31 @@ func compareCondition(cmd string) bool {
 		tList = strings.Split(cmd, nEqStr)
 	}
 
+	if strings.Contains(cmd, lesStr) && (!strings.Contains(cmd, lesEqStr)) {
+		op = lesStr
+		tList = strings.Split(cmd, lesStr)
+	}
+
+	if strings.Contains(cmd, grtStr) && (!strings.Contains(cmd, grtEqStr)) {
+		op = grtStr
+		tList = strings.Split(cmd, grtStr)
+	}
+
+	if strings.Contains(cmd, lesEqStr) {
+		op = lesEqStr
+		tList = strings.Split(cmd, lesEqStr)
+	}
+
+	if strings.Contains(cmd, grtEqStr) {
+		op = grtEqStr
+		tList = strings.Split(cmd, grtEqStr)
+	}
+
 	tList[0] = strings.TrimSpace(tList[0])
 	tList[1] = strings.TrimSpace(tList[1])
+
+	l0, _ := strconv.Atoi(tList[0])
+	l1, _ := strconv.Atoi(tList[1])
 
 	if op == eqStr && tList[0] == tList[1] {
 		return true
@@ -996,11 +1025,28 @@ func compareCondition(cmd string) bool {
 		return true
 	}
 
+	if op == lesStr && l0 < l1 {
+		l0, _ = strconv.Atoi(tList[0])
+		return true
+	}
+
+	if op == grtStr && l0 > l1 {
+		return true
+	}
+
+	if op == lesEqStr && l0 <= l1 {
+		return true
+	}
+
+	if op == grtEqStr && l0 >= l1 {
+		return true
+	}
+
 	return false
 
 }
 
-func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
+func getIfData(cmd, orStr, andStr, eqStr, nEqStr, lesStr, grtStr, lesEqStr, grtEqStr string) (string, string) {
 
 	idxMap := map[string]int{}
 	idx := -1
@@ -1010,6 +1056,11 @@ func getIfData(cmd, orStr, andStr, eqStr, nEqStr string) (string, string) {
 	idxMap[andStr] = strings.Index(cmd, andStr)
 	idxMap[eqStr] = strings.Index(cmd, eqStr)
 	idxMap[nEqStr] = strings.Index(cmd, nEqStr)
+
+	idxMap[lesStr] = strings.Index(cmd, lesStr)
+	idxMap[grtStr] = strings.Index(cmd, grtStr)
+	idxMap[lesEqStr] = strings.Index(cmd, lesEqStr)
+	idxMap[grtEqStr] = strings.Index(cmd, grtEqStr)
 
 	for lKey, lVal := range idxMap {
 
@@ -1069,9 +1120,13 @@ func sorlOrchIf(cmd string, session *ssh.Session, sshIn io.Reader, sshOut io.Wri
 	andStr := "&&"
 	eqStr := "=="
 	nEqStr := "!="
+	lesStr := "<"
+	grtStr := ">"
+	lesEqStr := "<="
+	grtEqStr := ">="
 
 	for {
-		condVal1, condOp1 := getIfData(cmd, orStr, andStr, eqStr, nEqStr)
+		condVal1, condOp1 := getIfData(cmd, orStr, andStr, eqStr, nEqStr, lesStr, grtStr, lesEqStr, grtEqStr)
 		condVal1 = strings.TrimSpace(condVal1)
 		tVal1 = condVal1
 		tOp1 = condOp1

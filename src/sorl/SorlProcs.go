@@ -100,6 +100,32 @@ func procSorlOrchWhile(ss *SorlSSH, cmds string, allProp *Property) {
 
 func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 
+	ifCondStr := (*allProp)["_block.current.if"]
+	cmdsList := strings.Split(cmds, "\n")[1:]
+	cmds = strings.Join(cmdsList, "\n")
+	cmds = strings.TrimRight(cmds, "\n")
+
+	//fmt.Println(ifCondStr)
+	//fmt.Println(cmds)
+	(*allProp)["_while.if"] = ""
+	ifValue, _ := replaceProp(ifCondStr, Property(*allProp))
+
+	//fmt.Println(ifCondStr + ", " + ifValue)
+	//fmt.Println(cmds)
+
+	//whileValue = whileValue + "\n" + cmds
+	//fmt.Println("WhileValue: " + whileValue)
+	//procSorlOrchIf(ss, whileValue, allProp)
+	//fmt.Println("WhileOk: ", lOk)
+
+	if evalCondition(ifValue) {
+		ss.sorlOrchestration(cmds, allProp)
+	}
+
+}
+
+func procSorlOrchIfOld(ss *SorlSSH, cmds string, allProp *Property) {
+
 	prevVal1 := ""
 	prevOp1 := ""
 	tVal1 := ""
@@ -123,12 +149,16 @@ func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 	andStr := "&&"
 	eqStr := "=="
 	nEqStr := "!="
+	lesStr := "<"
+	grtStr := ">"
+	lesEqStr := "<="
+	grtEqStr := ">="
 
 	cmd, _ = replaceProp(cmd, (*allProp))
 	//fmt.Println("IF Condition: " + cmd)
 
 	for {
-		condVal1, condOp1 := getIfData(cmd, orStr, andStr, eqStr, nEqStr)
+		condVal1, condOp1 := getIfData(cmd, orStr, andStr, eqStr, nEqStr, lesStr, grtStr, lesEqStr, grtEqStr)
 		condVal1 = strings.TrimSpace(condVal1)
 		tVal1 = condVal1
 		tOp1 = condOp1

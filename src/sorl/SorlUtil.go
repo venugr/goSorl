@@ -31,6 +31,7 @@ func replaceProp(line string, lMap Property) (string, error) {
 	ok := false
 	//bakLine := line
 
+	//fmt.Println(line)
 	line = strings.ReplaceAll(line, "\\{", "||unixcurly-open||")
 	line = strings.ReplaceAll(line, "\\}", "||unixcurly-close||")
 
