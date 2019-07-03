@@ -417,6 +417,81 @@ func callTest20() {
 	ss.sorlOrchestration(cmd, &alp)
 }
 
+func callTest21() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .style colors\n"
+	cmd += ".println Welcome to .style command\n"
+	cmd += ".var st.txt=Welcome to SORL, the .(dot) Scripting\n"
+	cmd += ".println\n"
+	cmd += ".style red {st.txt}\n"
+	cmd += ".style white {st.txt}\n"
+	cmd += ".style green {st.txt}\n"
+	cmd += ".println\n"
+	cmd += ".style blue {st.txt}\n"
+	cmd += ".style yellow {st.txt}\n"
+	cmd += ".style magenta {st.txt}\n"
+	cmd += ".style cyan {st.txt}\n"
+
+	cmd += ".println Styling is done.\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
+func callTest22() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+	alp["test.str"] = "1 2 3 4 5 6 7 8 9 10\n"
+	alp["test.str"] += "one two three four five six seven eight nine ten\n"
+	alp["test.str"] += "One    Two Three Four Five Six      Seven Eight Nine Ten\n"
+	alp["test.str"] += "One1 Two Three3 Four Five5 Six Seven7 Eight Nine9 Ten\n"
+	alp["test.str"] += "aa bb ccc 444 Five 666\n"
+	alp["test.str"] += "ONE TWO THREE FOUR FIVE      SIX SEVEN EIGHT  NINE TEN\n"
+
+	cmd := "#Testcase for .select \n"
+	cmd += ".println Welcome to .select command\n"
+	cmd += ".select 9 from {test.str}\n"
+	cmd += ".println {_select.result.str}\n"
+	cmd += ".println Select is done.\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
+func callTest23() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+	alp["test.str"] = "1 2 3 4 5 6 7 8 9 10\n"
+	alp["test.str"] += "one two three four five six seven eight nine ten\n"
+	alp["test.str"] += "One    Two Three Four Five Six      Seven Eight Nine Ten\n"
+	alp["test.str"] += "One1 Two Three3 Four Five5 Six Seven7 Eight Nine9 Ten\n"
+	alp["test.str"] += "aa bb ccc 444 Five 666\n"
+	alp["test.str"] += "ONE TWO THREE FOUR FIVE      SIX SEVEN EIGHT  NINE TEN"
+
+	cmd := "#Testcase for .trimleft .trimright\n"
+	cmd += ".println \n"
+	cmd += ".println Welcome to .trimleft .trimright command\n"
+	cmd += ".println ==>{test.str}<==\n"
+	cmd += ".println\n"
+	cmd += ".trimleft  new.str {test.str}\n"
+	cmd += ".println\n"
+	cmd += ".println ==>{new.str}<==\n"
+	cmd += ".trimleft  new.str {new.str}\n"
+	cmd += ".println\n"
+	cmd += ".println =*>{new.str}<*=\n"
+	cmd += ".trimright  new.str {new.str}\n"
+	cmd += ".println\n"
+	cmd += ".println =RIG>{new.str}<RIG=\n"
+	cmd += ".println \n"
+	cmd += ".println Trimleft Trimright is done.\n"
+	cmd += ".println \n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
 func main() {
 
 	/*
@@ -443,7 +518,14 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest5_1()
+	callTest23()
+
+	/*
+		color.Cyan.Printf("Simple to use %s\n", "color")
+		color.Error.Println("message")
+		color.Info.Prompt("message")
+		color.Warn.Println("message")
+	*/
 
 	return
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -24,6 +25,124 @@ func callSorlOrchAnimate(ss *SorlSSH, cmd string, allProp *Property) {
 		fmt.Print(string(i))
 		time.Sleep(time.Millisecond * time.Duration(aniTime))
 	}
+
+}
+
+func callSorlOrchTrimleft(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".trimleft", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	propName1 := strings.Split(cmd, " ")[0]
+	cmd = strings.TrimLeft(cmd, propName1)
+	cmd = strings.TrimSpace(cmd)
+	cmdStr, _ := replaceProp(cmd, (*allProp))
+
+	(*allProp)[propName1] = strings.Join(strings.Split(cmdStr, "\n")[1:], "\n")
+
+}
+
+func callSorlOrchTrimright(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".trimright", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	propName1 := strings.Split(cmd, " ")[0]
+	cmd = strings.TrimLeft(cmd, propName1)
+	cmd = strings.TrimSpace(cmd)
+	cmdStr, _ := replaceProp(cmd, (*allProp))
+	iLen := len(strings.Split(cmdStr, "\n"))
+	(*allProp)[propName1] = strings.Join(strings.Split(cmdStr, "\n")[:iLen-1], "\n")
+
+}
+func callSorlOrchSelect(ss *SorlSSH, cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".select", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	idx := strings.Index(cmd, "from")
+	selStr := cmd[:idx]
+	cmd = strings.TrimLeft(cmd, selStr)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "from")
+	cmd = strings.TrimSpace(cmd)
+	cmdStr, _ := replaceProp(cmd, (*allProp))
+
+	selVals := strings.Split(selStr, ",")
+	idxVals := ""
+	selResStr := ""
+
+	lCama := ""
+	for _, lVal := range selVals {
+		lVal = strings.TrimSpace(lVal)
+		idxVals += lCama + lVal
+		lCama = ","
+	}
+
+	var rExp = regexp.MustCompile(`\s+`)
+
+	for _, lVal := range strings.Split(cmdStr, "\n") {
+
+		if strings.TrimSpace(lVal) == "" {
+			continue
+		}
+
+		lVal = string(rExp.ReplaceAll([]byte(lVal), []byte(" ")))
+		words := strings.Split(lVal, " ")
+
+		lLen := len(words)
+
+		lSpace := ""
+
+		for _, lKey := range strings.Split(idxVals, ",") {
+
+			iKey, _ := strconv.Atoi(lKey)
+			if (iKey - 1) < lLen {
+
+				//fmt.Println("Idx:", lKey-1)
+				selResStr += lSpace + words[iKey-1]
+				lSpace = " "
+			} else {
+				selResStr += lSpace + "(*NA)"
+				lSpace = " "
+
+			}
+		}
+
+		if lSpace == " " {
+			selResStr += "\n"
+		}
+	}
+
+	(*allProp)["_select.result.str"] = selResStr
+
+}
+
+func callSorlOrchStyle(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".style", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	vars := strings.Split(cmd, " ")
+	cmd = strings.TrimLeft(cmd, vars[0])
+	cmd = strings.TrimLeft(cmd, " ")
+	clrCode := ClrUnColor
+
+	switch vars[0] {
+	case "red":
+		clrCode = ClrRed
+	case "yellow":
+		clrCode = ClrYellow
+	case "green":
+		clrCode = ClrGreen
+	case "blue":
+		clrCode = ClrBlue
+	case "white":
+		clrCode = ClrWhite
+	case "magenta":
+		clrCode = ClrMagenta
+	case "cyan":
+		clrCode = ClrCyan
+	}
+
+	cmd, _ = replaceProp(cmd, (*allProp))
+	sshPrint(clrCode, cmd+"\n")
 
 }
 

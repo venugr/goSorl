@@ -28,7 +28,7 @@ const PathSep string = "/"
 const (
 	ClrBlack = "\x1b[30;1m"
 
-	ClrRed = "\x1b[31;1m"
+	ClrRed = "\x1b[0;31;1m"
 
 	ClrGreen = "\x1b[32;1m"
 
