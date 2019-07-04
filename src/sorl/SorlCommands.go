@@ -192,6 +192,21 @@ func callSorlOrchPrintln(ss *SorlSSH, cmd string, allProp *Property) {
 	callSorlOrchPrint(ss, cmd+"\n", allProp)
 }
 
+func callSorlOrchSet(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".set ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	vars := strings.Split(cmd, "=")
+	cmd = strings.TrimLeft(cmd, vars[0])
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "=")
+	(*allProp)[vars[0]] = cmd
+
+}
+
 func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
 
 	//fmt.Println(cmd)
@@ -316,6 +331,25 @@ func callSorlOrchName(ss *SorlSSH, cmd string, allProp *Property) {
 	sshPrint(color, "\n\n\n"+strings.Repeat("*", cmdLen+4)+"\n")
 	sshPrint(color, "* "+cmd+" *\n")
 	sshPrint(color, strings.Repeat("*", cmdLen+4)+"\n")
+
+}
+
+func callSorlOrchClear(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".clear", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	if cmd == "" {
+		(*allProp)["_cmd.output"] = ""
+		return
+	}
+
+	cmd = strings.TrimLeft(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "}")
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)[cmd] = ""
 
 }
 

@@ -537,6 +537,45 @@ func callTest25() {
 
 }
 
+func callTest26() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	alp["_cmd.output"] = "This is also erased..."
+
+	cmd := "#Testcase for .clear \n"
+	cmd += ".println name .clear\n"
+	cmd += ".var cl.txt=Hello This will be cleared.\n"
+	cmd += ".name {cl.txt}\n"
+	cmd += ".clear {cl.txt}\n"
+	cmd += ".name {cl.txt}\n"
+	cmd += ".name {_cmd.output}\n"
+	cmd += ".clear\n"
+	cmd += ".name {_cmd.output}\n"
+	cmd += ".println Done with .clear\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
+func callTest27() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	alp["_cmd.output"] = "This is also erased..."
+
+	cmd := "#Testcase for .set \n"
+	cmd += ".println Test for .set\n"
+	cmd += ".var cl.txt=Hello This will be reset.\n"
+	cmd += ".name {cl.txt}\n"
+	cmd += ".set cl.txt=How is this, after being reset.\n"
+	cmd += ".name {cl.txt}\n"
+	cmd += ".println Done with .set\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
 func main() {
 
 	/*
@@ -563,7 +602,7 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest25()
+	callTest27()
 
 	/*
 		color.Cyan.Printf("Simple to use %s\n", "color")

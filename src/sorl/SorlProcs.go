@@ -168,11 +168,13 @@ func procSorlOrchIfOld(ss *SorlSSH, cmds string, allProp *Property) {
 			if condVal1 == "true" {
 				(*allProp)["_while.if"] = "true"
 				ss.sorlOrchestration(cmds, allProp)
-				return
+				//return
 			} else {
 				(*allProp)["_while.if"] = "false"
-				return
+				//return
 			}
+
+			return
 		}
 
 		if prevOp1 != "" {
@@ -208,11 +210,13 @@ func procSorlOrchIfOld(ss *SorlSSH, cmds string, allProp *Property) {
 			if condVal1 == "true" {
 				(*allProp)["_while.if"] = "true"
 				ss.sorlOrchestration(cmds, allProp)
-				return
+				//return
 			} else {
 				(*allProp)["_while.if"] = "false"
-				return
+				//return
 			}
+
+			return
 		}
 
 		cmd = strings.Replace(cmd, tVal1, "", 1)

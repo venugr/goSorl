@@ -22,6 +22,7 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".print"] = callSorlOrchPrint
 	cmdFuncs[".println"] = callSorlOrchPrintln
 	cmdFuncs[".var"] = callSorlOrchVar
+	cmdFuncs[".set"] = callSorlOrchSet
 	cmdFuncs[".debug"] = callSorlOrchDebug
 	cmdFuncs[".if"] = callSorlOrchIf
 	cmdFuncs[".sleep"] = callSorlOrchSleep
@@ -51,6 +52,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".select"] = callSorlOrchSelect
 	cmdFuncs[".trimleft"] = callSorlOrchTrimleft
 	cmdFuncs[".trimright"] = callSorlOrchTrimright
+
+	cmdFuncs[".clear"] = callSorlOrchClear
 
 	return cmdFuncs
 }
