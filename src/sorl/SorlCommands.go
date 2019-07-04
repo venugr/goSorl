@@ -319,7 +319,75 @@ func callSorlOrchName(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchDecrBy(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".decr", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	propName := strings.Split(cmd, " ")[0]
+	//fmt.Println("PropName:", propName)
+	cmd = strings.Replace(cmd, propName, "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.Replace(cmd, "by", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	//propName = strings.TrimLeft(propName, "{")
+	//propName = strings.TrimRight(propName, "}")
+	propName = strings.TrimSpace(propName)
+	//fmt.Println("PropName:", propName)
+
+	propVal, _ := replaceProp(propName, (*allProp))
+	//fmt.Println("PropVal:", propVal)
+	//fmt.Println("IcrVal:", cmd)
+
+	lVal, _ := strconv.Atoi(propVal)
+	iVal, _ := strconv.Atoi(cmd)
+
+	lVal -= iVal
+
+	propName = strings.TrimLeft(propName, "{")
+	propName = strings.TrimRight(propName, "}")
+	(*allProp)[propName] = strconv.Itoa(lVal)
+
+}
+
+func callSorlOrchIncrBy(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".incr", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	propName := strings.Split(cmd, " ")[0]
+	//fmt.Println("PropName:", propName)
+	cmd = strings.Replace(cmd, propName, "", 1)
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.Replace(cmd, "by", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	//propName = strings.TrimLeft(propName, "{")
+	//propName = strings.TrimRight(propName, "}")
+	propName = strings.TrimSpace(propName)
+	//fmt.Println("PropName:", propName)
+
+	propVal, _ := replaceProp(propName, (*allProp))
+	//fmt.Println("PropVal:", propVal)
+	//fmt.Println("IcrVal:", cmd)
+
+	lVal, _ := strconv.Atoi(propVal)
+	iVal, _ := strconv.Atoi(cmd)
+
+	lVal += iVal
+
+	propName = strings.TrimLeft(propName, "{")
+	propName = strings.TrimRight(propName, "}")
+	(*allProp)[propName] = strconv.Itoa(lVal)
+
+}
+
 func callSorlOrchIncr(ss *SorlSSH, cmd string, allProp *Property) {
+
+	if strings.Contains(cmd, " by ") {
+		callSorlOrchIncrBy(ss, cmd, allProp)
+		return
+	}
+
 	cmd = strings.Replace(cmd, ".incr", "", 1)
 	cmd = strings.TrimSpace(cmd)
 
@@ -352,6 +420,12 @@ func callSorlOrchEcho(ss *SorlSSH, cmd string, allProp *Property) {
 }
 
 func callSorlOrchDecr(ss *SorlSSH, cmd string, allProp *Property) {
+
+	if strings.Contains(cmd, " by ") {
+		callSorlOrchDecrBy(ss, cmd, allProp)
+		return
+	}
+
 	cmd = strings.Replace(cmd, ".decr", "", 1)
 	cmd = strings.TrimSpace(cmd)
 

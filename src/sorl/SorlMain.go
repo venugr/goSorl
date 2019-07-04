@@ -492,6 +492,51 @@ func callTest23() {
 	ss.sorlOrchestration(cmd, &alp)
 }
 
+func callTest24() {
+
+	repeat := "Hello, Welome to Google Golang and Solution Orchestration Language"
+
+	for {
+		for _, ch := range repeat {
+			fmt.Print(string(ch))
+			time.Sleep(time.Millisecond * 50)
+		}
+		fmt.Print("\r")
+		time.Sleep(time.Millisecond * 100)
+		for range repeat {
+			fmt.Print(" ")
+		}
+		time.Sleep(time.Millisecond * 20)
+		fmt.Print("\r")
+	}
+}
+
+func callTest25() {
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .incr by/.decr by \n"
+	cmd += ".println name .incr by/.decr by\n"
+	cmd += ".input sl.no1 Enter Emp Number? \n"
+	cmd += ".println\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".incr {sl.no1} by 2\n.incr {sl.no1} by 3\n"
+	cmd += ".println Num={sl.no1}\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".incr {sl.no1}\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".decr {sl.no1}\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".decr {sl.no1}     by    5\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".decr {sl.no1} by 2\n"
+	cmd += ".name {sl.no1}\n"
+	cmd += ".println Done with incr by/decr by\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+
+}
+
 func main() {
 
 	/*
@@ -518,7 +563,7 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest23()
+	callTest25()
 
 	/*
 		color.Cyan.Printf("Simple to use %s\n", "color")
