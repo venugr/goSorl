@@ -576,6 +576,26 @@ func callTest27() {
 
 }
 
+func callTest28() {
+
+	ss := &SorlSSH{}
+	alp := Property{}
+
+	cmd := "#Testcase for .read a file\n"
+	cmd += ".println\n"
+	cmd += ".var hello.file.name=/Users/venul/Development/go/code/src/github.com/goRecodeSorl/goSorl/LICENSE\n"
+	cmd += ".println read file {hello.file.name}\n"
+	cmd += ".read hello.txt {hello.file.name}\n"
+	cmd += ".range {hello.txt} {\n"
+	cmd += "   .println \n"
+	cmd += "   .print {range.value}\n"
+	cmd += "}\n"
+	cmd += ".write {hello.txt} {hello.file.name}.write\n"
+	cmd += ".println Done.\n"
+
+	ss.sorlOrchestration(cmd, &alp)
+}
+
 func main() {
 
 	/*
@@ -602,7 +622,7 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest27()
+	callTest28()
 
 	/*
 		color.Cyan.Printf("Simple to use %s\n", "color")
@@ -613,23 +633,27 @@ func main() {
 
 	return
 
-	testProp := Property{
-		"a":    "111",
-		"b":    "222",
-		"ab":   "1122",
-		"test": "Soooful",
-	}
+	/*
 
-	if false {
-		//oLine := "abcd{hello}{world} {a{b{c{ d  }}}}this is a prop replace{name}{ lname    	}{doit{howtodo}}"
-		oLine := "{test},one={a} and two={b}, chk the prop replace{ab}"
-		mLine, err1 := replaceProp(oLine, testProp)
-		checkError(err1)
+		testProp := Property{
+			"a":    "111",
+			"b":    "222",
+			"ab":   "1122",
+			"test": "Soooful",
+		}
 
-		fmt.Printf("\n%s\n%s", oLine, mLine)
-	}
-	//.Println("Hello Pavana..Welcome to Go!")
-	//return
+		if false {
+			//oLine := "abcd{hello}{world} {a{b{c{ d  }}}}this is a prop replace{name}{ lname    	}{doit{howtodo}}"
+			oLine := "{test},one={a} and two={b}, chk the prop replace{ab}"
+			mLine, err1 := replaceProp(oLine, testProp)
+			checkError(err1)
+
+			fmt.Printf("\n%s\n%s", oLine, mLine)
+		}
+		//.Println("Hello Pavana..Welcome to Go!")
+		//return
+
+	*/
 
 	cliArgsMap := getCliArgs()
 	//fmt.Println(cliArgsMap)
@@ -679,9 +703,10 @@ func main() {
 }
 
 func printVersion() {
+	currentTime := time.Now()
 	fmt.Println()
 	fmt.Println("SORL: Solution ORchestration Language, the .(dot) scripting")
-	fmt.Println("Version: 0.1-beta, build-1.0, 13JUN2019")
+	fmt.Println("Version: 0.1-beta, build-1.0, " + currentTime.Format("02-Jan-06"))
 	time.Sleep(3 * time.Second)
 	fmt.Println()
 }

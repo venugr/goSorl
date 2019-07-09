@@ -575,6 +575,55 @@ func callSorlOrchWhile(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchRead(ss *SorlSSH, cmd string, allProp *Property) {
+
+	//fmt.Println("Cmd: " + cmd)
+	cmd = strings.Replace(cmd, ".read ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	propName := strings.Split(cmd, " ")[0]
+	cmd = strings.TrimLeft(cmd, propName)
+	cmd = strings.TrimSpace(cmd)
+	fileName, _ := replaceProp(cmd, (*allProp))
+
+	//fmt.Println(propName + "," + fileName)
+
+	fileInfo, err := ReadFile(fileName)
+
+	if err != nil {
+		(*allProp)["_return"] = "true"
+		(*allProp)["_return.desc"] = "File: '" + fileName + "' not found!"
+		(*allProp)["_return.code"] = "-1"
+	}
+
+	(*allProp)[propName] = strings.Join(fileInfo, "\n")
+
+	//fmt.Println((*allProp)[propName])
+}
+
+func callSorlOrchWrite(ss *SorlSSH, cmd string, allProp *Property) {
+
+	//fmt.Println("Cmd: " + cmd)
+	cmd = strings.Replace(cmd, ".write ", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	propName := strings.Split(cmd, " ")[0]
+	cmd = strings.TrimLeft(cmd, propName)
+	cmd = strings.TrimSpace(cmd)
+	fileName, _ := replaceProp(cmd, (*allProp))
+
+	wrtData, _ := replaceProp(propName, (*allProp))
+	//fmt.Println(propName + "," + fileName)
+
+	err := WriteFile(fileName, wrtData)
+
+	if err != nil {
+		(*allProp)["_return"] = "true"
+		(*allProp)["_return.desc"] = "File: '" + fileName + "' not found!"
+		(*allProp)["_return.code"] = "-1"
+	}
+
+	//fmt.Println((*allProp)[propName])
+}
+
 func callSorlOrchLoad(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".load ", "", 1)

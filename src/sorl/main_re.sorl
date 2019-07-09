@@ -1,0 +1,33 @@
+#Testcase for .clear
+.println name .clear
+.var cl.txt=Hello This will be cleared.
+.name {cl.txt}
+.clear {cl.txt}
+.name {cl.txt}
+.name {_cmd.output}
+.clear
+.name {_cmd.output}
+.println Done with .clear
+.println
+.println
+#
+.sleep 5
+#Testcase for .incr by/.decr by 
+.println name .incr by/.decr by
+.input sl.no1 Enter Emp Number? 
+.println
+.name {sl.no1}
+.incr {sl.no1} by 2
+.incr {sl.no1} by 3
+.println Num={sl.no1}
+.name {sl.no1}
+.incr {sl.no1}
+.name {sl.no1}
+.decr {sl.no1}
+.name {sl.no1}
+.decr {sl.no1}     by    5
+.name {sl.no1}
+.decr {sl.no1} by 2
+.name {sl.no1}
+.println Done with incr by/decr by
+

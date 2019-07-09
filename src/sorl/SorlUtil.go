@@ -168,6 +168,19 @@ func ReadFile(fileName string) ([]string, error) {
 	return lines[:lLen-1], nil
 }
 
+// WriteFile a normal file
+func WriteFile(fileName string, wrtData string) error {
+
+	data := []byte(wrtData)
+	err := ioutil.WriteFile(fileName, data, 0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func chkDir(pathName string) bool {
 
 	_, err := os.Stat(pathName)

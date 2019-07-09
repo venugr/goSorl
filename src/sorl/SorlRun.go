@@ -44,7 +44,6 @@ func getCmd2FuncMap() SorlCmdMap {
 
 	cmdFuncs[".load"] = callSorlOrchLoad
 	cmdFuncs[".return"] = callSorlOrchReturn
-	cmdFuncs[".enter"] = callSorlOrchEnter
 	cmdFuncs[".replace"] = callSorlOrchReplace
 	cmdFuncs[".while"] = callSorlOrchWhile
 	cmdFuncs[".animate"] = callSorlOrchAnimate
@@ -54,6 +53,9 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".trimright"] = callSorlOrchTrimright
 
 	cmdFuncs[".clear"] = callSorlOrchClear
+
+	cmdFuncs[".read"] = callSorlOrchRead
+	cmdFuncs[".write"] = callSorlOrchWrite
 
 	return cmdFuncs
 }

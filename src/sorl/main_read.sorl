@@ -1,0 +1,6 @@
+#Testcase for .read a file
+.println
+.var hello.file.name=/tmp/hello.txt
+.println read file {hello.file.name}
+.read hello.txt {hello.file.name}
+.prinltn {hello.txt}
