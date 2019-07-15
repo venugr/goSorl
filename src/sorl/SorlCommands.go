@@ -445,7 +445,7 @@ func callSorlOrchEcho(ss *SorlSSH, cmd string, allProp *Property) {
 
 	if cmd == "off" {
 		(*allProp)["sr:echo"] = "off"
-		//return false
+		return
 	}
 
 	(*allProp)["sr:echo"] = "on"
@@ -479,7 +479,7 @@ func callSorlOrchDecr(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchFail(ss *SorlSSH, cmd string, allProp *Property) {
 
-	tempCmdOut := (*allProp)["_cmd.temp.out"]
+	tempCmdOut := (*allProp)["_cmd.output"]
 	cmd = strings.Replace(cmd, ".fail ", "", 1)
 	cmd = strings.TrimSpace(cmd)
 
@@ -494,9 +494,17 @@ func callSorlOrchFail(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchPass(ss *SorlSSH, cmd string, allProp *Property) {
 
-	tempCmdOut := (*allProp)["_cmd.temp.out"]
+	tempCmdOut := (*allProp)["_cmd.output"]
 	cmd = strings.Replace(cmd, ".pass ", "", 1)
 	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimLeft(cmd, "{")
+	cmd = strings.TrimSpace(cmd)
+	cmd = strings.TrimRight(cmd, "}")
+	cmd = strings.TrimSpace(cmd)
+
+	cmd, _ = replaceProp(cmd, (*allProp))
+
+	fmt.Println("OUTPUT: " + tempCmdOut)
 
 	if strings.Contains(tempCmdOut, cmd) {
 		(*allProp)["_pass.test"] = "true"
@@ -509,7 +517,7 @@ func callSorlOrchPass(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchTest(ss *SorlSSH, cmd string, allProp *Property) {
 
-	tempCmdOut := (*allProp)["_cmd.temp.out"]
+	tempCmdOut := (*allProp)["_cmd.output"]
 
 	cmd = strings.Replace(cmd, ".test ", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
@@ -647,6 +655,14 @@ func callSorlOrchReturn(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchEnter(ss *SorlSSH, cmd string, allProp *Property) {
 
+	ss.runShellCmd("")
+	(*allProp)["_if.prompt.req"] = "false"
+}
+
+func callSorlOrchSetWait(ss *SorlSSH, cmd string, allProp *Property) {
+
+	(*allProp)["_wait.prev.cmd"] = strings.Replace(cmd, ".setwait", ".wait", 1)
+	(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(cmd, ".setwait ", "", 1))
 }
 
 func callSorlOrchWait(ss *SorlSSH, cmd string, allProp *Property) {

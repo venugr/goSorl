@@ -57,6 +57,7 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".read"] = callSorlOrchRead
 	cmdFuncs[".write"] = callSorlOrchWrite
 	cmdFuncs[".wait"] = callSorlOrchWait
+	cmdFuncs[".setwait"] = callSorlOrchSetWait
 
 	return cmdFuncs
 }
@@ -227,10 +228,12 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			}
 
 			if (*allProp)["_pass.test"] == "false" || (*allProp)["_fail.test"] == "true" {
+				ss.sorlSshSession.Close()
 				return
 			}
 
 			if (*allProp)["_return"] == "true" {
+				ss.sorlSshSession.Close()
 				return
 			}
 
@@ -1018,37 +1021,54 @@ func compareCondition(cmd string) bool {
 
 	op := ""
 
+	opFound := false
+
 	tList := []string{}
 
 	//fmt.Println("CMD:" + cmd)
 	if strings.Contains(cmd, eqStr) {
 		op = eqStr
+		opFound = true
 		tList = strings.Split(cmd, eqStr)
 	}
 
 	if strings.Contains(cmd, nEqStr) {
 		op = nEqStr
+		opFound = true
 		tList = strings.Split(cmd, nEqStr)
 	}
 
 	if strings.Contains(cmd, lesStr) && (!strings.Contains(cmd, lesEqStr)) {
 		op = lesStr
+		opFound = true
 		tList = strings.Split(cmd, lesStr)
 	}
 
 	if strings.Contains(cmd, grtStr) && (!strings.Contains(cmd, grtEqStr)) {
 		op = grtStr
+		opFound = true
 		tList = strings.Split(cmd, grtStr)
 	}
 
 	if strings.Contains(cmd, lesEqStr) {
 		op = lesEqStr
+		opFound = true
 		tList = strings.Split(cmd, lesEqStr)
 	}
 
 	if strings.Contains(cmd, grtEqStr) {
 		op = grtEqStr
+		opFound = true
 		tList = strings.Split(cmd, grtEqStr)
+	}
+
+	if !opFound {
+
+		if cmd == "true" {
+			return true
+		}
+
+		return false
 	}
 
 	tList[0] = strings.TrimSpace(tList[0])
