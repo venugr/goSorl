@@ -196,6 +196,65 @@ func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut
 
 }
 
+func (ss *SorlSSH) waitFor(echoOn bool, display string, waitStr []string) (int, string) {
+
+	//fmt.Println("in waitFor..")
+
+	color := ss.sorlSshColor
+	sshOut := ss.sorlSshOut
+
+	cmdOut := ""
+	cmdBuf := make([]byte, 1024)
+	tempOut := ""
+	breakOk := false
+	waitStrMatch := -1
+
+	for {
+		//fmt.Println("sshOut Read..")
+		//PrintList("CMD", waitStr)
+
+		breakOk = false
+		n, err := sshOut.Read(cmdBuf)
+
+		//fmt.Println(n)
+
+		if err == nil {
+			tempOut = string(cmdBuf[:n])
+			if echoOn && !strings.HasPrefix(display, "clear") {
+				sshPrint(color, tempOut)
+			}
+			cmdOut += tempOut
+		} else {
+			break
+		}
+
+		for idx, wStr := range waitStr {
+			//fmt.Println("Wait Str:->" + wStr + "<-")
+			//fmt.Println("->" + strings.TrimSpace(tempOut) + "<-")
+			if strings.HasSuffix(strings.TrimSpace(tempOut), wStr) {
+				//fmt.Println("break..")
+				breakOk = true
+				waitStrMatch = idx
+				break
+			}
+		}
+
+		if breakOk {
+			break
+		}
+	}
+
+	//sshPrint(color, cmdOut)
+	//fmt.Println(cmdOut)
+	//fmt.Println("exit waitFor..")
+	if echoOn && strings.HasPrefix(display, "clear") {
+		sshPrint(color, cmdOut)
+	}
+
+	return waitStrMatch, cmdOut
+
+}
+
 func (ss *SorlSSH) setShell() error {
 
 	modes := ssh.TerminalModes{

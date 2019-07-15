@@ -160,6 +160,8 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	ss.sorlSshUserPassword = lHostUserPasswd
 	ss.sorlSshHostPortNum = lHostPort
 	ss.sorlSshHostKeyFile = lHostSshKeysFile
+	ss.sorlSshColor = color
+
 	err := ss.sorlParallelSsh()
 
 	//session, client, err := sorlParallelSsh(lHostUser, lHostUserPasswd, lHostIP, lHostPort, lHostSshKeysFile)

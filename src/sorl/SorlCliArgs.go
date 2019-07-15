@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+
 func getEnvVal(key string) (string, bool) {
 
 	return os.LookupEnv(key)

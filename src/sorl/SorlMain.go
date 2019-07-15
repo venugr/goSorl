@@ -622,7 +622,7 @@ func main() {
 
 	//fmt.Println(evalCondition("10 != 9 && 5 != 5 || abc == abc && a123 == a121"))
 	//fmt.Println(evalCondition("10 == 10 || a == b  ||  1 == 2 || a == a && a1 == a1 && b1 == b1"))
-	callTest28()
+	//callTest28()
 
 	/*
 		color.Cyan.Printf("Simple to use %s\n", "color")
@@ -631,7 +631,7 @@ func main() {
 		color.Warn.Println("message")
 	*/
 
-	return
+	//return
 
 	/*
 

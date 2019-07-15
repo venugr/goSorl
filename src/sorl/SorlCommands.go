@@ -649,6 +649,35 @@ func callSorlOrchEnter(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchWait(ss *SorlSSH, cmd string, allProp *Property) {
+
+	lCmd := cmd
+	cmd = strings.Replace(cmd, ".wait", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	waitStr := strings.Split(cmd, "||")
+	echoOn := false
+	display := (*allProp)["sr:display"]
+
+	if (*allProp)["sr:echo"] == "on" {
+		echoOn = true
+	}
+
+	waitMatchId, cmdOut := ss.waitFor(echoOn, display, waitStr)
+
+	(*allProp)["_wait.prev.cmd"] = lCmd
+	(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(lCmd, ".wait ", "", 1))
+	(*allProp)["_wait.match.id"] = strconv.Itoa(waitMatchId)
+
+	(*allProp)["_cmd.output"] += cmdOut
+	(*allProp)["_cmd.temp.output"] += cmdOut
+	cmdList := strings.Split(cmdOut, "\n")
+	cmdListLen := len(cmdList) - 1
+	(*allProp)["_wait.matched.prompt"] = cmdList[cmdListLen]
+
+	//fmt.Println(cmdOut)
+
+}
+
 func callSorlOrchReplace(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".replace", "", 1)

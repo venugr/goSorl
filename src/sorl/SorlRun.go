@@ -56,6 +56,7 @@ func getCmd2FuncMap() SorlCmdMap {
 
 	cmdFuncs[".read"] = callSorlOrchRead
 	cmdFuncs[".write"] = callSorlOrchWrite
+	cmdFuncs[".wait"] = callSorlOrchWait
 
 	return cmdFuncs
 }
@@ -102,6 +103,7 @@ func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
 
 	commands, _ := ReadFile(orchFile)
 
+	(*allProp)["_if.prompt.req"] = "false"
 	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
 
 	ss.sorlOrchestration(strings.Join(commands, "\n"), allProp)
@@ -139,16 +141,25 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 	cmdFuncs := getCmd2FuncMap()
 	procFuncs := getProc2FuncMap()
-
+	//ifReq := false
 	commands := strings.Split(cmdLines, "\n")
 	oCnt := 0
 	blockStarted := false
 	blockProcessed := false
 	blockCmds := ""
+	(*allProp)["_wait.run.ok"] = "false"
+	(*allProp)["sr:echo"] = "on"
 
 	for _, cmd := range commands {
 
 		cmd = strings.TrimLeft(cmd, " ")
+
+		if (*allProp)["_wait.run.ok"] == "true" && (!strings.HasPrefix(cmd, ".wait ")) {
+			callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
+		}
+
+		(*allProp)["_wait.run.ok"] = "false"
+
 		if strings.HasPrefix(cmd, "#") || cmd == "" {
 			continue
 		}
@@ -202,8 +213,17 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		//fmt.Println("Func Name:" + funcName)
 		if strings.HasPrefix(funcName, ".") {
 			(cmdFuncs[funcName])(ss, cmd, allProp)
+
 			if blockStarted {
 				blockProcessed = true
+			}
+
+			if strings.HasPrefix(funcName, ".print") {
+				(*allProp)["_if.prompt.req"] = "true"
+			}
+
+			if strings.HasPrefix(funcName, ".wait") {
+				(*allProp)["_if.prompt.req"] = "false"
 			}
 
 			if (*allProp)["_pass.test"] == "false" || (*allProp)["_fail.test"] == "true" {
@@ -213,10 +233,21 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			if (*allProp)["_return"] == "true" {
 				return
 			}
+
+			//fmt.Println("=>"+funcName+", ", (*allProp)["_if.prompt.req"])
 			continue
 		}
 
-		fmt.Println("Run Cmd: " + cmd)
+		(*allProp)["_wait.run.ok"] = "true"
+		//fmt.Println("Run Cmd: " + cmd)
+		cmd, _ = replaceProp(cmd, (*allProp))
+
+		if (*allProp)["_if.prompt.req"] == "true" {
+			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
+		}
+
+		ss.runShellCmd(cmd)
+		(*allProp)["_if.prompt.req"] = "false"
 
 	}
 }
