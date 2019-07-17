@@ -26,7 +26,7 @@ Following .(dot) commands have been implemented...
 
 .wait/.setwait
 
-.pass/.fail
+.pass/.fail/.test
 
 .tag
 
@@ -52,7 +52,7 @@ Following .(dot) commands have been implemented...
 
 .set
 
-.for
+.for/.while
 
 .range
 
@@ -62,8 +62,22 @@ Following .(dot) commands have been implemented...
 
 .repeat
 
-.test
-
 .log/.unlog
 
+.select
 
+.status
+
+.display
+
+.echo
+
+.animate
+
+.style
+
+.trimleft/.trimright
+
+.read/.write
+
+.shell
