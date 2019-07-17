@@ -11,6 +11,18 @@
 #
 .wait ?||BAN83||$||#
 cd /tmp
+.status
+abcd
+.status
+.println Code={_exit.code}
+.sleep 2
+#####
+.if {_exit.code} != 0 {
+
+   .println
+   .println Prev cmd exited with error: {_exit.code}
+   .println
+}
 #
 .if ok == ok {
 
@@ -58,6 +70,8 @@ sftp banner@localhost
    .sleep 5
    ls -ltr /tmp
    exit
+   .status
+   .println Sftp Exit Code={_exit.code}
    .set ftpok=true
 }
 
@@ -69,5 +83,15 @@ sftp banner@localhost
 }
 unalias ls
 ls -ltr /
+.status
+.println Code={_exit.code}
+
+ls -l /abcd
+.status
+.println Code={_exit.code}
+#
+.shell  pwd; abl; ls -ltr /
+.status
+.println Code={_exit.code}
 
 exit

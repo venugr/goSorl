@@ -60,6 +60,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".write"] = callSorlOrchWrite
 	cmdFuncs[".wait"] = callSorlOrchWait
 	cmdFuncs[".setwait"] = callSorlOrchSetWait
+	cmdFuncs[".status"] = callSorlOrchStatus
+	cmdFuncs[".shell"] = callSorlOrchShell
 
 	return cmdFuncs
 }
@@ -210,6 +212,11 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 		if (*allProp)["_return"] == "true" {
 			return
+		}
+
+		if strings.HasPrefix(cmd, ".shell") {
+			cmd = strings.Replace(cmd, ".shell", "", 1)
+			cmd = strings.TrimLeft(cmd, " ")
 		}
 
 		funcName := strings.Split(cmd, " ")[0]

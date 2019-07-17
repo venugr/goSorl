@@ -672,6 +672,30 @@ func callSorlOrchReturn(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchStatus(ss *SorlSSH, cmd string, allProp *Property) {
+
+	exitCode := "-1"
+
+	ss.runShellCmd("echo \"SORL_CMD_STATUS=$?\"")
+	prevEcho := (*allProp)["sr:echo"]
+	(*allProp)["sr:echo"] = "off"
+	callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
+	(*allProp)["sr:echo"] = prevEcho
+
+	for _, lVal := range strings.Split((*allProp)["_cmd.last.output"], "\n") {
+		if strings.Contains(lVal, "SORL_CMD_STATUS=") {
+			exitCode = strings.Split(lVal, "=")[1]
+		}
+	}
+	(*allProp)["_exit.code"] = exitCode
+	(*allProp)["_if.prompt.req"] = "false"
+
+}
+
+func callSorlOrchShell(ss *SorlSSH, cmd string, allProp *Property) {
+
+}
+
 func callSorlOrchEnter(ss *SorlSSH, cmd string, allProp *Property) {
 
 	ss.runShellCmd("")
@@ -705,6 +729,7 @@ func callSorlOrchWait(ss *SorlSSH, cmd string, allProp *Property) {
 
 	(*allProp)["_cmd.output"] += cmdOut
 	(*allProp)["_cmd.temp.output"] += cmdOut
+	(*allProp)["_cmd.last.output"] = cmdOut
 	cmdList := strings.Split(cmdOut, "\n")
 	cmdListLen := len(cmdList) - 1
 	(*allProp)["_wait.matched.prompt"] = cmdList[cmdListLen]
