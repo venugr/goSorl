@@ -178,6 +178,13 @@ func callSorlOrchLower(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchDisplay(ss *SorlSSH, cmd string, allProp *Property) {
+	color := (*allProp)["sr:color"]
+	cmd = strings.Replace(cmd, ".display", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	sshPrint(color, cmd+"\n")
+}
+
 func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	color := (*allProp)["sr:color"]
 	cmd = strings.Replace(cmd, ".println", "", 1)
@@ -591,7 +598,11 @@ func callSorlOrchRead(ss *SorlSSH, cmd string, allProp *Property) {
 	propName := strings.Split(cmd, " ")[0]
 	cmd = strings.TrimLeft(cmd, propName)
 	cmd = strings.TrimSpace(cmd)
-	fileName, _ := replaceProp(cmd, (*allProp))
+	cmd = strings.TrimPrefix(cmd, "{")
+	cmd = strings.TrimSuffix(cmd, "}")
+	cmd = strings.TrimSpace(cmd)
+
+	fileName := (*allProp)[cmd]
 
 	//fmt.Println(propName + "," + fileName)
 
@@ -616,9 +627,17 @@ func callSorlOrchWrite(ss *SorlSSH, cmd string, allProp *Property) {
 	propName := strings.Split(cmd, " ")[0]
 	cmd = strings.TrimLeft(cmd, propName)
 	cmd = strings.TrimSpace(cmd)
-	fileName, _ := replaceProp(cmd, (*allProp))
+	cmd = strings.TrimPrefix(cmd, "{")
+	cmd = strings.TrimSuffix(cmd, "}")
+	cmd = strings.TrimSpace(cmd)
 
-	wrtData, _ := replaceProp(propName, (*allProp))
+	fileName := (*allProp)[cmd]
+
+	propName = strings.TrimPrefix(propName, "{")
+	propName = strings.TrimSuffix(propName, "}")
+	propName = strings.TrimSpace(propName)
+
+	wrtData, _ := (*allProp)[propName]
 	//fmt.Println(propName + "," + fileName)
 
 	err := WriteFile(fileName, wrtData)

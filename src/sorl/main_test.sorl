@@ -28,9 +28,9 @@
 }
 #
 #
-.show    {_func.helloWorld}
+.show    {_func.name.helloWorld}
 .println ====================
-.show {_func.fact}
+.show {_func.name.fact}
 .sleep 5
 .var {
    v1=This is from var group
