@@ -191,6 +191,8 @@ func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.Replace(cmd, ".print", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	cmd, _ = replaceProp(cmd, (*allProp))
+	cmd = strings.ReplaceAll(cmd, "\\{", "{")
+	cmd = strings.ReplaceAll(cmd, "\\}", "}")
 
 	sshPrint(color, cmd)
 }
@@ -202,6 +204,21 @@ func callSorlOrchPrintln(ss *SorlSSH, cmd string, allProp *Property) {
 func callSorlOrchSet(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".set ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	vars := strings.Split(cmd, "=")
+	cmd = strings.TrimLeft(cmd, vars[0])
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "=")
+	(*allProp)[vars[0]] = cmd
+
+}
+
+func callSorlOrchExist(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".exist ", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	cmd = strings.TrimLeft(cmd, "\t")
 	cmd = strings.TrimLeft(cmd, " ")

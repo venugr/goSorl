@@ -49,6 +49,22 @@ func replaceProp(line string, lMap Property) (string, error) {
 		lKey = line[sIdx+1 : sIdx+lIdx+1]
 		lMapKey = strings.TrimSpace(lKey)
 
+		if strings.HasSuffix(lMapKey, ".?") {
+
+			tKey := lMapKey
+			tKey = strings.TrimSuffix(tKey, ".?")
+
+			_, ok := lMap[tKey]
+
+			tVal := "false"
+			if ok {
+				tVal = "true"
+			}
+
+			line = strings.ReplaceAll(line, "{"+lMapKey+"}", tVal)
+			continue
+		}
+
 		if lMapVal, ok = lMap[lMapKey]; !ok {
 			return "", errors.New("Key:'" + lMapKey + "' not found")
 		}

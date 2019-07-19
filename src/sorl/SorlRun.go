@@ -24,6 +24,7 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".display"] = callSorlOrchDisplay
 
 	cmdFuncs[".var"] = callSorlOrchVar
+	cmdFuncs[".exist"] = callSorlOrchExist
 	cmdFuncs[".set"] = callSorlOrchSet
 	cmdFuncs[".debug"] = callSorlOrchDebug
 	cmdFuncs[".if"] = callSorlOrchIf

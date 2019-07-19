@@ -8,6 +8,16 @@
 .display It is Variable {hello.txt}
 .display
 .sleep 2
+.println Property \{prop.name\} exists? {prop.name.?}
+.println This works...
+.sleep 2
+.set prop.name=Sorl, it is getting better DBD
+#
+.if {prop.name.?} {
+   .println
+   .name {prop.name}
+   .sleep 5
+}
 #
 .wait ?||BAN83||$||#
 cd /tmp
