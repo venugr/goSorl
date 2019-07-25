@@ -24,6 +24,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".display"] = callSorlOrchDisplay
 
 	cmdFuncs[".var"] = callSorlOrchVar
+	cmdFuncs[".unvar"] = callSorlOrchUnVar
+
 	cmdFuncs[".exist"] = callSorlOrchExist
 	cmdFuncs[".set"] = callSorlOrchSet
 	cmdFuncs[".debug"] = callSorlOrchDebug
@@ -41,6 +43,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".test"] = callSorlOrchTest
 
 	cmdFuncs[".func"] = callSorlOrchFunc
+	cmdFuncs[".endof"] = callSorlOrchEndOf
+
 	cmdFuncs[".call"] = callSorlOrchCall
 	cmdFuncs[".tag"] = callSorlOrchTag
 	cmdFuncs[".range"] = callSorlOrchRange
@@ -110,6 +114,7 @@ func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
 	commands, _ := ReadFile(orchFile)
 
 	(*allProp)["_if.prompt.req"] = "false"
+	(*allProp)["_endof.names"] = ""
 	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
 
 	ss.sorlOrchestration(strings.Join(commands, "\n"), allProp)
@@ -145,6 +150,7 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 
 func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
+	(*allProp)["_endof.names"] += ",NA"
 	cmdFuncs := getCmd2FuncMap()
 	procFuncs := getProc2FuncMap()
 	//ifReq := false
@@ -259,10 +265,30 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
 		}
 
+		if strings.HasPrefix(cmd, "<no> ") {
+			(*allProp)["_wait.run.ok"] = "false"
+			continue
+		}
+		cmd = strings.TrimPrefix(cmd, "<ok> ")
 		ss.runShellCmd(cmd)
 		(*allProp)["_if.prompt.req"] = "false"
 
 	}
+
+	if strings.HasSuffix((*allProp)["_endof.names"], ",NA") {
+		(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ",NA")
+		return
+	}
+
+	tFuncList := strings.Split((*allProp)["_endof.names"], ",")
+	tfLen := len(tFuncList)
+	tFuncName := tFuncList[tfLen-1]
+
+	(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ","+tFuncName)
+	(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ",NA")
+
+	ss.sorlOrchestration((*allProp)["_func.name."+tFuncName], allProp)
+
 }
 
 func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, sshOut io.WriteCloser, allProp *Property) {

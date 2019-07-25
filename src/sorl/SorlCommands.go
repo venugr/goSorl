@@ -231,6 +231,15 @@ func callSorlOrchExist(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchUnVar(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".var ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+	delete((*allProp), cmd)
+}
+
 func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
 
 	//fmt.Println(cmd)
@@ -555,6 +564,16 @@ func callSorlOrchTest(ss *SorlSSH, cmd string, allProp *Property) {
 		(*allProp)[propName] = "true"
 
 	}
+
+}
+
+func callSorlOrchEndOf(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".endof", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	//ss.sorlOrchestration((*allProp)["_func.name."+cmd], allProp)
+	(*allProp)["_endof.names"] += "," + cmd
+	//(*allProp)["_endof.func.name"+cmd] = cmd
 
 }
 

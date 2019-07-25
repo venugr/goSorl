@@ -137,6 +137,12 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 
 	if lVal, ok := lHostConfig["sorl_host_user_pass"]; ok {
 		lHostUserPasswd = lVal
+
+		if strings.HasPrefix(lVal, "sorl.enc:") {
+			key := "123456789012345678901234"
+			encPasswd := strings.Split(lVal, ".enc:")[1]
+			lHostUserPasswd = sorlDecryptText(key, encPasswd)
+		}
 	}
 
 	if lVal, ok := lHostConfig["sorl_host_ip"]; ok {

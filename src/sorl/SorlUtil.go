@@ -36,6 +36,8 @@ func replaceProp(line string, lMap Property) (string, error) {
 	line = strings.ReplaceAll(line, "\\}", "||unixcurly-close||")
 
 	if !strings.Contains(line, "}") {
+		line = strings.ReplaceAll(line, "||unixcurly-open||", "{")
+		line = strings.ReplaceAll(line, "||unixcurly-close||", "}")
 		return line, nil
 	}
 
@@ -59,6 +61,38 @@ func replaceProp(line string, lMap Property) (string, error) {
 			tVal := "false"
 			if ok {
 				tVal = "true"
+			}
+
+			line = strings.ReplaceAll(line, "{"+lMapKey+"}", tVal)
+			continue
+		}
+
+		if strings.HasSuffix(lMapKey, ".+") {
+
+			tKey := lMapKey
+			tKey = strings.TrimSuffix(tKey, ".+")
+
+			_, ok := lMap[tKey]
+
+			tVal := "<no> "
+			if ok {
+				tVal = "<ok> "
+			}
+
+			line = strings.ReplaceAll(line, "{"+lMapKey+"}", tVal)
+			continue
+		}
+
+		if strings.HasSuffix(lMapKey, ".-") {
+
+			tKey := lMapKey
+			tKey = strings.TrimSuffix(tKey, ".-")
+
+			_, ok := lMap[tKey]
+
+			tVal := "<ok> "
+			if ok {
+				tVal = "<no> "
 			}
 
 			line = strings.ReplaceAll(line, "{"+lMapKey+"}", tVal)

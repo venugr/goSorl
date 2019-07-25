@@ -1,0 +1,46 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+export PS1="[`whoami`@`hostname | cut -d. -f1`:"'$\{PWD\}][SORL]\$ '
+.println
+.println
+.println OS Type?
+.println
+#
+.clear
+echo OSTYPE=`uname -s`
+.test os.aix AIX
+.test os.linux Linux
+.test os.solaris SunOs
+.test os.hpux HP-UX
+.test os.windows CYGWIN_NT
+#
+.println
+.println AIX={os.aix}, Linux={os.linux}, Solaris={os.solaris}, HpUx={os.hpux}, Windows={os.windows}
+.println
+#
+.if {os.aix} {
+   .println
+   .println OS Type=AIX
+}
+#
+.if {os.linux} {
+   .println
+   .println OS Type=Linux
+}
+#
+{os.linux.+}ls -ltr /
+{os.windows.ok.+}dir 
+{os.windows.ok.-}echo "Window={os.windows}"
+.var exp.one=HELPHELOHELL
+alias grep
+unalias grep
+export EXPALL={exp.one}
+.println
+env | grep -i 'expall'
+exit

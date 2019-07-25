@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-
 func getEnvVal(key string) (string, bool) {
 
 	return os.LookupEnv(key)
@@ -61,7 +60,14 @@ func getCliArgs() map[string]string {
 	tagsPtr := flag.String("tags", "", "Tag Names")
 	versionPtr := flag.Bool("version", false, "Version details")
 	debugPtr := flag.Bool("debug", false, "Include debug blocks")
+	encyPtr := flag.String("encrypt", "", "Encrypt the string")
+	decyPtr := flag.String("decrypt", "", "Decrypt the string")
 
+	connectToPtr := flag.String("connect-to", "", "Connect to system")
+	connectUserPtr := flag.String("connect-user", "", "Connect as User")
+	connectPasswordEncPtr := flag.String("connect-password-enc", "", "Encrypted Password")
+	connectAskPsswordPtr := flag.Bool("connect-ask-password", false, "Ask for Password")
+	connectPasswordKeysFilePtr := flag.String("connect-passwordless-keys-file", "", "Passwordless keys file path")
 	flag.Parse()
 
 	/*
@@ -100,7 +106,94 @@ func getCliArgs() map[string]string {
 		cliArgs["debug"] = "true"
 	}
 
+	cliArgs["encrypt"] = string(*encyPtr)
+	cliArgs["decrypt"] = string(*decyPtr)
+
+	cliArgs["connect-to"] = string(*connectToPtr)
+	cliArgs["connect-user"] = string(*connectUserPtr)
+	cliArgs["connect-password-enc"] = string(*connectPasswordEncPtr)
+	cliArgs["connect-passwordless-keys-file"] = string(*connectPasswordKeysFilePtr)
+
+	cliArgs["connect-ask-password"] = "false"
+	if *connectAskPsswordPtr {
+		cliArgs["connect-ask-password"] = "true"
+	}
+
 	return cliArgs
+
+}
+
+func sorlEncDecCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) bool {
+
+	encyCli := strings.TrimSpace(cliArgsMap["encrypt"])
+	decyCli := strings.TrimSpace(cliArgsMap["decrypt"])
+
+	if encyCli != "" && decyCli != "" {
+		fmt.Println("\nError: Both 'encrypt' and 'decrypt' can not be present.")
+		fmt.Println()
+		os.Exit(1)
+	}
+
+	if encyCli != "" {
+		key := "123456789012345678901234"
+		encStr := sorlEncryptText(key, encyCli)
+		fmt.Println("String:" + encyCli)
+		fmt.Println("sorl.enc:" + encStr)
+		return true
+	}
+
+	if decyCli != "" {
+		key := "123456789012345678901234"
+		decStr := sorlDecryptText(key, decyCli)
+		fmt.Println("String:" + decyCli)
+		fmt.Println("sorl.dec:" + decStr)
+		return true
+	}
+
+	return false
+}
+
+func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) bool {
+
+	connectToCli := strings.TrimSpace(cliArgsMap["connect-to"])
+
+	fmt.Println("ConnectTo:" + connectToCli)
+
+	if connectToCli == "" {
+		return false
+	}
+
+	connectUser := strings.TrimSpace(cliArgsMap["connect-user"])
+
+	if connectUser == "" {
+		connectUsage()
+		return true
+	}
+
+	connectPasswordEnc := strings.TrimSpace(cliArgsMap["connect-password-enc"])
+	connectPasswordlessKeysFile := strings.TrimSpace(cliArgsMap["connect-passwordless-keys-file"])
+	connectAskPassword := strings.TrimSpace(cliArgsMap["connect-ask-password"])
+
+	if connectPasswordEnc == "" &&
+		connectPasswordlessKeysFile == "" &&
+		connectAskPassword == "false" {
+
+		connectUsage()
+		return true
+	}
+
+	return true
+}
+
+func connectUsage() {
+
+	fmt.Println("\nError: One of the following arguments needed for '-connect-to' ")
+	fmt.Println("\t --connect-user")
+	fmt.Println("\t --connect-password-enc")
+	fmt.Println("\t --connect-passwordless-keys-file")
+	fmt.Println("\t --connect-ask-password")
+
+	fmt.Println()
 
 }
 

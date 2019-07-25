@@ -597,6 +597,16 @@ func callTest28() {
 }
 
 func main() {
+	/*
+		key := "123456789012345678901234"
+		by := sorlEncryptText(key, "u_pick_it")
+		fmt.Println(string(by))
+
+		by = sorlDecryptText(key, by)
+		fmt.Println(string(by))
+
+		return
+	*/
 
 	/*
 		callTest1()
@@ -676,6 +686,18 @@ func main() {
 	scProp := SorlConfigProperty{}
 	svMap := SorlMap{}
 
+	ok := sorlEncDecCliArgs(scProp, cliArgsMap)
+
+	if ok {
+		return
+	}
+
+	ok = sorlConnectCliArgs(scProp, cliArgsMap)
+
+	if ok {
+		return
+	}
+
 	sorlLoadConfigFiles(&scProp, homePath, userConfigFilePath)
 	scProp.printConfig()
 
@@ -707,6 +729,6 @@ func printVersion() {
 	fmt.Println()
 	fmt.Println("SORL: Solution ORchestration Language, the .(dot) scripting")
 	fmt.Println("Version: 0.1-beta, build-1.0, " + currentTime.Format("02-Jan-06"))
-	time.Sleep(3 * time.Second)
+	time.Sleep(1 * time.Second)
 	fmt.Println()
 }

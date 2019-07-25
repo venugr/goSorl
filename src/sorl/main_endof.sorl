@@ -1,0 +1,73 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+.sleep 1
+.name Hi Madhu, Welcome to SORL, the .(dot) scripting
+.sleep 5
+#
+#
+.var cc.no=0
+.var call.end.of=AA
+#
+.func EndOfTest {
+
+   .if {cc.no} == 10 {
+      .unvar {call.end.of}
+   }
+
+   .endof EndOfTest
+   .println 
+   .println End Of Call is called.
+   .println
+   .sleep 1
+   .incr {cc.no}
+   .println Count={cc.no}
+   
+
+}
+
+###
+.func firstFunc {
+
+   .println
+   .println Hello firstFunc is called
+   .println
+
+   .endof EndOfTest
+
+   hostname
+   ls -l /tmp
+   pwd
+   ls -l /
+   df -h
+   ls -l /etc
+   cat /etc/redhat-release
+   sleep 2
+ 
+   .println 
+   .println Done with firstFunc
+
+ .println
+ .println End Of will be called.
+ .println
+ 
+
+}
+#
+.wait ?||BAN83||$||#
+cd /tmp
+unalias ls
+#
+.println
+.println Calling firstFunc
+#.call firstFunc
+sqlplus --help
+java -help
+.println
+.println Calling firstFunc done
+#
+.call firstFunc
+ls -ltr
+exit
