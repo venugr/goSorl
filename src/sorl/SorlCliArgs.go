@@ -182,6 +182,8 @@ func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 		return true
 	}
 
+	//sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
+
 	return true
 }
 

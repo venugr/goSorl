@@ -115,6 +115,7 @@ func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
 
 	(*allProp)["_if.prompt.req"] = "false"
 	(*allProp)["_endof.names"] = ""
+	(*allProp)["._noof.blocks"] = ""
 	//fmt.Println("==>1." + (*allProp)["sr:debug"] + "<==")
 
 	ss.sorlOrchestration(strings.Join(commands, "\n"), allProp)
@@ -148,7 +149,14 @@ func sorlRunOrchestration(session *ssh.Session, sshIn io.Reader, sshOut io.Write
 	sorlOrchestration(strings.Join(commands, "\n"), session, sshIn, sshOut, allProp)
 }
 
+func removeNoOfBlock(allProp *Property) {
+	(*allProp)["._noof.blocks"] = strings.TrimRight((*allProp)["._noof.blocks"], " ")
+	(*allProp)["._noof.blocks"] = strings.TrimRight((*allProp)["._noof.blocks"], ",")
+}
+
 func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
+
+	(*allProp)["._noof.blocks"] += ", "
 
 	(*allProp)["_endof.names"] += ",NA"
 	cmdFuncs := getCmd2FuncMap()
@@ -179,6 +187,8 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		if checkPauseAbort() {
 			fmt.Println("info: abort file is found")
 			fmt.Println("info: aborting orchestration")
+
+			removeNoOfBlock(allProp)
 			return
 		}
 
@@ -218,6 +228,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		(*allProp)["_fail.test"] = ""
 
 		if (*allProp)["_return"] == "true" {
+			removeNoOfBlock(allProp)
 			return
 		}
 
@@ -244,11 +255,13 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			}
 
 			if (*allProp)["_pass.test"] == "false" || (*allProp)["_fail.test"] == "true" {
+				removeNoOfBlock(allProp)
 				ss.sorlSshSession.Close()
 				return
 			}
 
 			if (*allProp)["_return"] == "true" {
+				removeNoOfBlock(allProp)
 				ss.sorlSshSession.Close()
 				return
 			}
@@ -270,24 +283,45 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			continue
 		}
 		cmd = strings.TrimPrefix(cmd, "<ok> ")
+		if (*allProp)["._noof.blocks"] == ", " && cmd == "exit" {
+			// Call final function
+			ss.sorlOrchestration((*allProp)["_func.name.finalize"], allProp)
+
+		}
 		ss.runShellCmd(cmd)
 		(*allProp)["_if.prompt.req"] = "false"
 
 	}
 
+	for !strings.HasSuffix((*allProp)["_endof.names"], ",NA") {
+
+		tFuncList := strings.Split((*allProp)["_endof.names"], ",")
+		tfLen := len(tFuncList)
+		tFuncName := tFuncList[tfLen-1]
+
+		(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ","+tFuncName)
+		//(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ",NA")
+
+		if _, ok := (*allProp)["_func.name."+tFuncName]; !ok {
+
+			fmt.Println("Error: Function: '" + tFuncName + "' not found!")
+			fmt.Println("Error: exiting.")
+			removeNoOfBlock(allProp)
+			ss.sorlSshSession.Close()
+			return
+		}
+
+		ss.sorlOrchestration((*allProp)["_func.name."+tFuncName], allProp)
+
+	}
+
 	if strings.HasSuffix((*allProp)["_endof.names"], ",NA") {
 		(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ",NA")
+		removeNoOfBlock(allProp)
 		return
 	}
 
-	tFuncList := strings.Split((*allProp)["_endof.names"], ",")
-	tfLen := len(tFuncList)
-	tFuncName := tFuncList[tfLen-1]
-
-	(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ","+tFuncName)
-	(*allProp)["_endof.names"] = strings.TrimSuffix((*allProp)["_endof.names"], ",NA")
-
-	ss.sorlOrchestration((*allProp)["_func.name."+tFuncName], allProp)
+	removeNoOfBlock(allProp)
 
 }
 
