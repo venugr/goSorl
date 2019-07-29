@@ -11,13 +11,12 @@
 .var cc.no=0
 .var call.end.of=AA
 #
-.func EndOfTest {
+.func EndOfTest1 {
 
    .if {cc.no} == 10 {
       .unvar {call.end.of}
    }
 
-   .endof EndOfTest
    .println 
    .println End Of Call is called.
    .println
@@ -28,6 +27,19 @@
 
 }
 
+.func EndOfTest2 {
+
+   .println
+   .println End Of Call 2 is called.
+   .println
+   .sleep 1
+   .incr {cc.no}
+   .println Count={cc.no}
+   
+
+}
+
+
 ###
 .func firstFunc {
 
@@ -35,7 +47,9 @@
    .println Hello firstFunc is called
    .println
 
-   .endof EndOfTest
+   .endof EndOfTest1
+   .endof EndOfTest2
+   .endof secFunc
 
    hostname
    ls -l /tmp
@@ -55,6 +69,12 @@
  
 
 }
+
+.func secFuncOld {
+
+   .println
+   .println 1234567890
+}
 #
 .wait ?||BAN83||$||#
 cd /tmp
@@ -71,3 +91,9 @@ java -help
 .call firstFunc
 ls -ltr
 exit
+
+.func secFunc {
+
+   .println
+   .println 1234567890
+}

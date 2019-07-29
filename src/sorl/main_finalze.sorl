@@ -1,0 +1,57 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.sleep 1
+#
+.func finalize {
+
+   .println 
+   .println Yes, Finalize is called..
+   .println
+   echo $$
+   ps -ef | grep java
+   .sleep 1
+}
+
+.func sftptest {
+
+   .setwait ftp>||$||#||>||(yes/no)?||password:
+   sftp banner@localhost
+   #
+
+   .if {_wait.match.id} == 4 {
+      yes
+   }
+
+   .if {_wait.match.id} == 5 {
+      u_pick_it
+   }
+
+   .if {_wait.match.id} == 0 {
+      .println
+      .println inside SFTP
+      .println
+      .sleep 2
+      ls -ltr /tmp
+      exit
+      .status
+      .println Sftp Exit Code={_exit.code}
+   }
+
+}
+
+#########
+.wait ?||BAN83||$||#
+cd /tmp
+unalias ls
+#
+ls -ltr
+#
+.call sftptest
+#
+.println
+.println  Check Finalize is called?
+.println
+#
+exit
