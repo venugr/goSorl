@@ -25,6 +25,8 @@ func getCmd2FuncMap() SorlCmdMap {
 
 	cmdFuncs[".var"] = callSorlOrchVar
 	cmdFuncs[".unvar"] = callSorlOrchUnVar
+	cmdFuncs[".def"] = callSorlOrchDef
+	cmdFuncs[".undef"] = callSorlOrchUnDef
 
 	cmdFuncs[".exist"] = callSorlOrchExist
 	cmdFuncs[".set"] = callSorlOrchSet

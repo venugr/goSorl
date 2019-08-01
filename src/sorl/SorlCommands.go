@@ -233,11 +233,41 @@ func callSorlOrchExist(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchUnVar(ss *SorlSSH, cmd string, allProp *Property) {
 
-	cmd = strings.Replace(cmd, ".var ", "", 1)
+	cmd = strings.Replace(cmd, ".unvar ", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
 	cmd = strings.TrimLeft(cmd, "\t")
 	cmd = strings.TrimLeft(cmd, " ")
 	delete((*allProp), cmd)
+}
+
+func callSorlOrchUnDef(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".undef ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+	delete((*allProp), cmd)
+}
+
+func callSorlOrchDef(ss *SorlSSH, cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".def ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	for _, lVal := range strings.Split(cmd, ",") {
+
+		lVal = strings.Trim(lVal, " ")
+
+		if strings.Contains(lVal, "=") {
+			lList := strings.Split(lVal, "=")
+			(*allProp)[lList[0]] = strings.TrimPrefix(lVal, lList[0]+"=")
+			continue
+		}
+
+		(*allProp)[lVal] = ""
+	}
+
 }
 
 func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
