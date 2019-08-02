@@ -18,11 +18,15 @@ Following .(dot) commands have been implemented...
 
 .clear
 
-.var
+.var/.unvar
+
+.def/.undef
 
 .if
 
 .func
+
+.endof
 
 .wait/.setwait
 
@@ -81,3 +85,7 @@ Following .(dot) commands have been implemented...
 .read/.write
 
 .shell
+
+.exist
+
+
