@@ -1,0 +1,25 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+unalias ls
+.log /tmp/first.log
+.log /tmp/multi.log
+ls -ltrR ~/
+uname -a
+lscpu
+.unlog /tmp/first.log
+#
+.log /tmp/second.log
+ls -ltrR /tmp
+pwd
+java -version
+curl https://s3.amazonaws.com/autodeploy-useast/software/oracle/rdbms_12201/linuxx64_12201_client.zip -o Ora_12cR2_client.zip
+.unlog
+exit
+.unlog /tmp/multi.log
+

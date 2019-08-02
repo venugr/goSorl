@@ -4,6 +4,8 @@
 .println ================================
 .print
 .sleep 1
+.name Hi Madhu, Welcome to SORL, the .(dot) scripting
+.sleep 5
 #
 #
 .func firstFunc {
@@ -17,6 +19,9 @@
    pwd
    ls -l /
    df -h
+   ls -l /etc
+   cat /etc/redhat-release
+   sleep 2
  
    .println 
    .println Done with firstFunc

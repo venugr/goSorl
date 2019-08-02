@@ -1,4 +1,6 @@
-.wait $||?||BAN83
+.println ============
+.println
+.wait ?||BAN83||$||#
 unalias ls
 uname -a
 .name This is to verify the .name command

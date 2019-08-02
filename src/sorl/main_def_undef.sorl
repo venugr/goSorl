@@ -1,0 +1,21 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.def a.b=Hello, c.dd=Delete C  , zz.xx.123=zx123.delme
+.def dir.name=/tmp,dir.folder=/media/common/db
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+unalias ls
+echo "{dir.folder}"
+ls -ltr "{dir.folder}"
+.println a.b={a.b}, c.dd={c.dd}
+touch /tmp/{zz.xx.123}
+ls -ltr /tmp
+.println ==>{c.dd}<==
+.undef c.dd
+.println ==>{c.dd}<==
+exit

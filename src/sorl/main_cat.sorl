@@ -1,0 +1,23 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+unalias ls
+ls -ltr /tmp
+.setwait >
+cat <<EFF > /tmp/test_cat.delme
+Hello, this is to test the cat command to
+write the data to a file '/tmp/test_cat.delme'.
+If you cat this file you should view the same text.
+If it doesn't, you won't have any idea on this.
+
+- SORL
+EFF
+.wait ?||BAN83||$||#||[SORL]$
+cat /tmp/test_cat.delme
+
+exit
