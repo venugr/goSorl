@@ -142,7 +142,7 @@ func callSorlOrchStyle(ss *SorlSSH, cmd string, allProp *Property) {
 	}
 
 	cmd, _ = replaceProp(cmd, (*allProp))
-	sshPrint(clrCode, cmd+"\n")
+	sshPrint(clrCode, cmd+"\n", allProp)
 
 }
 
@@ -182,7 +182,7 @@ func callSorlOrchDisplay(ss *SorlSSH, cmd string, allProp *Property) {
 	color := (*allProp)["sr:color"]
 	cmd = strings.Replace(cmd, ".display", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
-	sshPrint(color, cmd+"\n")
+	sshPrint(color, cmd+"\n", allProp)
 }
 
 func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
@@ -194,7 +194,7 @@ func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.ReplaceAll(cmd, "\\{", "{")
 	cmd = strings.ReplaceAll(cmd, "\\}", "}")
 
-	sshPrint(color, cmd)
+	sshPrint(color, cmd, allProp)
 }
 
 func callSorlOrchPrintln(ss *SorlSSH, cmd string, allProp *Property) {
@@ -267,6 +267,44 @@ func callSorlOrchDef(ss *SorlSSH, cmd string, allProp *Property) {
 
 		(*allProp)[lVal] = ""
 	}
+
+}
+
+func callSorlOrchLog(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".log ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	(*allProp)["_log.data."+cmd] = ""
+	(*allProp)["_log.file.names"] += cmd + ","
+	(*allProp)["_log.file.latest"] = cmd
+
+}
+
+func callSorlOrchUnLog(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".unlog", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	if cmd == "" {
+		cmd = (*allProp)["_log.file.latest"]
+		(*allProp)["_log.file.latest"] = ""
+	}
+
+	if cmd == "" {
+		return
+	}
+
+	WriteFile(cmd, (*allProp)["_log.data."+cmd]+"\n")
+
+	(*allProp)["_log.data."+cmd] = ""
+	delete((*allProp), "_log.data."+cmd)
+
+	(*allProp)["_log.file.names"] = strings.Replace((*allProp)["_log.file.names"], cmd+",", "", 1)
 
 }
 
@@ -353,7 +391,7 @@ func callSorlOrchShow(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.TrimLeft(cmd, "{")
 	cmd = strings.TrimRight(cmd, "}")
 	cmd = strings.TrimSpace(cmd)
-	sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[cmd])
+	sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[cmd], allProp)
 
 }
 
@@ -374,7 +412,7 @@ func callSorlOrchInput(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.TrimLeft(cmd, " ")
 
 	reader := bufio.NewReader(os.Stdin)
-	sshPrint(color, cmd+" ")
+	sshPrint(color, cmd+" ", allProp)
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimRight(text, "\n")
 
@@ -391,9 +429,9 @@ func callSorlOrchName(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.TrimLeft(cmd, " ")
 	cmdLen := len(cmd)
 
-	sshPrint(color, "\n\n\n"+strings.Repeat("*", cmdLen+4)+"\n")
-	sshPrint(color, "* "+cmd+" *\n")
-	sshPrint(color, strings.Repeat("*", cmdLen+4)+"\n")
+	sshPrint(color, "\n\n\n"+strings.Repeat("*", cmdLen+4)+"\n", allProp)
+	sshPrint(color, "* "+cmd+" *\n", allProp)
+	sshPrint(color, strings.Repeat("*", cmdLen+4)+"\n", allProp)
 
 }
 
@@ -787,7 +825,7 @@ func callSorlOrchWait(ss *SorlSSH, cmd string, allProp *Property) {
 		echoOn = true
 	}
 
-	waitMatchId, cmdOut := ss.waitFor(echoOn, display, waitStr)
+	waitMatchId, cmdOut := ss.waitFor(echoOn, display, waitStr, allProp)
 
 	(*allProp)["_wait.prev.cmd"] = lCmd
 	(*allProp)["_wait.string"] = strings.TrimSpace(strings.Replace(lCmd, ".wait ", "", 1))

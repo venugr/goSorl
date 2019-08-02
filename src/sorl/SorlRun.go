@@ -28,6 +28,9 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".def"] = callSorlOrchDef
 	cmdFuncs[".undef"] = callSorlOrchUnDef
 
+	cmdFuncs[".log"] = callSorlOrchLog
+	cmdFuncs[".unlog"] = callSorlOrchUnLog
+
 	cmdFuncs[".exist"] = callSorlOrchExist
 	cmdFuncs[".set"] = callSorlOrchSet
 	cmdFuncs[".debug"] = callSorlOrchDebug
@@ -277,7 +280,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		cmd, _ = replaceProp(cmd, (*allProp))
 
 		if (*allProp)["_if.prompt.req"] == "true" {
-			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
+			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"], allProp)
 		}
 
 		if strings.HasPrefix(cmd, "<no> ") {
@@ -545,7 +548,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		if strings.HasPrefix(cmd, ".show ") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			lProp := sorlOrchShow(cmd)
-			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[lProp])
+			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[lProp], allProp)
 			ifReq = true
 			continue
 		}
@@ -657,7 +660,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		if strings.HasPrefix(cmd, ".pass") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			if sorlOrchPass(cmd, (*allProp)["sr:color"], tempCmdOut) {
-				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
+				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n", allProp)
 				ifReq = true
 				session.Close()
 				return
@@ -667,7 +670,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 
 		if strings.HasPrefix(cmd, ".fail") && (!(skipTagLines || skipIfLines || skipDebugLines)) {
 			if sorlOrchFail(cmd, (*allProp)["sr:color"], tempCmdOut) {
-				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n")
+				sshPrint((*allProp)["sr:color"], "\n"+cmd+" : Failed\n", allProp)
 				ifReq = true
 				session.Close()
 				return
@@ -831,9 +834,9 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		//fmt.Println("R: Cmd:", cmd)
 		lCmd := strings.ReplaceAll(cmd, " ", "")
 		if strings.Contains(lCmd, "rm-rf*") {
-			sshPrint((*allProp)["sr:color"], "\nsorl: can not process "+cmd)
+			sshPrint((*allProp)["sr:color"], "\nsorl: can not process "+cmd, allProp)
 			reader := bufio.NewReader(os.Stdin)
-			sshPrint((*allProp)["sr:color"], "\nDo you want to proceed(yes/no)? ")
+			sshPrint((*allProp)["sr:color"], "\nDo you want to proceed(yes/no)? ", allProp)
 			yesNo, _ := reader.ReadString('\n')
 			yesNo = strings.TrimRight(yesNo, "\n")
 			ifReq = true
@@ -844,7 +847,7 @@ func sorlOrchestration(cmdLines string, session *ssh.Session, sshIn io.Reader, s
 		}
 
 		if ifReq && waitDone != "-1" {
-			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"])
+			sshPrint((*allProp)["sr:color"], "\n"+(*allProp)["_wait.matched.prompt"], allProp)
 		}
 		ifReq = false
 
@@ -1389,7 +1392,7 @@ func sorlOrchInput(cmd string, color string, allProp *Property) error {
 	cmd = strings.TrimLeft(cmd, " ")
 
 	reader := bufio.NewReader(os.Stdin)
-	sshPrint(color, cmd+" ")
+	sshPrint(color, cmd+" ", allProp)
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimRight(text, "\n")
 
@@ -1515,7 +1518,7 @@ func sorlOrchPrint(cmd string, color string) {
 	cmd = strings.Replace(cmd, ".println", "", 1)
 	cmd = strings.Replace(cmd, ".print", "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
-	sshPrint(color, cmd)
+	sshPrint(color, cmd, nil)
 }
 
 func sorlOrchPrintln(cmd string, color string) {
@@ -1539,9 +1542,9 @@ func sorlOrchName(cmd string, color string) {
 	cmd = strings.TrimLeft(cmd, " ")
 	cmdLen := len(cmd)
 
-	sshPrint(color, "\n\n\n"+strings.Repeat("*", cmdLen+4)+"\n")
-	sshPrint(color, "* "+cmd+" *\n")
-	sshPrint(color, strings.Repeat("*", cmdLen+4)+"\n")
+	sshPrint(color, "\n\n\n"+strings.Repeat("*", cmdLen+4)+"\n", nil)
+	sshPrint(color, "* "+cmd+" *\n", nil)
+	sshPrint(color, strings.Repeat("*", cmdLen+4)+"\n", nil)
 
 }
 

@@ -18,16 +18,32 @@ import (
 var wg = sync.WaitGroup{}
 var mut = sync.RWMutex{}
 
-func (ss SorlSSH) sshPrint(prn string) {
+func (ss SorlSSH) sshPrint(prn string, allProp *Property) {
 	mut.Lock()
 	fmt.Print(ClrUnColor + ss.sorlSshColor + prn + ClrUnColor)
 	mut.Unlock()
+
+	fileNames := (*allProp)["_log.file.names"]
+	fileNames = strings.TrimSuffix(fileNames, ",")
+
+	for _, lFileName := range strings.Split(fileNames, ",") {
+		(*allProp)["_log.data."+lFileName] += prn
+	}
+
 }
 
-func sshPrint(color, prn string) {
+func sshPrint(color, prn string, allProp *Property) {
 	mut.Lock()
 	fmt.Print(ClrUnColor + color + prn + ClrUnColor)
 	mut.Unlock()
+
+	fileNames := (*allProp)["_log.file.names"]
+	fileNames = strings.TrimSuffix(fileNames, ",")
+
+	for _, lFileName := range strings.Split(fileNames, ",") {
+		(*allProp)["_log.data."+lFileName] += prn
+	}
+
 }
 
 func (ss *SorlSSH) sorlParallelSsh() error {
@@ -162,7 +178,7 @@ func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut
 		if err == nil {
 			tempOut = string(cmdBuf[:n])
 			if echoOn && !strings.HasPrefix(display, "clear") {
-				sshPrint(color, tempOut)
+				sshPrint(color, tempOut, nil)
 			}
 			cmdOut += tempOut
 		} else {
@@ -189,14 +205,14 @@ func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut
 	//fmt.Println(cmdOut)
 	//fmt.Println("exit waitFor..")
 	if echoOn && strings.HasPrefix(display, "clear") {
-		sshPrint(color, cmdOut)
+		sshPrint(color, cmdOut, nil)
 	}
 
 	return waitStrMatch, cmdOut
 
 }
 
-func (ss *SorlSSH) waitFor(echoOn bool, display string, waitStr []string) (int, string) {
+func (ss *SorlSSH) waitFor(echoOn bool, display string, waitStr []string, allProp *Property) (int, string) {
 
 	//fmt.Println("in waitFor..")
 
@@ -221,7 +237,7 @@ func (ss *SorlSSH) waitFor(echoOn bool, display string, waitStr []string) (int, 
 		if err == nil {
 			tempOut = string(cmdBuf[:n])
 			if echoOn && !strings.HasPrefix(display, "clear") {
-				sshPrint(color, tempOut)
+				sshPrint(color, tempOut, allProp)
 			}
 			cmdOut += tempOut
 		} else {
@@ -248,7 +264,7 @@ func (ss *SorlSSH) waitFor(echoOn bool, display string, waitStr []string) (int, 
 	//fmt.Println(cmdOut)
 	//fmt.Println("exit waitFor..")
 	if echoOn && strings.HasPrefix(display, "clear") {
-		sshPrint(color, cmdOut)
+		sshPrint(color, cmdOut, allProp)
 	}
 
 	return waitStrMatch, cmdOut
