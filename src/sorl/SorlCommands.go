@@ -842,6 +842,39 @@ func callSorlOrchWait(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchInstall(ss *SorlSSH, cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".install", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	if !strings.Contains(cmd, "package=") {
+		ss.sshPrint("error: package is not provided\ncan not proceed with orchestration.\naborting.", allProp)
+		return
+	}
+
+	pkgList := strings.Split(cmd, " ")
+	pkgName := ""
+	for _, lVal := range pkgList {
+
+		if strings.Contains(lVal, "package=") {
+			pkgName = strings.TrimLeft(lVal, "package=")
+			pkgName = strings.TrimSpace(pkgName)
+		}
+
+	}
+
+	if pkgName == "" {
+		ss.sshPrint("error: package is not provided\ncan not proceed with orchestration.\naborting.", allProp)
+		return
+	}
+
+	cmdFuncs := SorlCmdMap{}
+
+	cmdFuncs["tomcat"] = callSorlInstallTomcat
+
+	(cmdFuncs[pkgName])(ss, pkgName, allProp)
+
+}
+
 func callSorlOrchReplace(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".replace", "", 1)

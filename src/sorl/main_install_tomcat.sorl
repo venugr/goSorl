@@ -1,0 +1,37 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+export ORACLE_HOME=/u01/app/oracle/product/client
+export PATH=$PATH:$ORACLE_HOME/bin
+LD_LIBRARY_PATH=/u01/app/oracle/product/client/lib:/lib:/usr/lib
+export LD_LIBRARY_PATH
+#
+unalias ls
+#
+rm -f /tmp/apache-tomcat*.tar.gz*
+rm -rf /install/tomcat/*
+#
+sqlplus -version
+.sleep 5
+#
+.var {
+   tomcat.version=8.8
+   tomcat.url=http://mirrors.advancedhosters.com/apache/tomcat/tomcat-8/v8.5.43/bin/apache-tomcat-8.5.43.tar.gz
+   tomcat.file=apache-tomcat-8.5.43.tar.gz
+   tomcat.user.id=tomcat8
+   tomcat.user.group.id=tomcat8
+   tomcat.listen.port=8080
+   tomcat.install.path=/install/tomcat
+}
+.install package=tomcat
+ls -ltr /tmp
+ls -ltrR /install/tomcat
+env | sort
+#
+exit
+
