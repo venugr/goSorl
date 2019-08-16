@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/sftp"
+
 	"golang.org/x/crypto/ssh"
 )
 
@@ -559,4 +561,62 @@ func configSshKey(userSshKeyFile string) (ssh.Signer, error) {
 
 	return lKey, err
 
+}
+
+func (ss *SorlSSH) sorlSftp(filesSrcMap SorlMap, filesDestMap SorlMap, allProp *Property) {
+
+	sftp, err := sftp.NewClient(ss.sorlSshClient)
+
+	if err != nil {
+
+	}
+
+	defer sftp.Close()
+
+	/*
+		w := sftp.Walk("/tmp")
+
+		for w.Step() {
+			fmt.Println(w.Path())
+		}
+
+	*/
+
+	ss.sshPrint("\n", allProp)
+
+	for lKey, lVal := range filesSrcMap {
+
+		sftp.MkdirAll(lVal)
+
+		remFile := filesDestMap[lVal] + "/" + lKey
+		locFile := filesSrcMap[lVal] + "/" + lKey
+
+		ss.sshPrint("copying file '"+locFile+"'...\n", allProp)
+
+		newFile, err := sftp.Create(remFile)
+
+		if err != nil {
+
+		}
+
+		fullFile, err := ReadBinaryFile(locFile)
+		if err != nil {
+
+		}
+
+		if _, err := newFile.Write(fullFile); err != nil {
+
+		}
+
+		ss.sshPrint("copied file '"+locFile+"'...\n\n", allProp)
+	}
+
+	/*
+		fStat, err := sftp.Lstat("test.sorl")
+		if err != nil {
+
+		}
+
+		fmt.Println(fStat)
+	*/
 }

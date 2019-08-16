@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -216,6 +217,30 @@ func ReadFile(fileName string) ([]string, error) {
 	lines := strings.Split(string(data), "\n")
 	lLen := len(lines)
 	return lines[:lLen-1], nil
+}
+
+func ReadBinaryFile(fileName string) ([]byte, error) {
+
+	data, err := os.Open(fileName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer data.Close()
+
+	stats, err := data.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	fileSize := stats.Size()
+	dataBytes := make([]byte, fileSize)
+
+	fileBufr := bufio.NewReader(data)
+	_, err = fileBufr.Read(dataBytes)
+
+	return dataBytes, err
 }
 
 // WriteFile a normal file

@@ -1,5 +1,34 @@
 package main
 
+func callSorlInstallApache(ss *SorlSSH, cmd string, allProp *Property) {
+
+	if cmd != "apache" {
+		ss.sshPrint("error: package name is not apche", allProp)
+		return
+	}
+
+	//apacheUrl := (*allProp)["apache.url"]
+	apacheFile := (*allProp)["apache.file"]
+	apacheInstallPath := (*allProp)["apache.install.path"]
+	apacheVersion := (*allProp)["apache.version"]
+	apacheUserId := (*allProp)["apache.user.id"]
+	apacheUserGroupId := (*allProp)["apache.user.group.id"]
+	apacheListenPort := (*allProp)["apache.listen.port"]
+
+	strInfo := "\n"
+	strInfo += "\nInstalling Apache "
+	strInfo += "\nDetails:"
+	strInfo += "\n\tVersion: " + apacheVersion
+	strInfo += "\n\tFile: " + apacheFile
+	strInfo += "\n\tPath: " + apacheInstallPath
+	strInfo += "\n\tUser: " + apacheUserId
+	strInfo += "\n\tGroup: " + apacheUserGroupId
+	strInfo += "\n\tPort: " + apacheListenPort
+	strInfo += "\n"
+	ss.sshPrint(strInfo, allProp)
+
+}
+
 func callSorlInstallTomcat(ss *SorlSSH, cmd string, allProp *Property) {
 
 	if cmd != "tomcat" {

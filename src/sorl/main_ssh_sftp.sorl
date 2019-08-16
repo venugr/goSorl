@@ -1,0 +1,12 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+.file files=bmui.jar,bmui_devops_1_12.jar dest=/tmp    src=/tmp
+#
+exit
+
