@@ -848,6 +848,51 @@ func callSorlOrchSftp(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchTemplate(ss *SorlSSH, cmd string, allProp *Property) {
+
+	(*allProp)["_file.loc.path"] = "/tmp"
+
+	cmd = strings.Replace(cmd, ".template", "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	opts := strings.Split(cmd, " ")
+	files := ""
+	destPath := ""
+	srcPath := ""
+
+	for _, lVal := range opts {
+
+		if strings.Contains(lVal, "files=") {
+			files = strings.TrimPrefix(lVal, "files=")
+		}
+
+		if strings.Contains(lVal, "dest=") {
+			destPath = strings.TrimPrefix(lVal, "dest=")
+		}
+
+		if strings.Contains(lVal, "src=") {
+			srcPath = strings.TrimPrefix(lVal, "src=")
+		}
+
+	}
+
+	if files == "" || destPath == "" {
+		ss.sshPrint("unable to copy file(s)\n", allProp)
+		return
+	}
+
+	filesSrcMap := SorlMap{}
+	filesDestMap := SorlMap{}
+
+	for _, lVal := range strings.Split(files, ",") {
+		filesDestMap[lVal] = destPath
+		filesSrcMap[lVal] = srcPath
+	}
+
+	ss.sorlSftp(true, filesSrcMap, filesDestMap, allProp)
+
+}
+
 func callSorlOrchFile(ss *SorlSSH, cmd string, allProp *Property) {
 
 	(*allProp)["_file.loc.path"] = "/tmp"
@@ -889,7 +934,7 @@ func callSorlOrchFile(ss *SorlSSH, cmd string, allProp *Property) {
 		filesSrcMap[lVal] = srcPath
 	}
 
-	ss.sorlSftp(filesSrcMap, filesDestMap, allProp)
+	ss.sorlSftp(false, filesSrcMap, filesDestMap, allProp)
 
 }
 

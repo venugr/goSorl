@@ -563,7 +563,7 @@ func configSshKey(userSshKeyFile string) (ssh.Signer, error) {
 
 }
 
-func (ss *SorlSSH) sorlSftp(filesSrcMap SorlMap, filesDestMap SorlMap, allProp *Property) {
+func (ss *SorlSSH) sorlSftp(isTemplate bool, filesSrcMap SorlMap, filesDestMap SorlMap, allProp *Property) {
 
 	sftp, err := sftp.NewClient(ss.sorlSshClient)
 
@@ -584,12 +584,12 @@ func (ss *SorlSSH) sorlSftp(filesSrcMap SorlMap, filesDestMap SorlMap, allProp *
 
 	ss.sshPrint("\n", allProp)
 
-	for lKey, lVal := range filesSrcMap {
+	for lKey, _ := range filesSrcMap {
 
-		sftp.MkdirAll(lVal)
+		sftp.MkdirAll(filesDestMap[lKey])
 
-		remFile := filesDestMap[lVal] + "/" + lKey
-		locFile := filesSrcMap[lVal] + "/" + lKey
+		remFile := filesDestMap[lKey] + "/" + lKey
+		locFile := filesSrcMap[lKey] + "/" + lKey
 
 		ss.sshPrint("copying file '"+locFile+"'...\n", allProp)
 
@@ -602,6 +602,11 @@ func (ss *SorlSSH) sorlSftp(filesSrcMap SorlMap, filesDestMap SorlMap, allProp *
 		fullFile, err := ReadBinaryFile(locFile)
 		if err != nil {
 
+		}
+
+		if isTemplate {
+			fullString, _ := replaceProp(string(fullFile), (*allProp))
+			fullFile = []byte(fullString)
 		}
 
 		if _, err := newFile.Write(fullFile); err != nil {

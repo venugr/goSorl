@@ -6,7 +6,13 @@
 #
 .wait ?||BAN83||$||#||[SORL]$
 #
+.var {
+   sorl.template.hello=Template works@@@@
+   sorl.text=TEST SORL DOT SCRIPT
+}
 .file files=bmui.jar,bmui_devops_1_12.jar dest=/tmp    src=/tmp
+#
+.template files=bmui.txt dest=/tmp    src=/tmp
 #
 exit
 
