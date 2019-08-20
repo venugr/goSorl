@@ -1,0 +1,35 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+.logvar var.test1
+unalias ls
+ls -ltrR ~/
+uname -a
+.unlogvar
+#
+.logvar var.test2
+lscpu
+#
+ls -ltrR /tmp
+pwd
+.unlogvar
+#
+.logvar java.version
+java -version
+.unlogvar java.version
+.println
+.println JAVA_VERSION={java.version}
+.println
+.println <<<CPUS={var.test2}
+.println CPUS>>>
+.println
+.println <<<TEST1={var.test1}
+.println TEST1>>>
+.println
+exit
+

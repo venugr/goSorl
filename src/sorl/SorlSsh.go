@@ -32,9 +32,17 @@ func (ss SorlSSH) sshPrint(prn string, allProp *Property) {
 		(*allProp)["_log.data."+lFileName] += prn
 	}
 
+	logVarNames := (*allProp)["_log.var.names"]
+	logVarNames = strings.TrimSuffix(logVarNames, ",")
+
+	for _, lVarName := range strings.Split(logVarNames, ",") {
+		(*allProp)[lVarName] += prn
+	}
+
 }
 
 func sshPrint(color, prn string, allProp *Property) {
+
 	mut.Lock()
 	fmt.Print(ClrUnColor + color + prn + ClrUnColor)
 	mut.Unlock()
@@ -44,6 +52,13 @@ func sshPrint(color, prn string, allProp *Property) {
 
 	for _, lFileName := range strings.Split(fileNames, ",") {
 		(*allProp)["_log.data."+lFileName] += prn
+	}
+
+	logVarNames := (*allProp)["_log.var.names"]
+	logVarNames = strings.TrimSuffix(logVarNames, ",")
+
+	for _, lVarName := range strings.Split(logVarNames, ",") {
+		(*allProp)[lVarName] += prn
 	}
 
 }

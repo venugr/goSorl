@@ -308,6 +308,39 @@ func callSorlOrchUnLog(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchLogVar(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".logvar ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	(*allProp)[cmd] = ""
+	(*allProp)["_log.var.names"] += cmd + ","
+	(*allProp)["_log.var.latest"] = cmd
+
+}
+
+func callSorlOrchUnLogVar(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".unlogvar", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	if cmd == "" {
+		cmd = (*allProp)["_log.var.latest"]
+		(*allProp)["_log.var.latest"] = ""
+	}
+
+	if cmd == "" {
+		return
+	}
+
+	(*allProp)["_log.var.names"] = strings.Replace((*allProp)["_log.var.names"], cmd+",", "", 1)
+
+}
+
 func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
 
 	//fmt.Println(cmd)

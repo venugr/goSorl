@@ -68,6 +68,8 @@ Following .(dot) commands have been implemented...
 
 .log/.unlog
 
+.logvar/.unlogvar
+
 .select
 
 .status
@@ -88,4 +90,10 @@ Following .(dot) commands have been implemented...
 
 .exist
 
+.install
 
+.sftp 
+
+.file
+
+.template
