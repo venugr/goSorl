@@ -4,6 +4,9 @@
 .println ================================
 .print
 #
+.println {v1.name}
+.println {v1.two}
+.sleep 5
 .wait ?||BAN83||$||#||[SORL]$
 #
 .logvar var.test1

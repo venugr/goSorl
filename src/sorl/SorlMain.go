@@ -706,6 +706,13 @@ func main() {
 	if err != nil {
 		logit(fmt.Sprintf("\ninfo: %v", err))
 	}
+
+	err = sorlArgsVars(&svMap)
+
+	if err != nil {
+		logit(fmt.Sprintf("\ninfo: %v", err))
+	}
+
 	printMap("Global Vars", svMap)
 
 	hostList, err := sorlProcessCliArgs(scProp, cliArgsMap)

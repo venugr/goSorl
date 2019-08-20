@@ -62,6 +62,7 @@ func getCliArgs() map[string]string {
 	debugPtr := flag.Bool("debug", false, "Include debug blocks")
 	encyPtr := flag.String("encrypt", "", "Encrypt the string")
 	decyPtr := flag.String("decrypt", "", "Decrypt the string")
+	varPtr := flag.String("var", "", "Variable Name")
 
 	connectToPtr := flag.String("connect-to", "", "Connect to system")
 	connectUserPtr := flag.String("connect-user", "", "Connect as User")
@@ -95,6 +96,7 @@ func getCliArgs() map[string]string {
 	cliArgs["keep"] = strconv.Itoa(*keepPtr)
 	cliArgs["display"] = string(*dispPtr)
 	cliArgs["tags"] = string(*tagsPtr)
+	cliArgs["var"] = string(*varPtr)
 
 	cliArgs["version"] = "false"
 	if *versionPtr {
