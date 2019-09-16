@@ -1005,6 +1005,37 @@ func callSorlOrchInstall(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchMatch(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".match", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	resProp := strings.Split(cmd, " ")[0]
+
+	cmd = strings.Replace(cmd, resProp, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	strProp := strings.Split(cmd, " ")[0]
+	cmd = strings.Replace(cmd, strProp, "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+
+	strProp, _ = replaceProp(strProp, (*allProp))
+
+	regEx := regexp.MustCompile(cmd)
+	(*allProp)[resProp] = regEx.FindStringSubmatch(strProp)[0]
+
+	for idx, tVal := range regEx.FindStringSubmatch(strProp) {
+
+		if idx == 0 {
+			continue
+		}
+
+		(*allProp)[resProp+".g"+strconv.Itoa(idx)] = tVal
+
+	}
+
+}
+
 func callSorlOrchReplace(ss *SorlSSH, cmd string, allProp *Property) {
 
 	cmd = strings.Replace(cmd, ".replace", "", 1)

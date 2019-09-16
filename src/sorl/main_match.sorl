@@ -1,0 +1,18 @@
+.println 
+.println ================================
+.println Welcome to SORL .(dot) Scripting
+.println ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+echo "HELLO=World Venu"
+.sleep 2
+.def match.input.str=HELLO=World Venu
+#
+.match match.res.value {match.input.str} HELLO=(\w+)\s+(\w+)
+.name {match.res.value}
+.name {match.res.value.g1}
+.name {match.res.value.g2}
+exit
+

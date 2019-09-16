@@ -78,6 +78,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".sftp"] = callSorlOrchSftp
 	cmdFuncs[".file"] = callSorlOrchFile
 	cmdFuncs[".template"] = callSorlOrchTemplate
+	cmdFuncs[".match"] = callSorlOrchMatch
+	
 
 	return cmdFuncs
 }
