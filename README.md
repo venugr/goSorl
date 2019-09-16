@@ -97,3 +97,5 @@ Following .(dot) commands have been implemented...
 .file
 
 .template
+
+.match
