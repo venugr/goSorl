@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -14,7 +15,14 @@ func sorlLoadGlobalVars(homePath string, svMap *SorlMap) error {
 
 }
 
+func sorlLoadFileVars(varFileName string, svMap *SorlMap) error {
+
+	return readVarsFile(varFileName, svMap)
+}
+
 func sorlArgsVars(svMap *SorlMap) error {
+
+	cmdCnt := 1
 
 	for _, arg := range os.Args[1:] {
 		if strings.HasPrefix(arg, "-var=") {
@@ -25,6 +33,15 @@ func sorlArgsVars(svMap *SorlMap) error {
 			arg = strings.TrimSuffix(arg, argList[0])
 			(*svMap)[argList[0]] = arg
 		}
+
+		if strings.HasPrefix(arg, "-cmd=") {
+			arg = strings.TrimPrefix(arg, "-cmd=")
+			arg = strings.TrimPrefix(arg, "\"")
+			arg = strings.TrimSuffix(arg, "\"")
+			(*svMap)["cmd.arg."+strconv.Itoa(cmdCnt)] = arg
+			cmdCnt++
+		}
+
 	}
 
 	return nil

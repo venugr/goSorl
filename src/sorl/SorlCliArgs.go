@@ -17,17 +17,17 @@ func getEnvVal(key string) (string, bool) {
 func getEnvlist(keys []string) map[string]string {
 
 	keyVal := map[string]string{}
-	infoStr := ""
+	//infoStr := ""
 
 	for _, key := range keys {
 		val, ok := getEnvVal(key)
-		infoStr = "Environment variable " + key + " is not available"
+		//infoStr = "Environment variable " + key + " is not available"
 		if ok {
-			infoStr = "Environment variable " + key + ":" + val
+			//infoStr = "Environment variable " + key + ":" + val
 			keyVal[key] = val
 		}
 
-		fmt.Println(infoStr)
+		//fmt.Println(infoStr)
 
 	}
 	return keyVal
@@ -48,6 +48,7 @@ func getCliArgs() map[string]string {
 
 	cliArgs := map[string]string{}
 
+	connPtr := flag.String("conn", "", "Connect to System")
 	groupPtr := flag.String("group", "", "Group Name")
 	maxGoPtr := flag.Int("max", 10, "Maximum Parallel Go Routines")
 	dryRunPtr := flag.Bool("dryrun", false, "Dry Run")
@@ -63,12 +64,14 @@ func getCliArgs() map[string]string {
 	encyPtr := flag.String("encrypt", "", "Encrypt the string")
 	decyPtr := flag.String("decrypt", "", "Decrypt the string")
 	varPtr := flag.String("var", "", "Variable Name")
+	varFilePtr := flag.String("var-file", "", "Variables FileName")
+	cmdPtr := flag.String("cmd", "", "Command text")
 
 	connectToPtr := flag.String("connect-to", "", "Connect to system")
-	connectUserPtr := flag.String("connect-user", "", "Connect as User")
-	connectPasswordEncPtr := flag.String("connect-password-enc", "", "Encrypted Password")
-	connectAskPsswordPtr := flag.Bool("connect-ask-password", false, "Ask for Password")
-	connectPasswordKeysFilePtr := flag.String("connect-passwordless-keys-file", "", "Passwordless keys file path")
+	connectUserPtr := flag.String("conn-user", "", "Connect as User")
+	connectPasswordEncPtr := flag.String("conn-password-enc", "", "Encrypted Password")
+	connectAskPsswordPtr := flag.Bool("conn-ask-password", false, "Ask for Password")
+	connectPasswordKeysFilePtr := flag.String("conn-passwordless-keys-file", "", "Passwordless keys file path")
 	flag.Parse()
 
 	/*
@@ -79,6 +82,7 @@ func getCliArgs() map[string]string {
 		fmt.Println("Tail:", flag.Args())
 	*/
 
+	cliArgs["conn"] = string(*connPtr)
 	cliArgs["group"] = string(*groupPtr)
 	cliArgs["max"] = strconv.Itoa(*maxGoPtr)
 	cliArgs["dryrun"] = "false"
@@ -97,6 +101,8 @@ func getCliArgs() map[string]string {
 	cliArgs["display"] = string(*dispPtr)
 	cliArgs["tags"] = string(*tagsPtr)
 	cliArgs["var"] = string(*varPtr)
+	cliArgs["var-file"] = string(*varFilePtr)
+	cliArgs["cmd"] = string(*cmdPtr)
 
 	cliArgs["version"] = "false"
 	if *versionPtr {
@@ -112,13 +118,13 @@ func getCliArgs() map[string]string {
 	cliArgs["decrypt"] = string(*decyPtr)
 
 	cliArgs["connect-to"] = string(*connectToPtr)
-	cliArgs["connect-user"] = string(*connectUserPtr)
-	cliArgs["connect-password-enc"] = string(*connectPasswordEncPtr)
-	cliArgs["connect-passwordless-keys-file"] = string(*connectPasswordKeysFilePtr)
+	cliArgs["conn-user"] = string(*connectUserPtr)
+	cliArgs["conn-password-enc"] = string(*connectPasswordEncPtr)
+	cliArgs["conn-passwordless-keys-file"] = string(*connectPasswordKeysFilePtr)
 
-	cliArgs["connect-ask-password"] = "false"
+	cliArgs["conn-ask-password"] = "false"
 	if *connectAskPsswordPtr {
-		cliArgs["connect-ask-password"] = "true"
+		cliArgs["conn-ask-password"] = "true"
 	}
 
 	return cliArgs
@@ -155,49 +161,114 @@ func sorlEncDecCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) 
 	return false
 }
 
-func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) bool {
+func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) ([]string, error) {
 
-	connectToCli := strings.TrimSpace(cliArgsMap["connect-to"])
+	/*
+		connectToCli := strings.TrimSpace(cliArgsMap["connect-to"])
 
-	fmt.Println("ConnectTo:" + connectToCli)
+		fmt.Println("ConnectTo:" + connectToCli)
 
-	if connectToCli == "" {
-		return false
-	}
+		if connectToCli == "" {
+			return false
+		}
+	*/
 
-	connectUser := strings.TrimSpace(cliArgsMap["connect-user"])
+	connectUser := strings.TrimSpace(cliArgsMap["conn-user"])
 
 	if connectUser == "" {
 		connectUsage()
-		return true
+		return nil, errors.New("Insufficient Arguments")
 	}
 
-	connectPasswordEnc := strings.TrimSpace(cliArgsMap["connect-password-enc"])
-	connectPasswordlessKeysFile := strings.TrimSpace(cliArgsMap["connect-passwordless-keys-file"])
-	connectAskPassword := strings.TrimSpace(cliArgsMap["connect-ask-password"])
+	connectPasswordEnc := strings.TrimSpace(cliArgsMap["conn-password-enc"])
+	connectPasswordlessKeysFile := strings.TrimSpace(cliArgsMap["conn-passwordless-keys-file"])
+	connectAskPassword := strings.TrimSpace(cliArgsMap["conn-ask-password"])
 
 	if connectPasswordEnc == "" &&
 		connectPasswordlessKeysFile == "" &&
 		connectAskPassword == "false" {
 
 		connectUsage()
-		return true
+		return nil, errors.New("Insufficient Arguments")
+	}
+
+	connCnt := 0
+
+	if connectPasswordEnc != "" {
+		connCnt++
+	}
+
+	if connectPasswordlessKeysFile != "" {
+		connCnt++
+	}
+
+	if connectAskPassword != "false" {
+		connCnt++
+	}
+
+	if connCnt == 0 || connCnt > 1 {
+		//connectUsage()
+		return nil, errors.New("Error: More than one password argumnet is present\n")
 	}
 
 	//sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
 
-	return true
+	return []string{connectUser, connectPasswordEnc, connectPasswordlessKeysFile, connectAskPassword}, nil
 }
 
 func connectUsage() {
 
-	fmt.Println("\nError: One of the following arguments needed for '-connect-to' ")
-	fmt.Println("\t --connect-user")
-	fmt.Println("\t --connect-password-enc")
-	fmt.Println("\t --connect-passwordless-keys-file")
-	fmt.Println("\t --connect-ask-password")
+	fmt.Println("\nError: Following arguments are required for '-conn' ")
+	fmt.Println("\t   --conn-user")
+	fmt.Println("\t        AND")
+	fmt.Println("\t [ --conn-password-enc")
+	fmt.Println("\t        OR")
+	fmt.Println("\t   --conn-passwordless-keys-file")
+	fmt.Println("\t        OR")
+	fmt.Println("\t   --conn-ask-password")
+	fmt.Println("\t ]")
 
 	fmt.Println()
+
+}
+
+func sorlGetActionArgs(actName string, scProp SorlConfigProperty, cliArgsMap map[string]string) ([]string, error) {
+
+	if actName == "host" || actName == "group" {
+		return getHostList(actName, strings.TrimSpace(cliArgsMap[actName]), scProp)
+	}
+
+	if actName == "conn" {
+		return sorlConnectCliArgs(scProp, cliArgsMap)
+	}
+
+	return nil, nil
+}
+
+func sorlGetAction(cliArgsMap map[string]string) (string, error) {
+
+	actList := []string{"host", "group", "conn", "encrypt", "decrypt"}
+	actCnt := 0
+	actName := ""
+
+	for _, tVal := range actList {
+		if strings.TrimSpace(cliArgsMap[tVal]) != "" {
+			actCnt++
+			actName = tVal
+		}
+	}
+
+	if actCnt == 0 || actCnt > 1 {
+		fmt.Println("\nError: Only one of the following Actions be present.")
+		for _, tVal := range actList {
+			fmt.Println("\t- " + tVal)
+		}
+		fmt.Println()
+
+		return "", nil
+	}
+
+	return actName, nil
 
 }
 
@@ -208,18 +279,24 @@ func sorlProcessCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 
 	hostCli := strings.TrimSpace(cliArgsMap["host"])
 	grpCli := strings.TrimSpace(cliArgsMap["group"])
+	connCli := strings.TrimSpace(cliArgsMap["conn"])
+
 	//maxGoRout := cliArgsMap["max"]
 
-	if hostCli != "" && grpCli != "" {
-		fmt.Println("\nError: Both 'host' and 'group' can not be present.")
+	if hostCli != "" && grpCli != "" && connCli != "" {
+		fmt.Println("\nError: One of the actions 'conn', host' and 'group' can be present.")
 		fmt.Println()
 		os.Exit(1)
 	}
 
-	if hostCli == "" && grpCli == "" {
-		fmt.Println("\nError: One of 'host' or 'group' must be present.")
+	if hostCli == "" && grpCli == "" && connCli == "" {
+		fmt.Println("\nError: One of 'conn', host' or 'group' must be present.")
 		fmt.Println()
 		os.Exit(1)
+	}
+
+	if connCli != "" {
+		return []string{connCli}, nil
 	}
 
 	hostGrpCli := hostCli

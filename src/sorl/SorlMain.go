@@ -596,7 +596,72 @@ func callTest28() {
 	ss.sorlOrchestration(cmd, &alp)
 }
 
+func newMain() {
+
+	cliArgsMap := getCliArgs()
+	printVersion()
+
+	versionOk := strings.TrimSpace(cliArgsMap["version"])
+	if versionOk == "true" {
+		return
+	}
+
+	envMap := getEnvlist([]string{"USER", "HOME", "AVA"})
+
+	homePath := envMap["HOME"]
+	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
+	//globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
+	//parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
+	varFileName := strings.TrimSpace(cliArgsMap["var-file"])
+
+	actName, err := sorlGetAction(cliArgsMap)
+	if err != nil {
+		return
+	}
+
+	scProp := SorlConfigProperty{}
+	svMap := SorlMap{}
+	sorlLoadConfigFiles(&scProp, homePath, userConfigFilePath)
+
+	actArgs, err := sorlGetActionArgs(actName, scProp, cliArgsMap)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println()
+	fmt.Println(actArgs)
+
+	err = sorlLoadGlobalVars(homePath, &svMap)
+	if err != nil {
+		logit(fmt.Sprintf("\ninfo: %v", err))
+	}
+
+	if varFileName != "" {
+		err = sorlLoadFileVars(varFileName, &svMap)
+
+		if err != nil {
+			logit(fmt.Sprintf("\ninfo: %v", err))
+		}
+	}
+
+	err = sorlArgsVars(&svMap)
+
+	if err != nil {
+		logit(fmt.Sprintf("\ninfo: %v", err))
+	}
+
+	printMap("Global/Loaded Vars", svMap)
+
+}
+
 func main() {
+
+	newMain()
+	fmt.Println()
+	return
+
 	/*
 		key := "123456789012345678901234"
 		by := sorlEncryptText(key, "u_pick_it")
@@ -692,11 +757,13 @@ func main() {
 		return
 	}
 
-	ok = sorlConnectCliArgs(scProp, cliArgsMap)
+	/*
+		ok = sorlConnectCliArgs(scProp, cliArgsMap)
 
-	if ok {
-		return
-	}
+		if ok {
+			return
+		}
+	*/
 
 	sorlLoadConfigFiles(&scProp, homePath, userConfigFilePath)
 	scProp.printConfig()
@@ -735,7 +802,7 @@ func printVersion() {
 	currentTime := time.Now()
 	fmt.Println()
 	fmt.Println("SORL: Solution ORchestration Language, the .(dot) scripting")
-	fmt.Println("Version: 0.1-beta, build-1.0, " + currentTime.Format("02-Jan-06"))
+	fmt.Println("Version: 0.1-beta, build-1.0-17-SEP-2019, " + currentTime.Format("02-Jan-06"))
 	time.Sleep(1 * time.Second)
 	fmt.Println()
 }
