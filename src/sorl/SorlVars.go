@@ -23,6 +23,7 @@ func sorlLoadFileVars(varFileName string, svMap *SorlMap) error {
 func sorlArgsVars(svMap *SorlMap) error {
 
 	cmdCnt := 1
+	(*svMap)["_cmd.arg.order"] = ""
 
 	for _, arg := range os.Args[1:] {
 		if strings.HasPrefix(arg, "-var=") {
@@ -38,7 +39,8 @@ func sorlArgsVars(svMap *SorlMap) error {
 			arg = strings.TrimPrefix(arg, "-cmd=")
 			arg = strings.TrimPrefix(arg, "\"")
 			arg = strings.TrimSuffix(arg, "\"")
-			(*svMap)["cmd.arg."+strconv.Itoa(cmdCnt)] = arg
+			(*svMap)["_cmd.arg."+strconv.Itoa(cmdCnt)] = arg
+			(*svMap)["_cmd.arg.order"] += "_cmd.arg." + strconv.Itoa(cmdCnt) + ","
 			cmdCnt++
 		}
 

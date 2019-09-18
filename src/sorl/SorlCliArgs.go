@@ -69,6 +69,7 @@ func getCliArgs() map[string]string {
 
 	connectToPtr := flag.String("connect-to", "", "Connect to system")
 	connectUserPtr := flag.String("conn-user", "", "Connect as User")
+	connectPortPtr := flag.String("conn-port", "22", "Connect to SSH port")
 	connectPasswordEncPtr := flag.String("conn-password-enc", "", "Encrypted Password")
 	connectAskPsswordPtr := flag.Bool("conn-ask-password", false, "Ask for Password")
 	connectPasswordKeysFilePtr := flag.String("conn-passwordless-keys-file", "", "Passwordless keys file path")
@@ -119,6 +120,7 @@ func getCliArgs() map[string]string {
 
 	cliArgs["connect-to"] = string(*connectToPtr)
 	cliArgs["conn-user"] = string(*connectUserPtr)
+	cliArgs["conn-port"] = string(*connectPortPtr)
 	cliArgs["conn-password-enc"] = string(*connectPasswordEncPtr)
 	cliArgs["conn-passwordless-keys-file"] = string(*connectPasswordKeysFilePtr)
 
@@ -180,6 +182,12 @@ func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 		return nil, errors.New("Insufficient Arguments")
 	}
 
+	connectPort := strings.TrimSpace(cliArgsMap["conn-port"])
+
+	if connectPort == "" {
+		connectPort = "22"
+	}
+
 	connectPasswordEnc := strings.TrimSpace(cliArgsMap["conn-password-enc"])
 	connectPasswordlessKeysFile := strings.TrimSpace(cliArgsMap["conn-passwordless-keys-file"])
 	connectAskPassword := strings.TrimSpace(cliArgsMap["conn-ask-password"])
@@ -213,7 +221,7 @@ func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 
 	//sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
 
-	return []string{connectUser, connectPasswordEnc, connectPasswordlessKeysFile, connectAskPassword}, nil
+	return []string{connectPort, connectUser, connectPasswordEnc, connectPasswordlessKeysFile, connectAskPassword}, nil
 }
 
 func connectUsage() {
@@ -227,6 +235,8 @@ func connectUsage() {
 	fmt.Println("\t        OR")
 	fmt.Println("\t   --conn-ask-password")
 	fmt.Println("\t ]")
+	fmt.Println("\t        OR")
+	fmt.Println("\t   --conn-port")
 
 	fmt.Println()
 
@@ -245,16 +255,18 @@ func sorlGetActionArgs(actName string, scProp SorlConfigProperty, cliArgsMap map
 	return nil, nil
 }
 
-func sorlGetAction(cliArgsMap map[string]string) (string, error) {
+func sorlGetAction(cliArgsMap map[string]string) (string, string, error) {
 
 	actList := []string{"host", "group", "conn", "encrypt", "decrypt"}
 	actCnt := 0
 	actName := ""
+	actValue := ""
 
 	for _, tVal := range actList {
 		if strings.TrimSpace(cliArgsMap[tVal]) != "" {
 			actCnt++
 			actName = tVal
+			actValue = cliArgsMap[tVal]
 		}
 	}
 
@@ -265,10 +277,10 @@ func sorlGetAction(cliArgsMap map[string]string) (string, error) {
 		}
 		fmt.Println()
 
-		return "", nil
+		return "", "", nil
 	}
 
-	return actName, nil
+	return actName, actValue, nil
 
 }
 
