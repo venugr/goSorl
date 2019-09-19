@@ -508,7 +508,14 @@ func (ss *SorlSSH) configSsh() {
 	lUserName := ss.sorlSshUserName
 	lUserPassword := ss.sorlSshUserPassword
 
-	lKey, _ := ss.configSshKey()
+	lKey, err := ss.configSshKey()
+
+	if err != nil {
+		//fmt.Println("\nError: Config SSH Key issue...")
+		//return
+
+		lKey = nil
+	}
 
 	sshConfig := &ssh.ClientConfig{
 		User: lUserName,
