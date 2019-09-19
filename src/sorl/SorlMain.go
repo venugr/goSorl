@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+var sorlDebug = false
+
 func callTest1() {
 	ss := &SorlSSH{}
 	alp := Property{}
@@ -598,7 +600,21 @@ func callTest28() {
 
 func newMain() {
 
+	scProp := SorlConfigProperty{}
+	svMap := SorlMap{}
+
 	cliArgsMap := getCliArgs()
+
+	actName, actValue, err := sorlGetAction(cliArgsMap)
+	if err != nil {
+		return
+	}
+
+	if actName == "encrypt" || actName == "decrypt" {
+		sorlEncDecCliArgs(scProp, cliArgsMap)
+		return
+	}
+
 	printVersion()
 
 	versionOk := strings.TrimSpace(cliArgsMap["version"])
@@ -606,7 +622,11 @@ func newMain() {
 		return
 	}
 
-	envMap := getEnvlist([]string{"USER", "HOME", "AVA"})
+	envMap := getEnvlist([]string{"USER", "HOME", "SORL_DEBUG", "AVA"})
+
+	if strings.ToLower(envMap["SORL_DEBUG"]) == "yes" {
+		sorlDebug = true
+	}
 
 	homePath := envMap["HOME"]
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
@@ -614,13 +634,6 @@ func newMain() {
 	//parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 	varFileName := strings.TrimSpace(cliArgsMap["var-file"])
 
-	actName, actValue, err := sorlGetAction(cliArgsMap)
-	if err != nil {
-		return
-	}
-
-	scProp := SorlConfigProperty{}
-	svMap := SorlMap{}
 	sorlLoadConfigFiles(&scProp, homePath, userConfigFilePath)
 
 	actArgs, err := sorlGetActionArgs(actName, scProp, cliArgsMap)
@@ -631,7 +644,7 @@ func newMain() {
 	}
 
 	fmt.Println()
-	fmt.Println(actArgs)
+	//fmt.Println(actArgs)
 
 	err = sorlLoadGlobalVars(homePath, &svMap)
 	if err != nil {
@@ -652,15 +665,12 @@ func newMain() {
 		logit(fmt.Sprintf("\ninfo: %v", err))
 	}
 
-	printMap("Global/Loaded Vars", svMap)
+	if sorlDebug {
+		printMap("Global/Loaded Vars", svMap)
+	}
 
 	if actName == "conn" {
 		sorlActionConn(actName, actValue, actArgs, cliArgsMap, svMap, scProp)
-	}
-
-	if actName == "encrypt" || actName == "decrypt" {
-		sorlEncDecCliArgs(scProp, cliArgsMap)
-
 	}
 
 }

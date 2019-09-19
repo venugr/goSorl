@@ -88,9 +88,11 @@ func readConfigFilePath(scProp *SorlConfigProperty, configFilePath string) error
 	}
 
 	//scProp := SorlConfigProperty{}
+	if sorlDebug {
+		fmt.Printf("\nDefault Sorl config file '%s' is found.", configFileName)
+	}
 
 	if ok {
-		fmt.Printf("\nDefault Sorl config file '%s' is found.", configFileName)
 		scProp.readConfig(configFileName)
 		//scProp.printConfig()
 	}

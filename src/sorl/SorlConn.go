@@ -12,13 +12,15 @@ import (
 
 func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map[string]string, svMap SorlMap, scProp SorlConfigProperty) {
 
-	fmt.Println("Action: " + actName)
-	fmt.Println("Conn System: " + connSystem)
-	fmt.Println("Conn Port: " + actArgs[0])
-	fmt.Println("Conn User: " + actArgs[1])
-	fmt.Println("Conn Pass: " + actArgs[2])
-	fmt.Println("Conn PassFile: " + actArgs[3])
-	fmt.Println("Conn Ask Passwd: " + actArgs[4])
+	if sorlDebug {
+		fmt.Println("Action: " + actName)
+		fmt.Println("Conn System: " + connSystem)
+		fmt.Println("Conn Port: " + actArgs[0])
+		fmt.Println("Conn User: " + actArgs[1])
+		fmt.Println("Conn Pass: " + actArgs[2])
+		fmt.Println("Conn PassFile: " + actArgs[3])
+		fmt.Println("Conn Ask Passwd: " + actArgs[4])
+	}
 
 	color := SorlGetColor()
 
@@ -104,6 +106,7 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 	commands := []string{
 		waitPrompt,
 		cmdStr,
+		"pwd",
 		"exit",
 	}
 

@@ -149,16 +149,16 @@ func sorlEncDecCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string) 
 	if encyCli != "" {
 		key := "123456789012345678901234"
 		encStr := sorlEncryptText(key, encyCli)
-		fmt.Println("String:" + encyCli)
-		fmt.Println("sorl.enc:" + encStr)
+		fmt.Println("String: " + encyCli)
+		fmt.Println("sorl.enc: " + encStr)
 		return true
 	}
 
 	if decyCli != "" {
 		key := "123456789012345678901234"
 		decStr := sorlDecryptText(key, decyCli)
-		fmt.Println("String:" + decyCli)
-		fmt.Println("sorl.dec:" + decStr)
+		fmt.Println("String: " + decyCli)
+		fmt.Println("sorl.dec: " + decStr)
 		return true
 	}
 
