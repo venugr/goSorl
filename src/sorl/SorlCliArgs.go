@@ -66,6 +66,7 @@ func getCliArgs() map[string]string {
 	varPtr := flag.String("var", "", "Variable Name")
 	varFilePtr := flag.String("var-file", "", "Variables FileName")
 	cmdPtr := flag.String("cmd", "", "Command text")
+	waitPtr := flag.String("wait-prompt", "", "Wait Prompt")
 
 	connectToPtr := flag.String("connect-to", "", "Connect to system")
 	connectUserPtr := flag.String("conn-user", "", "Connect as User")
@@ -104,6 +105,7 @@ func getCliArgs() map[string]string {
 	cliArgs["var"] = string(*varPtr)
 	cliArgs["var-file"] = string(*varFilePtr)
 	cliArgs["cmd"] = string(*cmdPtr)
+	cliArgs["wait-prompt"] = string(*waitPtr)
 
 	cliArgs["version"] = "false"
 	if *versionPtr {
@@ -191,6 +193,7 @@ func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 	connectPasswordEnc := strings.TrimSpace(cliArgsMap["conn-password-enc"])
 	connectPasswordlessKeysFile := strings.TrimSpace(cliArgsMap["conn-passwordless-keys-file"])
 	connectAskPassword := strings.TrimSpace(cliArgsMap["conn-ask-password"])
+	waitPrompt := strings.TrimSpace(cliArgsMap["wait-prompt"])
 
 	if connectPasswordEnc == "" &&
 		connectPasswordlessKeysFile == "" &&
@@ -221,7 +224,7 @@ func sorlConnectCliArgs(scProp SorlConfigProperty, cliArgsMap map[string]string)
 
 	//sorlStart(parallelOk, globalOrchFilePath, scProp, hostList, cliArgsMap, svMap)
 
-	return []string{connectPort, connectUser, connectPasswordEnc, connectPasswordlessKeysFile, connectAskPassword}, nil
+	return []string{connectPort, connectUser, connectPasswordEnc, connectPasswordlessKeysFile, connectAskPassword, waitPrompt}, nil
 }
 
 func connectUsage() {

@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -22,28 +20,13 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 	fmt.Println("Conn PassFile: " + actArgs[3])
 	fmt.Println("Conn Ask Passwd: " + actArgs[4])
 
-	SorlColors := []string{
-		"",
-		"\x1b[31;1m",
-		"\x1b[37;1m",
-		"\x1b[32;1m",
-		"\x1b[33;1m",
-		"\x1b[34;1m",
-		"\x1b[35;1m",
-		"\x1b[36;1m",
-		"\x1b[38;1m",
-		"\x1b[39;1m",
-	}
-	max := len(SorlColors)
-	min := 0
-	rand.Seed(time.Now().UnixNano())
-	trand := rand.Intn(max-min) + min
+	color := SorlGetColor()
 
 	allProp := Property{}
 	allProp["sr:load"] = "no"
 	allProp["sr:loadfile"] = ""
 	allProp["sr:orchfile"] = ""
-	allProp["sr:color"] = SorlColors[trand]
+	allProp["sr:color"] = color
 	//allProp["sr:keep"] = strconv.Itoa(keepNoCmdLogs)
 	//allProp["sr:display"] = display
 	//allProp["sr:tags"] = tags
@@ -59,7 +42,8 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 	ss.sorlSshUserPassword = actArgs[2]
 	ss.sorlSshHostPortNum, _ = strconv.Atoi(actArgs[0])
 	ss.sorlSshHostKeyFile = actArgs[3]
-	ss.sorlSshColor = SorlColors[trand]
+	ss.sorlSshColor = color
+	waitPrompt := actArgs[5]
 
 	if actArgs[4] == "true" {
 		//reader := bufio.NewReader(os.Stdin)
@@ -109,12 +93,21 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 
 	}
 
+	if waitPrompt == "" {
+		waitPrompt = "$||#||?||>"
+	}
+
+	waitPrompt = ".wait " + waitPrompt
+
+	//fmt.Println("WaitPrompt: " + waitPrompt)
+
 	commands := []string{
-		".wait $||#||?||BAN83",
-		"pwd",
+		waitPrompt,
 		cmdStr,
 		"exit",
 	}
+
+	fmt.Println()
 
 	ss.sorlOrchestration(strings.Join(commands, "\n"), &allProp)
 	//ss.sorlSshSession.Wait()
