@@ -21,8 +21,16 @@ var wg = sync.WaitGroup{}
 var mut = sync.RWMutex{}
 
 func (ss SorlSSH) sshPrint(prn string, allProp *Property) {
+
 	mut.Lock()
-	fmt.Print(ClrUnColor + ss.sorlSshColor + prn + ClrUnColor)
+
+	mStr := ClrUnColor + ss.sorlSshColor + prn + ClrUnColor
+
+	if sorlWindows {
+		mStr = prn
+	}
+	fmt.Print(mStr)
+
 	mut.Unlock()
 
 	fileNames := (*allProp)["_log.file.names"]
@@ -44,7 +52,14 @@ func (ss SorlSSH) sshPrint(prn string, allProp *Property) {
 func sshPrint(color, prn string, allProp *Property) {
 
 	mut.Lock()
-	fmt.Print(ClrUnColor + color + prn + ClrUnColor)
+
+	mStr := ClrUnColor + color + prn + ClrUnColor
+
+	if sorlWindows {
+		mStr = prn
+	}
+	fmt.Print(mStr)
+
 	mut.Unlock()
 
 	fileNames := (*allProp)["_log.file.names"]

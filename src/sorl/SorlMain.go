@@ -7,6 +7,7 @@ import (
 )
 
 var sorlDebug = false
+var sorlWindows = false
 
 func callTest1() {
 	ss := &SorlSSH{}
@@ -622,10 +623,14 @@ func newMain() {
 		return
 	}
 
-	envMap := getEnvlist([]string{"USER", "HOME", "SORL_DEBUG", "AVA"})
+	envMap := getEnvlist([]string{"USER", "HOME", "SORL_DEBUG", "OS", "AVA"})
 
 	if strings.ToLower(envMap["SORL_DEBUG"]) == "yes" {
 		sorlDebug = true
+	}
+
+	if strings.Contains(strings.ToLower(envMap["OS"]), "win") {
+		sorlWindows = true
 	}
 
 	homePath := envMap["HOME"]

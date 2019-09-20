@@ -7,6 +7,10 @@ import (
 
 func SorlGetColor() string {
 
+	if sorlWindows {
+		return ""
+	}
+
 	SorlColors := []string{
 		"",
 		"\x1b[31;1m",
