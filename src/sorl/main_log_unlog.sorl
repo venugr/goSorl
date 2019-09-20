@@ -18,7 +18,7 @@ lscpu
 ls -ltrR /tmp
 pwd
 java -version
-curl https://s3.amazonaws.com/autodeploy-useast/software/oracle/rdbms_12201/linuxx64_12201_client.zip -o Ora_12cR2_client.zip
+#curl https://s3.amazonaws.com/autodeploy-useast/software/oracle/rdbms_12201/linuxx64_12201_client.zip -o Ora_12cR2_client.zip
 .unlog
 exit
 .unlog /tmp/multi.log
