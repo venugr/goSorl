@@ -637,7 +637,7 @@ func newMain() {
 
 	if sorlWindows {
 
-		homePath = envMap["HOMEDRIVE"] + "\\" + envMap["HOMEPATH"]
+		homePath = envMap["HOMEDRIVE"] + envMap["HOMEPATH"]
 
 	}
 
