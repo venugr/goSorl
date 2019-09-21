@@ -685,6 +685,18 @@ func newMain() {
 		sorlActionConn(actName, actValue, actArgs, cliArgsMap, svMap, scProp)
 	}
 
+	if actName == "host" {
+
+		globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
+		parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
+
+		PrintList("All the selected hosts", actArgs)
+		sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
+
+		fmt.Println()
+		fmt.Println()
+
+	}
 }
 
 func main() {
