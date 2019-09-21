@@ -48,6 +48,10 @@ func main() {
 func sorlLoadConfigFiles(scProp *SorlConfigProperty, homePath string, userConfigFilePath string) {
 
 	sorlDefaultConfigFile := homePath + PathSep + ".sorl" + PathSep + "config.sorl"
+
+	if sorlWindows {
+		sorlDefaultConfigFile = homePath + "\\sorl\\config.sorl"
+	}
 	readConfigFilePath(scProp, sorlDefaultConfigFile)
 
 	//userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])

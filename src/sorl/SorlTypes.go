@@ -61,5 +61,3 @@ type SorlSSH struct {
 
 	sorlSshHostPortNum int
 }
-
-

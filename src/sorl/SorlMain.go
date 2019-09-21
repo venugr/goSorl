@@ -623,7 +623,7 @@ func newMain() {
 		return
 	}
 
-	envMap := getEnvlist([]string{"USER", "HOME", "SORL_DEBUG", "OS", "AVA"})
+	envMap := getEnvlist([]string{"USER", "HOME", "HOMEDRIVE", "HOMEPATH", "SORL_DEBUG", "OS", "AVA"})
 
 	if strings.ToLower(envMap["SORL_DEBUG"]) == "yes" {
 		sorlDebug = true
@@ -634,6 +634,13 @@ func newMain() {
 	}
 
 	homePath := envMap["HOME"]
+
+	if sorlWindows {
+
+		homePath = envMap["HOMEDRIVE"] + "\\" + envMap["HOMEPATH"]
+
+	}
+
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
 	//globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
 	//parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
