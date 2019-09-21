@@ -11,6 +11,11 @@ import (
 func sorlLoadGlobalVars(homePath string, svMap *SorlMap) error {
 
 	sorlDefaultVarFile := homePath + PathSep + ".sorl" + PathSep + "vars.sorl"
+
+	if sorlWindows {
+		sorlDefaultVarFile = homePath + "\\sorl\\vars.sorl"
+	}
+
 	return readVarsFile(sorlDefaultVarFile, svMap)
 
 }
