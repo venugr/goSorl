@@ -20,6 +20,8 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 		fmt.Println("Conn Pass: " + actArgs[2])
 		fmt.Println("Conn PassFile: " + actArgs[3])
 		fmt.Println("Conn Ask Passwd: " + actArgs[4])
+		fmt.Println("Conn Cmds File: " + actArgs[6])
+
 	}
 
 	color := SorlGetColor()
@@ -46,6 +48,7 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 	ss.sorlSshHostKeyFile = actArgs[3]
 	ss.sorlSshColor = color
 	waitPrompt := actArgs[5]
+	connectCmdsFile := actArgs[6]
 
 	if actArgs[4] == "true" {
 		//reader := bufio.NewReader(os.Stdin)
@@ -101,6 +104,8 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 
 	waitPrompt = ".wait " + waitPrompt
 
+	cmdStr = strings.TrimSpace(cmdStr)
+
 	//fmt.Println("WaitPrompt: " + waitPrompt)
 
 	commands := []string{
@@ -108,6 +113,14 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 		cmdStr,
 		"pwd",
 		"exit",
+	}
+
+	if connectCmdsFile != "" {
+		fileData := strings.Join(commands, "\n") + "\n"
+		if ok := WriteFile(connectCmdsFile, fileData); ok != nil {
+			fmt.Print("\nWarn: ")
+			fmt.Println(ok)
+		}
 	}
 
 	fmt.Println()
