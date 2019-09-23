@@ -691,6 +691,15 @@ func newMain() {
 		parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 
 		PrintList("All the selected hosts", actArgs)
+
+		_, fileErr := ReadFile(globalOrchFilePath)
+
+		if fileErr != nil {
+			fmt.Print("\n\nError: ")
+			fmt.Println(fileErr)
+			//ss.sorlSshSession.Close()
+			return
+		}
 		sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
 
 		fmt.Println()

@@ -7,7 +7,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var wgOrch = sync.WaitGroup{}
@@ -159,6 +162,21 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	fmt.Println("          Log file:", lLogPath)
 
 	time.Sleep(2 * time.Second)
+
+	if lHostUserPasswd == "" && lHostSshKeysFile == "" {
+
+		fmt.Print("\n\nEnter password: ")
+
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err == nil {
+			//fmt.Println("\nPassword typed: " + string(bytePassword))
+		}
+
+		password := string(bytePassword)
+		lHostUserPasswd = strings.TrimSpace(password)
+
+		fmt.Println()
+	}
 
 	ss := &SorlSSH{}
 	ss.sorlSshHostIP = lHostIP

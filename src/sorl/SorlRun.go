@@ -79,7 +79,6 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".file"] = callSorlOrchFile
 	cmdFuncs[".template"] = callSorlOrchTemplate
 	cmdFuncs[".match"] = callSorlOrchMatch
-	
 
 	return cmdFuncs
 }
@@ -124,7 +123,14 @@ func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
 		(*allProp)["_return"] = ""
 	}
 
-	commands, _ := ReadFile(orchFile)
+	commands, fileErr := ReadFile(orchFile)
+
+	if fileErr != nil {
+		fmt.Print("\n\nError: ")
+		fmt.Println(fileErr)
+		ss.sorlSshSession.Close()
+		return
+	}
 
 	(*allProp)["_if.prompt.req"] = "false"
 	(*allProp)["_endof.names"] = ""
