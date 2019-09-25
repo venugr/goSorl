@@ -1,0 +1,31 @@
+.alias .prn .println
+.alias .nm  .name
+.alias .fn  .func
+.alias .cl  .call
+#
+.fn callHello {
+
+   .prn 
+   .prn CallHello
+   .prn
+   ls -ltr /tmp
+   .nm CallHello
+
+}
+#
+.prn 
+.prn ================================
+.prn Welcome to SORL .(dot) Scripting
+.prn ================================
+.print
+#
+.wait ?||BAN83||$||#||[SORL]$
+#
+.prn Hello println
+.prn Hello .alias and .println
+.prn Hello it is .prn, it works.
+.prn ****DONE****
+.nm SORL ALIAS
+.cl callHello
+exit
+

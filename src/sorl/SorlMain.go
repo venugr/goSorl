@@ -721,23 +721,34 @@ func newMain() {
 	if actName == "host" && actValue == "local" {
 
 		globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
+		cmdArg := strings.TrimSpace(cliArgsMap["cmd"])
+
 		//parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 
 		//PrintList("All the selected hosts", actArgs)
 
-		if globalOrchFilePath == "" {
-			fmt.Println("\nWarn: no orachestration file provided.")
-			fmt.Println("Warn: exiting...")
+		if globalOrchFilePath == "" && cmdArg == "" {
+			fmt.Println("\nError: One of '-orchfile' or '-cmd' is required")
+			fmt.Println("Error: exiting...")
 			return
 		}
 
-		_, fileErr := ReadFile(globalOrchFilePath)
-
-		if fileErr != nil {
-			fmt.Print("\n\nError: ")
-			fmt.Println(fileErr)
-			//ss.sorlSshSession.Close()
+		if globalOrchFilePath != "" && cmdArg != "" {
+			fmt.Println("\nError: Both '-orchfile' and '-cmd' are provided")
+			fmt.Println("Info : Required either one, not both")
+			fmt.Println("Error: exiting...")
 			return
+		}
+
+		if globalOrchFilePath != "" {
+			_, fileErr := ReadFile(globalOrchFilePath)
+
+			if fileErr != nil {
+				fmt.Print("\n\nError: ")
+				fmt.Println(fileErr)
+				//ss.sorlSshSession.Close()
+				return
+			}
 		}
 
 		//sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
@@ -894,7 +905,7 @@ func printVersion() {
 	currentTime := time.Now()
 	fmt.Println()
 	fmt.Println("SORL: Solution ORchestration Language, the .(dot) scripting")
-	fmt.Println("Version: 0.1-beta, build-1.0-17-SEP-2019, " + currentTime.Format("02-Jan-06"))
+	fmt.Println("Version: 0.2-beta, build-1.0-25-SEP-2019, " + currentTime.Format("02-Jan-06"))
 	time.Sleep(1 * time.Second)
 	fmt.Println()
 }
