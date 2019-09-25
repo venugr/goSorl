@@ -187,8 +187,8 @@ func callSorlOrchDisplay(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	color := (*allProp)["sr:color"]
-	cmd = strings.Replace(cmd, ".println", "", 1)
-	cmd = strings.Replace(cmd, ".print", "", 1)
+	cmd = strings.TrimLeft(cmd, ".println")
+	cmd = strings.TrimLeft(cmd, ".print")
 	cmd = strings.TrimLeft(cmd, " ")
 	cmd, _ = replaceProp(cmd, (*allProp))
 	cmd = strings.ReplaceAll(cmd, "\\{", "{")
@@ -425,6 +425,18 @@ func callSorlOrchShow(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.TrimRight(cmd, "}")
 	cmd = strings.TrimSpace(cmd)
 	sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[cmd], allProp)
+
+}
+
+func callSorlOrchAlias(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".alias", "", 1)
+	cmd = strings.TrimSpace(cmd)
+	newCmd := strings.Split(cmd, " ")[0]
+	cmd = strings.Replace(cmd, newCmd, "", 1)
+	cmd = strings.TrimSpace(cmd)
+
+	(*allProp)["_cmd.alias"+newCmd] = cmd
 
 }
 

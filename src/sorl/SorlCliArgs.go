@@ -251,6 +251,10 @@ func connectUsage() {
 
 func sorlGetActionArgs(actName string, scProp SorlConfigProperty, cliArgsMap map[string]string) ([]string, error) {
 
+	if cliArgsMap["host"] == "local" || cliArgsMap["host"] == "localhost" {
+		return nil, nil
+	}
+
 	if actName == "host" || actName == "group" {
 		return getHostList(actName, strings.TrimSpace(cliArgsMap[actName]), scProp)
 	}

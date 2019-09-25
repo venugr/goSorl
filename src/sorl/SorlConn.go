@@ -111,7 +111,6 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 	commands := []string{
 		waitPrompt,
 		cmdStr,
-		"pwd",
 		"exit",
 	}
 

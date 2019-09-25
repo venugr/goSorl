@@ -79,6 +79,7 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".file"] = callSorlOrchFile
 	cmdFuncs[".template"] = callSorlOrchTemplate
 	cmdFuncs[".match"] = callSorlOrchMatch
+	cmdFuncs[".alias"] = callSorlOrchAlias
 
 	return cmdFuncs
 }
@@ -189,11 +190,14 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 	(*allProp)["_wait.run.ok"] = "false"
 	(*allProp)["sr:echo"] = "on"
 
+	//PrintList("CMDs", commands)
+
 	for _, cmd := range commands {
 
 		cmd = strings.TrimLeft(cmd, " ")
 
 		if (*allProp)["_wait.run.ok"] == "true" && (!strings.HasPrefix(cmd, ".wait ")) {
+
 			callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
 		}
 
@@ -201,6 +205,12 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 		if strings.HasPrefix(cmd, "#") || cmd == "" {
 			continue
+		}
+
+		aliasCmd := strings.Split(cmd, " ")[0]
+
+		if _, ok := (*allProp)["_cmd.alias"+aliasCmd]; ok {
+			cmd = strings.Replace(cmd, aliasCmd, (*allProp)["_cmd.alias"+aliasCmd], 1)
 		}
 
 		if checkPauseAbort() {
@@ -304,6 +314,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		cmd = strings.TrimPrefix(cmd, "<ok> ")
 		if (*allProp)["._noof.blocks"] == ", " && cmd == "exit" {
 			// Call final function
+			//callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
 			ss.sorlOrchestration((*allProp)["_func.name.finalize"], allProp)
 
 		}

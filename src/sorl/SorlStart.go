@@ -178,6 +178,13 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 		fmt.Println()
 	}
 
+	if orchFile == "" {
+		fmt.Println("\nError: no orachestration file provided either as argument '-orchfile' or in default config file.")
+		fmt.Println("Error: exiting...")
+		wgOrch.Done()
+		return nil
+	}
+
 	ss := &SorlSSH{}
 	ss.sorlSshHostIP = lHostIP
 	ss.sorlSshUserName = lHostUser

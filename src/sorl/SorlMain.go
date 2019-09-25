@@ -685,12 +685,51 @@ func newMain() {
 		sorlActionConn(actName, actValue, actArgs, cliArgsMap, svMap, scProp)
 	}
 
-	if actName == "host" {
+	if actName == "host" && actValue != "local" {
 
 		globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
 		parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 
 		PrintList("All the selected hosts", actArgs)
+
+		if false {
+
+			if globalOrchFilePath == "" {
+				fmt.Println("\nWarn: no orachestration file provided.")
+				fmt.Println("Warn: exiting...")
+				return
+			}
+
+			_, fileErr := ReadFile(globalOrchFilePath)
+
+			if fileErr != nil {
+				fmt.Print("\n\nError: ")
+				fmt.Println(fileErr)
+				//ss.sorlSshSession.Close()
+				return
+			}
+
+		}
+
+		sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
+
+		fmt.Println()
+		fmt.Println()
+
+	}
+
+	if actName == "host" && actValue == "local" {
+
+		globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
+		//parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
+
+		//PrintList("All the selected hosts", actArgs)
+
+		if globalOrchFilePath == "" {
+			fmt.Println("\nWarn: no orachestration file provided.")
+			fmt.Println("Warn: exiting...")
+			return
+		}
 
 		_, fileErr := ReadFile(globalOrchFilePath)
 
@@ -700,7 +739,8 @@ func newMain() {
 			//ss.sorlSshSession.Close()
 			return
 		}
-		sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
+
+		//sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
 
 		fmt.Println()
 		fmt.Println()
