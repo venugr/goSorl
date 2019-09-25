@@ -31,6 +31,7 @@ func sorlActionConn(actName, connSystem string, actArgs []string, cliArgsMap map
 	allProp["sr:loadfile"] = ""
 	allProp["sr:orchfile"] = ""
 	allProp["sr:color"] = color
+	allProp["_host.local"] = "no"
 	//allProp["sr:keep"] = strconv.Itoa(keepNoCmdLogs)
 	//allProp["sr:display"] = display
 	//allProp["sr:tags"] = tags

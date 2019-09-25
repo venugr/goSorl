@@ -198,7 +198,11 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 		if (*allProp)["_wait.run.ok"] == "true" && (!strings.HasPrefix(cmd, ".wait ")) {
 
-			callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
+			if (*allProp)["_host.local"] == "yes" {
+				SorlExecWait()
+			} else {
+				callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
+			}
 		}
 
 		(*allProp)["_wait.run.ok"] = "false"
@@ -317,6 +321,11 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			//callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
 			ss.sorlOrchestration((*allProp)["_func.name.finalize"], allProp)
 
+		}
+		if (*allProp)["_host.local"] == "yes" {
+			SorlExec(cmd)
+			(*allProp)["_if.prompt.req"] = "false"
+			continue
 		}
 		ss.runShellCmd(cmd)
 		(*allProp)["_if.prompt.req"] = "false"

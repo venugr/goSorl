@@ -1,0 +1,15 @@
+ls
+uname -a
+export BUILDNUM=0001000
+unalias ls
+df -h
+ls -ltr /tmp
+env|sort
+dkc
+.name HELLO
+abcd
+ls
+df -h
+env|sort
+pwd
+.name SORLOK LOCAL

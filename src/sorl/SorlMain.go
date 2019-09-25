@@ -720,6 +720,7 @@ func newMain() {
 
 	if actName == "host" && actValue == "local" {
 
+		parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 		globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
 		cmdArg := strings.TrimSpace(cliArgsMap["cmd"])
 
@@ -751,7 +752,7 @@ func newMain() {
 			}
 		}
 
-		//sorlStart(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
+		sorlLocal(parallelOk, globalOrchFilePath, scProp, actArgs, cliArgsMap, svMap)
 
 		fmt.Println()
 		fmt.Println()
