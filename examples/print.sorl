@@ -1,0 +1,63 @@
+##
+#
+# Example explains how to use the command .print/.println
+#
+# .print => prints the string provided and keeps the cursor on the same line
+#
+# .printn => prints the string provided and moves the cursor to nextline starting
+# 
+##
+#
+#
+.println
+.print W
+.print e
+.print l
+.print c
+.print o
+.print m
+.print e
+#
+#
+.print , On a Single Line.
+#
+#
+.println
+.println Hello, World! Welcome to Sorl...
+.println The dot(.) Scripting.
+.println
+#
+#
+.println With Newline\nDoes it work?\nIf the line is printed in separate line, then it WoRkS \E:9989
+#
+#
+.println
+.println
+.println Emojis....
+.println Specs: \E:128526 
+.println Angry: \E:128545
+.println Super: \E:128513
+.println   Ten: \E:10111
+.println RestR: \E:128699
+.println  Misc: \E:128685 \E:128687 \E:128689 \E:128695
+#
+#
+.var var.on1=One 1 OneOne
+.var var.tw2=Two 22 Twoooo
+.var var.thr33=\E:128520
+.println var.on1={var.on1}
+.println var.tw2={var.tw2}
+.println var.thr33={var.thr33}
+#
+#
+.var me.count=128640
+.println
+.println Emojis from 128640 to 128670
+
+.while {me.count} <= 128670 {
+   .println Emoji {me.count}: \E:{me.count}
+   .sleep 1
+   .incr {me.count}
+}
+
+exit

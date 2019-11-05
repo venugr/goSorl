@@ -53,7 +53,42 @@ func sorlLocal(parallelOk, orchFile string, scProp SorlConfigProperty,
 
 	ss := &SorlSSH{}
 	allProp["_host.local"] = "yes"
-	ss.sorlOrchestration(strings.Join(commands, "\n"), &allProp)
+
+	cmd := exec.Command("sh", "-i", "bash")
+
+	stdOut, err := cmd.StdoutPipe()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer stdOut.Close()
+
+	stdIn, err := cmd.StdinPipe()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer stdIn.Close()
+
+	//cmd.Stderr = os.Stderr
+
+	wg.Add(1)
+	go func() {
+		if err = cmd.Start(); err != nil {
+			fmt.Println("An error occured: ", err)
+		}
+		wg.Done()
+	}()
+
+	ss.sorlSshIn = stdIn
+	ss.sorlSshOut = stdOut
+
+	ss.sorlOrchestration(strings.Join(commands, "\n")+"\nexit\n", &allProp)
+
+	wg.Wait()
+	cmd.Wait()
 
 }
 
@@ -63,9 +98,9 @@ func SorlExecWait() {
 
 func SorlExec(cmdStr string) {
 
-	fmt.Println("\n\n=========================")
-	fmt.Println("+" + cmdStr)
-	fmt.Println("=========================")
+	//fmt.Println("\n\n=========================")
+	//fmt.Println("+" + cmdStr)
+	//fmt.Println("=========================")
 
 	cmdOut := ""
 	cmdBuf := make([]byte, 1024)

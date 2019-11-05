@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"html"
 	"os"
 	"regexp"
 	"strconv"
@@ -193,6 +194,17 @@ func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd, _ = replaceProp(cmd, (*allProp))
 	cmd = strings.ReplaceAll(cmd, "\\{", "{")
 	cmd = strings.ReplaceAll(cmd, "\\}", "}")
+	cmd = strings.ReplaceAll(cmd, "\\n", "\n")
+	cmd = strings.ReplaceAll(cmd, ":-)", html.UnescapeString("&#128522;"))
+
+	rExp := regexp.MustCompile("\\\\E:\\d+")
+
+	for _, tVal := range rExp.FindAllString(cmd, -1) {
+
+		tTmp := strings.TrimLeft(tVal, "\\E:")
+		cmd = strings.ReplaceAll(cmd, tVal, html.UnescapeString("&#"+tTmp+";"))
+
+	}
 
 	sshPrint(color, cmd, allProp)
 }

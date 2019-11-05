@@ -174,7 +174,7 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int, userSshK
 
 func (ss *SorlSSH) runShellCmd(cmd string) {
 
-	_, err := ss.sorlSshIn.Write([]byte(cmd + "\r"))
+	_, err := ss.sorlSshIn.Write([]byte(cmd + "\n"))
 	checkError(err)
 
 }
