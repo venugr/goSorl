@@ -1,0 +1,61 @@
+##
+#
+# Example explains how to use the command .if (Nested...)
+# 
+##
+#
+#
+#Testcase for If
+.println Nested IF
+#
+.if 10 == 10 {
+   .println 10 == 10
+   .if 5 <= 10 {
+      .println 5 <= 10 
+   }
+   .println Middle of If
+   .if tt == tt {
+      .println TT == TT
+   }
+   .println IF 10 == 10 Done
+}
+#
+#
+.println
+#
+#
+.println Hello Linux
+.if 5 > 5 && 1 <= 10 {
+   .println Multi if conditon works!
+   .if 5 >= 8 {
+      .println Inner If works
+   }
+   .println Hello IF done.
+}
+#
+#
+.if 5 >= 5 && 1 <= 10 {
+   .println Multi if conditon works!
+   .if 5 <= 8 {
+      .println Inner If works
+   }
+   .println Hello IF done.
+}
+#
+#
+.if true {
+   .if true {
+      .if true && false {
+         .if true || false {
+            .if true {
+               .println Many nested IFs works
+            }
+            .println In 4 If
+         }
+      }
+
+      .println In 2 If
+   }
+}
+.info 4 Completed.
+

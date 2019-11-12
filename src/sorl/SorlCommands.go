@@ -186,6 +186,24 @@ func callSorlOrchDisplay(ss *SorlSSH, cmd string, allProp *Property) {
 	sshPrint(color, cmd+"\n", allProp)
 }
 
+func callSorlOrchInfo(ss *SorlSSH, cmd string, allProp *Property) {
+	cmd = strings.Replace(cmd, ".info", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	vars := strings.Split(cmd, " ")
+	cmd = strings.TrimLeft(cmd, vars[0])
+	cmd = strings.TrimLeft(cmd, " ")
+
+	infoLevel, _ := strconv.Atoi(vars[0])
+	infoCliLevel, _ := strconv.Atoi((*allProp)["sr:info"])
+
+	if infoLevel <= infoCliLevel {
+		callSorlOrchPrintln(ss, "[Info "+vars[0]+"]: "+cmd, allProp)
+	}
+}
+
 func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	color := (*allProp)["sr:color"]
 	cmd = strings.TrimLeft(cmd, ".println")
@@ -351,6 +369,20 @@ func callSorlOrchUnLogVar(ss *SorlSSH, cmd string, allProp *Property) {
 
 	(*allProp)["_log.var.names"] = strings.Replace((*allProp)["_log.var.names"], cmd+",", "", 1)
 
+}
+
+func callSorlOrchEval(ss *SorlSSH, cmd string, allProp *Property) {
+
+	cmd = strings.Replace(cmd, ".eval ", "", 1)
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "\t")
+	cmd = strings.TrimLeft(cmd, " ")
+
+	vars := strings.Split(cmd, "=")
+	cmd = strings.TrimLeft(cmd, vars[0])
+	cmd = strings.TrimLeft(cmd, " ")
+	cmd = strings.TrimLeft(cmd, "=")
+	(*allProp)[vars[0]], _ = replaceProp(cmd, (*allProp))
 }
 
 func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {

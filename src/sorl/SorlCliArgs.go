@@ -48,9 +48,12 @@ func getCliArgs() map[string]string {
 
 	cliArgs := map[string]string{}
 
+	scriptPtr := flag.String("script", "", "To Run the Script")
 	connPtr := flag.String("conn", "", "Connect to System")
 	groupPtr := flag.String("group", "", "Group Name")
 	maxGoPtr := flag.Int("max", 10, "Maximum Parallel Go Routines")
+	infoPtr := flag.Int("info", -1, "Info Level")
+
 	dryRunPtr := flag.Bool("dryrun", false, "Dry Run")
 	hostNamePtr := flag.String("host", "", "Host Name")
 	configFilePtr := flag.String("config", "", "Config File Path")
@@ -87,6 +90,7 @@ func getCliArgs() map[string]string {
 	*/
 
 	cliArgs["conn"] = string(*connPtr)
+	cliArgs["script"] = string(*scriptPtr)
 	cliArgs["group"] = string(*groupPtr)
 	cliArgs["max"] = strconv.Itoa(*maxGoPtr)
 	cliArgs["dryrun"] = "false"
@@ -102,6 +106,7 @@ func getCliArgs() map[string]string {
 	}
 
 	cliArgs["keep"] = strconv.Itoa(*keepPtr)
+	cliArgs["info"] = strconv.Itoa(*infoPtr)
 	cliArgs["display"] = string(*dispPtr)
 	cliArgs["tags"] = string(*tagsPtr)
 	cliArgs["var"] = string(*varPtr)
@@ -268,7 +273,7 @@ func sorlGetActionArgs(actName string, scProp SorlConfigProperty, cliArgsMap map
 
 func sorlGetAction(cliArgsMap map[string]string) (string, string, error) {
 
-	actList := []string{"host", "group", "conn", "encrypt", "decrypt"}
+	actList := []string{"host", "group", "conn", "encrypt", "decrypt", "script"}
 	actCnt := 0
 	actName := ""
 	actValue := ""

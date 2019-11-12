@@ -1,0 +1,31 @@
+##
+#
+# Example explains how to use the command .var/.var {}
+#
+# .var => The command allows to declare one or more variables(.dot)
+#
+# 
+##
+#
+#
+.var a.on1=one
+.var b.two22=two Two 222
+#
+#
+.println a.on1={a.on1}
+.println b.two22={b.two22}
+#
+#
+.println
+.println \{a.on1\}={a.on1}
+.println \{b.two22\}={b.two22}
+#
+#
+.var {
+   a.a=Apple
+   b.bb=Bat
+   c.123.abc=1234 * as 345
+}
+.println
+.println b.bb={b.bb}
+.println \{c.123.abc\}={c.123.abc}

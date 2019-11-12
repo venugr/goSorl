@@ -56,8 +56,8 @@
 
 .while {me.count} <= 128670 {
    .println Emoji {me.count}: \E:{me.count}
-   .sleep 1
+#   .sleep 1
    .incr {me.count}
 }
-
-exit
+#
+#

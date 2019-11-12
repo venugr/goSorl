@@ -616,6 +616,11 @@ func newMain() {
 		return
 	}
 
+	if actName == "script" {
+		sorlRunScript(actValue, scProp, cliArgsMap)
+		return
+	}
+
 	printVersion()
 
 	versionOk := strings.TrimSpace(cliArgsMap["version"])

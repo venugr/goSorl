@@ -239,6 +239,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	allProp["sr:display"] = display
 	allProp["sr:tags"] = tags
 	allProp["sr:debug"] = cliArgsMap["debug"]
+	allProp["sr:info"] = cliArgsMap["info"]
 	allProp["_host.local"] = "no"
 
 	for lKey, lVal := range varsPerHostMap {
@@ -426,6 +427,7 @@ func sorlProcessOrchestrationOld(color, orchFile, lHost string, scProp SorlConfi
 	allProp["sr:display"] = display
 	allProp["sr:tags"] = tags
 	allProp["sr:debug"] = cliArgsMap["debug"]
+	allProp["sr:info"] = cliArgsMap["info"]
 
 	for lKey, lVal := range varsPerHostMap {
 		allProp[lKey] = lVal

@@ -1,0 +1,28 @@
+##
+#
+# Example explains how to use the command .debug
+#
+# 
+##
+#
+#
+.println Debug block.
+.println Debug block of code will be considered if option '-debug' is provided as cli arg
+.println  
+#
+#
+.debug  {
+   .println If you see this line, then -debug is there.
+}
+.println ===========================
+#
+#
+.var a.b=Hello Debug block
+.println \{a.b\}={a.b}
+.debug {
+   .eval a.b={a.b}, Inside Block
+   .info 0 Inside debug block....seems .info is working good. \E:9989
+}
+.println \{a.b\}={a.b}
+.info 3 All Debug tests are done
+.info 4 Completed.

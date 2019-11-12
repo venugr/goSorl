@@ -22,11 +22,13 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".print"] = callSorlOrchPrint
 	cmdFuncs[".println"] = callSorlOrchPrintln
 	cmdFuncs[".display"] = callSorlOrchDisplay
+	cmdFuncs[".info"] = callSorlOrchInfo
 
 	cmdFuncs[".var"] = callSorlOrchVar
 	cmdFuncs[".unvar"] = callSorlOrchUnVar
 	cmdFuncs[".def"] = callSorlOrchDef
 	cmdFuncs[".undef"] = callSorlOrchUnDef
+	cmdFuncs[".eval"] = callSorlOrchEval
 
 	cmdFuncs[".log"] = callSorlOrchLog
 	cmdFuncs[".unlog"] = callSorlOrchUnLog
@@ -228,7 +230,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 		}
 
-		if strings.EqualFold(tCmd, "}") {
+		if strings.EqualFold(tCmd, "}") || strings.EqualFold(tCmd, "} else {") {
 			oCnt--
 		}
 
@@ -944,6 +946,7 @@ func sorlOrchPass(cmd, color, tempCmdOut string) bool {
 
 func evalCondition(cmd string) bool {
 
+	//fmt.Println("Eval: " + cmd)
 	s := ""
 	vs := ""
 	tt := ""
@@ -957,6 +960,7 @@ func evalCondition(cmd string) bool {
 			s = strings.TrimRight(s, "&&")
 			if compareCondition(s) {
 				tt = "true && "
+				//fmt.Println("TRUE...")
 			}
 
 			vs = vs + tt
@@ -969,6 +973,8 @@ func evalCondition(cmd string) bool {
 			s = strings.TrimRight(s, "||")
 			if compareCondition(s) {
 				tt = "true || "
+				//fmt.Println("TRUE...")
+
 			}
 
 			vs = vs + tt
@@ -985,7 +991,7 @@ func evalCondition(cmd string) bool {
 
 	vs = vs + tt
 
-	//fmt.Println("==>" + vs + "<==")
+	//fmt.Println("FINAL:==>" + vs + "<==")
 
 	//return true
 
@@ -1064,9 +1070,11 @@ func evalCondition(cmd string) bool {
 	}
 
 	if rs == "true" {
+		//fmt.Println("Eval: ture")
 		return true
 	}
 
+	//fmt.Println("Eval: false")
 	return false
 
 }
@@ -1134,7 +1142,7 @@ func compareCondition(cmd string) bool {
 
 	tList := []string{}
 
-	//fmt.Println("CMD:" + cmd)
+	//fmt.Println("CMD: " + cmd)
 	if strings.Contains(cmd, eqStr) {
 		op = eqStr
 		opFound = true
@@ -1173,7 +1181,9 @@ func compareCondition(cmd string) bool {
 
 	if !opFound {
 
-		if cmd == "true" {
+		//fmt.Println("RETURN: " + cmd)
+
+		if strings.TrimSpace(cmd) == "true" {
 			return true
 		}
 
