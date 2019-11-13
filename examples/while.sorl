@@ -1,0 +1,89 @@
+##
+#
+# Example explains how to use the command .while
+#
+# 
+##
+#
+#
+#Testcase for .while
+.println Welcome to .while command
+.var c.i=1
+.while  {c.i} <= 10 {
+   .print {c.i}
+   .if {c.i} != 10 {
+      .print , 
+   }
+   .incr {c.i}
+   .sleep 10 mili
+
+}
+.println 
+#
+#
+.set c.i=1
+.while {c.i} <= 20 {
+
+   .if {c.i} == 11 {
+      .print skipping 11 to 15... 
+      .echo off
+   }
+   .if {c.i} == 16 {
+      .echo on
+   }
+   .print {c.i}
+   .if {c.i} != 20 {
+      .print , 
+   }
+   .incr {c.i}
+   .sleep 10 mili
+
+}
+.println
+#
+#
+.set o.l=1
+.while {o.l} <= 10 {
+   .set c.i={o.l}
+   .while {c.i} <= 10000 {
+      .print {c.i}, 
+      .incr {c.i} by {c.i}
+      .sleep 5 mili
+   }
+   .println
+   .incr {o.l} 
+}
+.println
+#
+#
+.var {
+   a.z=1
+   b.y=10000
+}
+
+.while {b.y} >= 0 {
+   .print {b.y} - {a.z}, 
+   .decr {b.y} by {a.z}
+   .incr {a.z} by {a.z}
+   .sleep 5 mili
+}
+.println
+#
+#
+.var {
+   a.z=1
+   b.y=10000
+   c.x=-100
+}
+
+.while {b.y} >= 0 && {c.x} < 0 {
+   .print ({b.y},{a.z},{c.x}) 
+   .incr {c.x} by {a.z}
+   .decr {b.y} by {a.z}
+   .incr {a.z} by {a.z}
+   .sleep 5 mili
+}
+.println
+
+.println "\nWhile is done."
+

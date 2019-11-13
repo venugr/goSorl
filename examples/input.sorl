@@ -1,0 +1,28 @@
+##
+#
+# Example explains how to use the command .input
+# 
+##
+#
+#
+#Testcase for .input
+.println .input test
+#
+#
+.input sl.emp.no Enter Emp Number?
+.input sl.emp.name Enter Emp Name?
+#
+#
+.println
+.println Num={sl.emp.no}
+.println Name={sl.emp.name}
+.println
+#
+#
+.incr {sl.emp.no} by 2
+#
+.println
+.println Num={sl.emp.no}
+.println Name={sl.emp.name}
+.println
+

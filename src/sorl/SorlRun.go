@@ -190,7 +190,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 	blockProcessed := false
 	blockCmds := ""
 	(*allProp)["_wait.run.ok"] = "false"
-	(*allProp)["sr:echo"] = "on"
+	//(*allProp)["sr:echo"] = "on"
 
 	//PrintList("CMDs", commands)
 

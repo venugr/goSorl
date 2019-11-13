@@ -1,0 +1,21 @@
+##
+#
+# Example explains how to use the command .input
+# 
+##
+#
+#
+#Testcase for .input
+#
+.input sl.emp.no Enter Emp Number?
+.input sl.emp.name Enter Emp Name?
+#
+#
+.println
+.println Num={sl.emp.no}
+.println Name={sl.emp.name}
+.println
+#
+#
+.name NAME={sl.emp.name}
+.name NUM={sl.emp.no}

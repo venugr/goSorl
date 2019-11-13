@@ -1,0 +1,42 @@
+##
+#
+# Example explains how to use the command .if (Nested...)
+# 
+##
+#
+#
+#Testcase for .sleep
+.set t1.m1=1000
+.set t1.m2=500000
+#
+#
+.println sleep test
+#
+#
+.println sleep for {t1.m1} mili 
+.sleep {t1.m1} mili
+.println sleep for {t1.m2} micro
+.sleep {t1.m2} micro
+#
+#
+.var helo.help=Hello World, Welcome to Go Lang...
+.println another wait sleep for 5s
+.sleep 2
+.show {helo.help}
+#
+#
+.println 
+.print W 
+.sleep {t1.m2} micro
+.print E 
+.sleep {t1.m2} micro
+.print L 
+.sleep {t1.m2} micro
+.print C 
+.sleep {t1.m2} micro
+.print O 
+.sleep {t1.m2} micro
+.print M 
+.sleep {t1.m2} micro
+.print E 
+.sleep {t1.m2} micro

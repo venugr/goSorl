@@ -58,7 +58,10 @@ func sshPrint(color, prn string, allProp *Property) {
 	if sorlWindows {
 		mStr = prn
 	}
-	fmt.Print(mStr)
+
+	if (*allProp)["sr:echo"] == "on" {
+		fmt.Print(mStr)
+	}
 
 	mut.Unlock()
 

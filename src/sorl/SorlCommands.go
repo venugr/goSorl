@@ -213,6 +213,10 @@ func callSorlOrchPrint(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.ReplaceAll(cmd, "\\{", "{")
 	cmd = strings.ReplaceAll(cmd, "\\}", "}")
 	cmd = strings.ReplaceAll(cmd, "\\n", "\n")
+	cmd = strings.ReplaceAll(cmd, "\\\"", "(SORL:DQ)")
+	cmd = strings.ReplaceAll(cmd, "\"", "")
+	cmd = strings.ReplaceAll(cmd, "(SORL:DQ)", "\"")
+
 	cmd = strings.ReplaceAll(cmd, ":-)", html.UnescapeString("&#128522;"))
 
 	rExp := regexp.MustCompile("\\\\E:\\d+")
@@ -242,7 +246,7 @@ func callSorlOrchSet(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.TrimLeft(cmd, vars[0])
 	cmd = strings.TrimLeft(cmd, " ")
 	cmd = strings.TrimLeft(cmd, "=")
-	(*allProp)[vars[0]] = cmd
+	(*allProp)[vars[0]], _ = replaceProp(cmd, (*allProp))
 
 }
 
@@ -451,13 +455,42 @@ func callSorlOrchFunc(ss *SorlSSH, cmd string, allProp *Property) {
 
 func callSorlOrchSleep(ss *SorlSSH, cmd string, allProp *Property) {
 
+	mili := false
+	micro := false
+
+	cmd = strings.TrimSpace(cmd)
+
+	if strings.HasSuffix(cmd, "mili") {
+		mili = true
+		cmd = strings.TrimSuffix(cmd, "mili")
+		cmd = strings.TrimSpace(cmd)
+	}
+
+	if strings.HasSuffix(cmd, "micro") {
+		micro = true
+		cmd = strings.TrimSuffix(cmd, "micro")
+		cmd = strings.TrimSpace(cmd)
+	}
+
 	cmd = strings.Replace(cmd, ".sleep", "", 1)
 	cmd = strings.TrimSpace(cmd)
+	cmd, _ = replaceProp(cmd, (*allProp))
 	lVal, err := strconv.Atoi(cmd)
 
 	if err != nil {
 		lVal = 1
 	}
+
+	if mili {
+		time.Sleep(time.Millisecond * time.Duration(lVal))
+		return
+	}
+
+	if micro {
+		time.Sleep(time.Microsecond * time.Duration(lVal))
+		return
+	}
+
 	time.Sleep(time.Second * time.Duration(lVal))
 }
 
@@ -560,6 +593,7 @@ func callSorlOrchDecrBy(ss *SorlSSH, cmd string, allProp *Property) {
 	//fmt.Println("PropName:", propName)
 
 	propVal, _ := replaceProp(propName, (*allProp))
+	cmd, _ = replaceProp(cmd, (*allProp))
 	//fmt.Println("PropVal:", propVal)
 	//fmt.Println("IcrVal:", cmd)
 
@@ -591,6 +625,7 @@ func callSorlOrchIncrBy(ss *SorlSSH, cmd string, allProp *Property) {
 	//fmt.Println("PropName:", propName)
 
 	propVal, _ := replaceProp(propName, (*allProp))
+	cmd, _ = replaceProp(cmd, (*allProp))
 	//fmt.Println("PropVal:", propVal)
 	//fmt.Println("IcrVal:", cmd)
 
@@ -630,6 +665,8 @@ func callSorlOrchIncr(ss *SorlSSH, cmd string, allProp *Property) {
 }
 
 func callSorlOrchEcho(ss *SorlSSH, cmd string, allProp *Property) {
+
+	//fmt.Println(cmd)
 	cmd = strings.Replace(cmd, ".echo", "", 1)
 	cmd = strings.TrimSpace(cmd)
 

@@ -1,0 +1,28 @@
+##
+#
+# Example explains how to use the commands .incr/.decr/.echo
+# 
+##
+#
+#
+#Testcase for .incr/.decr/.echo
+.println name .incr/.decr/.echo
+.input sl.no1 Enter Emp Number? 
+.println
+#
+.name {sl.no1}
+.incr {sl.no1}
+.incr {sl.no1} by 2
+.incr {sl.no1} by -5
+.println Num={sl.no1}
+#
+.name {sl.no1}
+.decr {sl.no1}
+.decr {sl.no1} by -4
+.name {sl.no1}
+.println
+#
+.echo off
+.println Echo off, this line is not printed
+.echo on
+.println Echo on, you should see the line
