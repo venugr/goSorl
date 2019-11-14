@@ -404,6 +404,7 @@ func callSorlOrchVar(ss *SorlSSH, cmd string, allProp *Property) {
 		cmd = strings.TrimLeft(cmd, vars[0])
 		cmd = strings.TrimLeft(cmd, " ")
 		cmd = strings.TrimLeft(cmd, "=")
+		cmd = strings.ReplaceAll(cmd, "\\n", "\n")
 		(*allProp)[vars[0]] = cmd
 
 	}
@@ -501,7 +502,7 @@ func callSorlOrchShow(ss *SorlSSH, cmd string, allProp *Property) {
 	cmd = strings.TrimLeft(cmd, "{")
 	cmd = strings.TrimRight(cmd, "}")
 	cmd = strings.TrimSpace(cmd)
-	sshPrint((*allProp)["sr:color"], "\n"+(*allProp)[cmd], allProp)
+	sshPrint((*allProp)["sr:color"], (*allProp)[cmd], allProp)
 
 }
 
@@ -537,7 +538,7 @@ func callSorlOrchInput(ss *SorlSSH, cmd string, allProp *Property) {
 	sshPrint(color, cmd+" ", allProp)
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimRight(text, "\n")
-
+	text = strings.TrimSpace(text)
 	(*allProp)[propName] = text
 
 }

@@ -1,0 +1,33 @@
+##
+#
+# Example explains how to use the command .range
+#
+# 
+##
+#
+#
+#Testcase for .range
+.println Welcome to .range command
+.var he.range.list="Helo\n1one\n2-two-2\n33-three-333\n4-fortyfour\nrange\nworks\n\E:128685\n\E:128687\n\E:128689\n\E:128695"
+#
+.range  {he.range.list} {
+   .println Value=>{range.value}<=
+}
+.println
+#
+#
+#.var hello.file.name=/Users/venul/Development/go/code/src/github.com/goRecodeSorl/goSorl/LICENSE
+.input hello.file.name Enter File Name:
+.println read file =>{hello.file.name}<=
+.read hello.txt {hello.file.name}
+.show =>{hello.txt}<=
+.set l.c=1
+.range {hello.txt} {
+   .show {l.c}
+   .print . 
+   .show {range.value}
+   .println
+   .incr {l.c}
+}
+
+.println "\n.range done"

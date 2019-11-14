@@ -239,7 +239,13 @@ func procSorlOrchRange(ss *SorlSSH, cmds string, allProp *Property) {
 	cmds = strings.TrimRight(cmds, "\n")
 	rangeCmd := (*allProp)["_block.current.range"]
 
-	rangeCmd, _ = replaceProp(rangeCmd, (*allProp))
+	//rangeCmd, _ = replaceProp(rangeCmd, (*allProp))
+	rangeCmd = strings.TrimSpace(rangeCmd)
+	rangeCmd = strings.TrimRight(rangeCmd, "}")
+	rangeCmd = strings.TrimSpace(rangeCmd)
+	rangeCmd = strings.TrimLeft(rangeCmd, "{")
+	rangeCmd = strings.TrimSpace(rangeCmd)
+	rangeCmd = (*allProp)[rangeCmd]
 
 	for _, lVal1 := range strings.Split(rangeCmd, "\n") {
 		(*allProp)["range.value"] = lVal1

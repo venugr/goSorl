@@ -1,0 +1,46 @@
+##
+#
+# Example explains how to use the command .animate
+#
+# 
+##
+#
+#
+#Testcase for .animate
+.println Welcome to .animate command
+.animate 55 Hello World, Welcome to Google's golang and Solution Orchestration Language
+.println
+.animate 44 Hello World, Welcome to Google's golang and Solution Orchestration Language
+.println
+.animate 33 Hello World, Welcome to Google's golang and Solution Orchestration Language
+.println
+.animate 22 Hello World, Welcome to Google's golang and Solution Orchestration Language
+.println
+.println Animate is done.
+#
+.println "\n\n"
+#
+#Testcase for .style colors
+.println Welcome to .style command
+.set slp.time=500
+.var st.txt=Welcome to SORL, the .(dot) Scripting
+.println
+.sleep {slp.time} mili
+.style red {st.txt}
+.sleep {slp.time} mili
+.style white {st.txt}
+.sleep {slp.time} mili
+.style green {st.txt}
+.sleep {slp.time} mili
+.println
+.style blue {st.txt}
+.sleep {slp.time} mili
+.style yellow {st.txt}
+.sleep {slp.time} mili
+.style magenta {st.txt}
+.sleep {slp.time} mili
+.style cyan {st.txt}
+.sleep {slp.time} mili
+#
+.println Styling is done.
+
