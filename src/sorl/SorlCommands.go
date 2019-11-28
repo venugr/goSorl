@@ -518,6 +518,15 @@ func callSorlOrchAlias(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+/*
+func callSorlOrchConnect(ss *SorlSSH, cmd string, allProp *Property) {
+
+	connHostIp := (*allProp)["connect.ssh.host.ip"]
+	connHostUserId := (*allProp)["connect.ssh.host.user.id"]
+	connHostUserPwd := (*allProp)["connect.ssh.host.user.pwd"]
+}
+*/
+
 func callSorlOrchInput(ss *SorlSSH, cmd string, allProp *Property) {
 
 	color := (*allProp)["sr:color"]
@@ -533,6 +542,7 @@ func callSorlOrchInput(ss *SorlSSH, cmd string, allProp *Property) {
 	propName := lPropList[0]
 	cmd = strings.Replace(cmd, propName, "", 1)
 	cmd = strings.TrimLeft(cmd, " ")
+	cmd, _ = replaceProp(cmd, (*allProp))
 
 	reader := bufio.NewReader(os.Stdin)
 	sshPrint(color, cmd+" ", allProp)
@@ -710,7 +720,14 @@ func callSorlOrchFail(ss *SorlSSH, cmd string, allProp *Property) {
 	tempCmdOut := (*allProp)["_cmd.output"]
 	cmd = strings.Replace(cmd, ".fail ", "", 1)
 	cmd = strings.TrimSpace(cmd)
+	/*
+		cmd = strings.TrimLeft(cmd, "{")
+		cmd = strings.TrimSpace(cmd)
+		cmd = strings.TrimRight(cmd, "}")
+		cmd = strings.TrimSpace(cmd)
 
+		cmd = (*allProp)[cmd]
+	*/
 	if strings.Contains(tempCmdOut, cmd) {
 		(*allProp)["_fail.test"] = "true"
 		return
@@ -725,14 +742,14 @@ func callSorlOrchPass(ss *SorlSSH, cmd string, allProp *Property) {
 	tempCmdOut := (*allProp)["_cmd.output"]
 	cmd = strings.Replace(cmd, ".pass ", "", 1)
 	cmd = strings.TrimSpace(cmd)
-	cmd = strings.TrimLeft(cmd, "{")
-	cmd = strings.TrimSpace(cmd)
-	cmd = strings.TrimRight(cmd, "}")
-	cmd = strings.TrimSpace(cmd)
+	/*	cmd = strings.TrimLeft(cmd, "{")
+		cmd = strings.TrimSpace(cmd)
+		cmd = strings.TrimRight(cmd, "}")
+		cmd = strings.TrimSpace(cmd)
 
-	cmd, _ = replaceProp(cmd, (*allProp))
-
-	fmt.Println("OUTPUT: " + tempCmdOut)
+		cmd = (*allProp)[cmd]
+	*/
+	//fmt.Println("OUTPUT: " + tempCmdOut + "," + cmd)
 
 	if strings.Contains(tempCmdOut, cmd) {
 		(*allProp)["_pass.test"] = "true"

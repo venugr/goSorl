@@ -1,0 +1,57 @@
+##
+#
+# Example explains how to use the commands .pass/.fail
+#
+# 
+##
+#
+#
+#Testcase for .pass/.fail
+.println
+.println "============================"
+.println "  How pass/fail tests work"
+.println "============================"
+.println "Pass Test - Passed..No Exit.
+.println "Fail Test - Failed..No Exit.
+.println "Pass Test - Failed..Exit.
+.println "Fail Test - Passed..Exit.
+.println "============================"
+.println
+
+.var _cmd.output=This is test logoutin
+# Pass test will go thru if pass string is found in the '_cmd.output' variable
+# in this case 'logoutin' is present so pass test is passed. So no exit.
+.pass logoutin
+#
+# Fail test will go thru if fail string is found in the '_cmd.output' variable
+# in this case 'logouxtin' is not present so fail test is failed. So no exit
+.fail logouin
+#
+.set h.t1={_cmd.output}
+#
+.test h.t1 logoutin
+.name {h.t1}
+#
+.test h.t2 logotin
+.name {h.t2}
+.if {h.t2} == false {
+   .println
+   .println Test case .test h.t2 logotin...failed
+   .println proceeding with SORL...
+   .println
+}
+ 
+# This is fail test fails so SORL exits.
+.fail logoutinn
+.println "Fail Test - passed...so Exit, But you do not see this text
+#
+.set _cmd.output=SORL, Solution Orchestration Language by Google's Go-Lang.
+.set pa.t1=SORL
+.set pa.t2=SORL123
+.println {_cmd.output}
+.println {pa.t1}
+.pass SORL
+.println "Passed .pass"
+.fail SORL123
+.println "Help: SORL...Works!"
+

@@ -82,6 +82,7 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".template"] = callSorlOrchTemplate
 	cmdFuncs[".match"] = callSorlOrchMatch
 	cmdFuncs[".alias"] = callSorlOrchAlias
+	//cmdFuncs[".connect"] = callSorlOrchConnect
 
 	return cmdFuncs
 }
@@ -286,13 +287,17 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 
 			if (*allProp)["_pass.test"] == "false" || (*allProp)["_fail.test"] == "true" {
 				removeNoOfBlock(allProp)
-				ss.sorlSshSession.Close()
+				if ss.sorlSshSession != nil {
+					ss.sorlSshSession.Close()
+				}
 				return
 			}
 
 			if (*allProp)["_return"] == "true" {
 				removeNoOfBlock(allProp)
-				ss.sorlSshSession.Close()
+				if ss.sorlSshSession != nil {
+					ss.sorlSshSession.Close()
+				}
 				return
 			}
 

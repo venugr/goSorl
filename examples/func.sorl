@@ -1,0 +1,51 @@
+##
+#
+# Example explains how to use the command .func 
+#
+# 
+##
+#
+#
+#Testcase for .func
+##########FUNCTIONS::START############
+.func func1 {
+   .println Hello, I as in func 'firstname'
+}
+
+
+.func func2 {
+   .println It displays 'func2' code...
+   .show {_func.name.func2}
+}
+
+
+.func sorl_welcome {
+   .println
+   .println ================================
+   .println Welcome to SORL .(dot) Scripting
+   .println ================================
+   .println
+   .sleep 1
+}
+
+.func getInput {
+   .input cmd.in {inp.str}:
+}
+
+##########FUNCTIONS::END##############
+#.show {_func.name.func1}
+.call sorl_welcome
+.println func1:
+.call func1
+###
+.println "\n\nfunc2:"
+.call func2
+.println 
+.var inp.str=Enter a Value
+.call getInput
+.println Value={cmd.in}
+.set inp.str=Enter a Name
+.call getInput
+.println Value={cmd.in}
+.println
+
