@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -55,9 +56,16 @@ func sorlLoadConfigFiles(scProp *SorlConfigProperty, homePath string, userConfig
 	readConfigFilePath(scProp, sorlDefaultConfigFile)
 
 	//userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
+	if strings.HasPrefix(userConfigFilePath, "~") {
+		userConfigFilePath = strings.Replace(userConfigFilePath, "~", homePath, 1)
+	}
+
+	userConfigFilePath = strings.ReplaceAll(userConfigFilePath, "//", "/")
+
 	if userConfigFilePath != "" {
 		if err := readConfigFilePath(scProp, userConfigFilePath); err != nil {
-			fmt.Printf("Unable to read proceed, %v", err)
+			//fmt.Printf("\nUnable to read proceed, %v", err)
+			fmt.Println("\n")
 			os.Exit(1)
 		}
 	}
@@ -71,10 +79,14 @@ func readConfigFilePath(scProp *SorlConfigProperty, configFilePath string) error
 		}
 	*/
 
+	//fmt.Println("Config:", configFilePath)
 	fileOrDir, err := chkFileOrDir(configFilePath)
 
+	//fmt.Println(fileOrDir)
+	//fmt.Println(err)
+
 	if err != nil {
-		fmt.Printf("\nError: userConfig File/Path '%s' is not found", configFilePath)
+		fmt.Printf("\nError: User config File/Path: '%s' is not found", configFilePath)
 		return err
 	}
 
@@ -82,6 +94,7 @@ func readConfigFilePath(scProp *SorlConfigProperty, configFilePath string) error
 
 	if fileOrDir {
 		configFileName = configFilePath + "/" + "config.sorl"
+		configFileName = strings.ReplaceAll(configFileName, "//", "/")
 	}
 
 	ok := true
@@ -89,6 +102,7 @@ func readConfigFilePath(scProp *SorlConfigProperty, configFilePath string) error
 	if !chkDir(configFileName) {
 		fmt.Printf("\nUser specific Sorl config file '%s' not found.", configFileName)
 		ok = false
+		return errors.New("")
 	}
 
 	//scProp := SorlConfigProperty{}

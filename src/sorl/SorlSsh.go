@@ -59,6 +59,7 @@ func sshPrint(color, prn string, allProp *Property) {
 		mStr = prn
 	}
 
+	//(*allProp)["sr:echo"] = "on"
 	if (*allProp)["sr:echo"] == "on" {
 		fmt.Print(mStr)
 	}
@@ -239,6 +240,7 @@ func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut
 	//sshPrint(color, cmdOut)
 	//fmt.Println(cmdOut)
 	//fmt.Println("exit waitFor..")
+	fmt.Println("echo: ", echoOn)
 	if echoOn && strings.HasPrefix(display, "clear") {
 		sshPrint(color, cmdOut, nil)
 	}
@@ -492,14 +494,14 @@ func (ss *SorlSSH) dialSsh() error {
 
 	//fmt.Println("Inside run dialSSH Cmd...")
 	serName := lHostIP + ":" + strconv.Itoa(lPortNum)
-	fmt.Print("\nConnecting to ..." + lUserName + "@" + serName)
+	fmt.Print("\nConnecting to ..." + lUserName + "@" + serName + "\n")
 	client, err := ssh.Dial("tcp", serName, ss.sorlSshClientConfig)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Print("\nConnected to ..." + lUserName + "@" + serName)
+	fmt.Print("Connected to ..." + lUserName + "@" + serName)
 	fmt.Println()
 	ss.sorlSshClient = client
 	return nil

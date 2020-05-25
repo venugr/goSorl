@@ -83,6 +83,8 @@ func getCmd2FuncMap() SorlCmdMap {
 	cmdFuncs[".match"] = callSorlOrchMatch
 	cmdFuncs[".alias"] = callSorlOrchAlias
 	//cmdFuncs[".connect"] = callSorlOrchConnect
+	cmdFuncs[".break"] = callSorlOrchBreak
+	cmdFuncs[".continue"] = callSorlOrchContinue
 
 	return cmdFuncs
 }
@@ -127,12 +129,18 @@ func (ss *SorlSSH) sorlRunOrchestration(allProp *Property) {
 		(*allProp)["_return"] = ""
 	}
 
+	if strings.HasPrefix(orchFile, "~/") {
+		orchFile = strings.Replace(orchFile, "~", string((*allProp)["sr:sorl_user_homepath"]), 1)
+	}
+
 	commands, fileErr := ReadFile(orchFile)
 
 	if fileErr != nil {
-		fmt.Print("\n\nError: ")
+		fmt.Print("\n\nError: file '" + orchFile + "' ")
 		fmt.Println(fileErr)
-		ss.sorlSshSession.Close()
+		if ss.sorlSshSession != nil {
+			ss.sorlSshSession.Close()
+		}
 		return
 	}
 
@@ -193,6 +201,7 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 	(*allProp)["_wait.run.ok"] = "false"
 	//(*allProp)["sr:echo"] = "on"
 
+	//fmt.Println("\n****************CALLED****************\n")
 	//PrintList("CMDs", commands)
 
 	for _, cmd := range commands {
@@ -263,6 +272,18 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 			return
 		}
 
+		if (*allProp)["_break.hit"] == "yes" {
+			blkNames := (*allProp)["_block.names"]
+			breakAt := (strings.HasSuffix(blkNames, ",.while,") || strings.HasSuffix(blkNames, ",.range,"))
+
+			removeNoOfBlock(allProp)
+
+			if breakAt {
+				(*allProp)["_break.hit"] = "no"
+			}
+			return
+		}
+
 		if strings.HasPrefix(cmd, ".shell") {
 			cmd = strings.Replace(cmd, ".shell", "", 1)
 			cmd = strings.TrimLeft(cmd, " ")
@@ -321,7 +342,9 @@ func (ss *SorlSSH) sorlOrchestration(cmdLines string, allProp *Property) {
 		if (*allProp)["._noof.blocks"] == ", " && cmd == "exit" {
 			// Call final function
 			//callSorlOrchWait(ss, (*allProp)["_wait.prev.cmd"], allProp)
-			ss.sorlOrchestration((*allProp)["_func.name.finalize"], allProp)
+			if (*allProp)["_func.name.finalize"] != "" {
+				ss.sorlOrchestration((*allProp)["_func.name.finalize"], allProp)
+			}
 
 		}
 		/*

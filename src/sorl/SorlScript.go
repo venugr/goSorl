@@ -1,25 +1,29 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-)
-
 func sorlRunScript(scriptName string, scProp SorlConfigProperty, cliArgsMap map[string]string) error {
 
-	fileInfo, err := ReadFile(scriptName)
+	/*
+		if strings.HasPrefix(scriptName, "~/") {
+			scriptName = strings.Replace(scriptName, "~", cliArgsMap["sorl_user_homepath"], 1)
+		}
 
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
+		fileInfo, err := ReadFile(scriptName)
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	*/
 
 	ss := &SorlSSH{}
 	alp := Property{}
 	alp["sr:debug"] = cliArgsMap["debug"]
 	alp["sr:info"] = cliArgsMap["info"]
 	alp["sr:echo"] = "on"
-	ss.sorlOrchestration(strings.Join(fileInfo, "\n"), &alp)
+	alp["sr:sorl_user_homepath"] = cliArgsMap["sorl_user_homepath"]
+	alp["sr:orchfile"] = scriptName
+	//ss.sorlOrchestration(strings.Join(fileInfo, "\n"), &alp)
+	ss.sorlRunOrchestration(&alp)
 
 	return nil
 

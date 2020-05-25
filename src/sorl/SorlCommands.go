@@ -944,6 +944,33 @@ func callSorlOrchShell(ss *SorlSSH, cmd string, allProp *Property) {
 
 }
 
+func callSorlOrchBreak(ss *SorlSSH, cmd string, allProp *Property) {
+
+	breakOk := ((*allProp)["_block.current"] == ".while" || (*allProp)["_block.current"] == ".range" || (*allProp)["_block.current"] == ".if")
+	blkNames := (*allProp)["_block.names"]
+
+	breakAt := (strings.HasSuffix(blkNames, ",.while,") || strings.HasSuffix(blkNames, ",.range,") ||
+		strings.HasSuffix(blkNames, ",.while,.if,") || strings.HasSuffix(blkNames, ",.range,.if,"))
+
+	fmt.Println("BLK NAME: " + (*allProp)["_block.current"])
+	fmt.Println("BLKs    : " + blkNames)
+
+	(*allProp)["_break.hit"] = "no"
+	if breakOk && breakAt {
+		(*allProp)["_break.hit"] = "yes"
+	}
+
+	if (*allProp)["_break.hit"] == "no" {
+		fmt.Println("\nWarn: break will not have any effect")
+		fmt.Println("\nSORL will continue...")
+	}
+
+}
+
+func callSorlOrchContinue(ss *SorlSSH, cmd string, allProp *Property) {
+
+}
+
 func callSorlOrchEnter(ss *SorlSSH, cmd string, allProp *Property) {
 
 	ss.runShellCmd("")

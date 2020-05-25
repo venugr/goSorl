@@ -158,14 +158,14 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 
 	lLogPath = lLogPath + PathSep + lHostLogName
 
-	fmt.Println("Orchestration file:", orchFile)
+	fmt.Println("\nOrchestration file:", orchFile)
 	fmt.Println("          Log file:", lLogPath)
 
 	time.Sleep(2 * time.Second)
 
 	if lHostUserPasswd == "" && lHostSshKeysFile == "" {
 
-		fmt.Print("\n\nEnter password: ")
+		fmt.Print("\n\nEnter password(" + lHostUser + "@" + lHostIP + "): ")
 
 		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err == nil {
@@ -231,6 +231,10 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 		}
 	*/
 
+	if strings.HasPrefix(orchFile, "~") {
+		orchFile = strings.Replace(orchFile, "~", cliArgsMap["sorl_user_homepath"], 1)
+	}
+
 	allProp["sr:load"] = "no"
 	allProp["sr:loadfile"] = ""
 	allProp["sr:orchfile"] = orchFile
@@ -241,6 +245,7 @@ func sorlProcessOrchestration(color, orchFile, lHost string, scProp SorlConfigPr
 	allProp["sr:debug"] = cliArgsMap["debug"]
 	allProp["sr:info"] = cliArgsMap["info"]
 	allProp["_host.local"] = "no"
+	allProp["sr:echo"] = "on"
 
 	for lKey, lVal := range varsPerHostMap {
 		allProp[lKey] = lVal

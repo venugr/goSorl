@@ -84,7 +84,7 @@ func sorlDecryptText(key, text string) string {
 		panic(err)
 	}
 	ciphertext := decodeBase64(text)
-	cfb := cipher.NewCFBEncrypter(block, iv)
+	cfb := cipher.NewCFBDecrypter(block, iv)
 	plaintext := make([]byte, len(ciphertext))
 	cfb.XORKeyStream(plaintext, ciphertext)
 	return string(plaintext)

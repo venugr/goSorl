@@ -273,6 +273,8 @@ func chkFile(fileName string) bool {
 
 func chkFileOrDir(pathName string) (bool, error) {
 
+	//fmt.Println("\nPath/File:", pathName)
+
 	fi, err := os.Stat(pathName)
 
 	if err != nil {

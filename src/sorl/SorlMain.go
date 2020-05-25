@@ -606,6 +606,13 @@ func newMain() {
 
 	cliArgsMap := getCliArgs()
 
+	printVersion()
+
+	versionOk := strings.TrimSpace(cliArgsMap["version"])
+	if versionOk == "true" {
+		return
+	}
+
 	actName, actValue, err := sorlGetAction(cliArgsMap)
 	if err != nil {
 		return
@@ -613,18 +620,6 @@ func newMain() {
 
 	if actName == "encrypt" || actName == "decrypt" {
 		sorlEncDecCliArgs(scProp, cliArgsMap)
-		return
-	}
-
-	if actName == "script" {
-		sorlRunScript(actValue, scProp, cliArgsMap)
-		return
-	}
-
-	printVersion()
-
-	versionOk := strings.TrimSpace(cliArgsMap["version"])
-	if versionOk == "true" {
 		return
 	}
 
@@ -641,16 +636,21 @@ func newMain() {
 	homePath := envMap["HOME"]
 
 	if sorlWindows {
-
 		homePath = envMap["HOMEDRIVE"] + envMap["HOMEPATH"]
+	}
 
+	cliArgsMap["sorl_user_homepath"] = homePath
+
+	if actName == "script" {
+		sorlRunScript(actValue, scProp, cliArgsMap)
+		return
 	}
 
 	userConfigFilePath := strings.TrimSpace(cliArgsMap["config"])
 	//globalOrchFilePath := strings.TrimSpace(cliArgsMap["orchfile"])
 	//parallelOk := strings.TrimSpace(cliArgsMap["parallel"])
 	varFileName := strings.TrimSpace(cliArgsMap["var-file"])
-
+	//fmt.Println("Config:", userConfigFilePath)
 	sorlLoadConfigFiles(&scProp, homePath, userConfigFilePath)
 
 	actArgs, err := sorlGetActionArgs(actName, scProp, cliArgsMap)
@@ -910,8 +910,10 @@ func main() {
 func printVersion() {
 	currentTime := time.Now()
 	fmt.Println()
-	fmt.Println("SORL: Solution ORchestration Language, the .(dot) scripting")
-	fmt.Println("Version: 0.2-beta, build-1.0-25-SEP-2019, " + currentTime.Format("02-Jan-06"))
+	fmt.Println(ClrBlue + "***********************************************************" + ClrUnColor)
+	fmt.Println(ClrBlue + "SORL: Solution ORchestration Language, the .(dot) scripting" + ClrUnColor)
+	fmt.Println(ClrBlue + "Version: 0.2-beta, build-1.0-25-SEP-2019, " + currentTime.Format("02-Jan-06") + ClrUnColor)
+	fmt.Println(ClrBlue + "***********************************************************" + ClrUnColor)
 	time.Sleep(1 * time.Second)
 	fmt.Println()
 }

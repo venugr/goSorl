@@ -29,3 +29,9 @@
 .println
 .println b.bb={b.bb}
 .println \{c.123.abc\}={c.123.abc}
+#
+#
+#
+.var anew="Variable without .(dot)"
+.println "anew={anew}"
+.println

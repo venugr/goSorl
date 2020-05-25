@@ -1,0 +1,26 @@
+##
+#
+# Example explains how to use the command .while/.break
+#
+# 
+##
+#
+#
+#Testcase for .while/.break
+.println Welcome to .while/.break command
+
+.var c.i=1
+.while  {c.i} <= 10 {
+   .print {c.i}
+   .if {c.i} != 10 {
+      .print , 
+   }
+   .incr {c.i}
+   .sleep 10 mili
+
+   .break
+}
+.println 
+#
+#
+

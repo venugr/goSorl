@@ -92,6 +92,7 @@ func procSorlOrchWhile(ss *SorlSSH, cmds string, allProp *Property) {
 			continue
 		}
 
+		(*allProp)["_block.names"] = strings.TrimSuffix((*allProp)["_block.names"], ".while,")
 		break
 
 	}
@@ -122,6 +123,7 @@ func procSorlOrchIf(ss *SorlSSH, cmds string, allProp *Property) {
 		ss.sorlOrchestration(cmds, allProp)
 	}
 
+	(*allProp)["_block.names"] = strings.TrimSuffix((*allProp)["_block.names"], ".if,")
 }
 
 func procSorlOrchIfOld(ss *SorlSSH, cmds string, allProp *Property) {
@@ -251,5 +253,7 @@ func procSorlOrchRange(ss *SorlSSH, cmds string, allProp *Property) {
 		(*allProp)["range.value"] = lVal1
 		ss.sorlOrchestration(cmds, allProp)
 	}
+
+	(*allProp)["_block.names"] = strings.TrimSuffix((*allProp)["_block.names"], ".range,")
 
 }
