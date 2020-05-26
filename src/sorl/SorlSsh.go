@@ -178,6 +178,9 @@ func runParallelSsh(userName, userPasswd, hostName string, portNum int, userSshK
 
 func (ss *SorlSSH) runShellCmd(cmd string) {
 
+	if ss.sorlSshIn == nil {
+		return
+	}
 	_, err := ss.sorlSshIn.Write([]byte(cmd + "\n"))
 	checkError(err)
 
@@ -252,6 +255,10 @@ func waitFor(echoOn bool, color string, display string, waitStr []string, sshOut
 func (ss *SorlSSH) waitFor(echoOn bool, display string, waitStr []string, allProp *Property) (int, string) {
 
 	//fmt.Println("in waitFor..")
+
+	if ss.sorlSshOut == nil {
+		return -1, ""
+	}
 
 	color := ss.sorlSshColor
 	sshOut := ss.sorlSshOut
