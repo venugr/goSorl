@@ -27,7 +27,7 @@ sorl_host_ssh_pass_less=yes/no  *** default to no ***
 sorl_host_group=g1,g6
 
 sorl_host_name=dock1
-sorl_host_ip=149.24.204.111
+sorl_host_ip=<ip address>
 sorl_host_user=root
 sorl_host_user_pass=*****
 sorl_host_ssh_keys=no
@@ -60,7 +60,7 @@ sorl_host_user=user444
 
 sorl_host_name=dockjs
 sorl_host_group=dockg
-sorl_host_ip=149.24.204.111
+sorl_host_ip=<ip address>
 sorl_host_user=banner
 sorl_host_user_pass=*****
 sorl_host_new_text=This is used for host name informations.
@@ -71,7 +71,7 @@ sorl_host_vars_file=/Users/venul/.sorl/vars.sorl
 
 sorl_host_name=dockdb
 sorl_host_group=dockg
-sorl_host_ip=149.24.204.111
+sorl_host_ip=<ip address>
 sorl_host_user=oracle
 sorl_host_user_pass=*****
 sorl_host_new_text=This is used for host name informations.
@@ -81,7 +81,7 @@ sorl_host_log_path=/tmp
 
 sorl_host_name=sorl
 sorl_host_group=dockg
-sorl_host_ip=149.24.204.111
+sorl_host_ip=<ip address>
 sorl_host_user=banner
 sorl_host_user_pass=*****
 sorl_host_new_text=This is used for host name informations.
